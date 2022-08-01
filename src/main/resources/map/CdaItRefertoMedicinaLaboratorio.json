@@ -1,0 +1,433 @@
+{
+  "resourceType": "StructureMap",
+  "id": "1555",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-07-15T17:50:47.110+02:00",
+    "source": "#BFxAVPHMoIpJapFH"
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><pre>map &quot;http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaItRefertoMedicinaLaboratorio&quot; = &quot;CdaItRefertoMedicinaLaboratorio&quot;\r\n\r\n\r\n// Referto di Radiologia\r\n\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/ClinicalDocument&quot; alias ClinicalDocument as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/AssignedAuthor&quot; alias AssignedAuthor as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/AssignedEntity&quot; alias AssignedEntity as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/Author&quot; alias Author as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/CustodianOrganization&quot; alias CustodianOrganization as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/IVL_TS&quot; alias IVL_TS as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/EIVL_TS&quot; alias EIVL_TS as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/Observation&quot; alias Observation as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/PatientRole&quot; alias PatientRole as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/RecordTarget&quot; alias RecordTarget as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/Section&quot; alias Section as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/SubstanceAdministration&quot; alias SubstanceAdministration as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/SXPR_TS&quot; alias SXPR_TS as source\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Bundle&quot; alias Bundle as target\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Composition&quot; alias Composition as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Patient&quot; alias Patient as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Practitioner&quot; alias Practitioner as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Organization&quot; alias Organization as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/MedicationStatement&quot; alias MedicationStatement as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Dosage&quot; alias Dosage as produced\r\n\r\nimports &quot;http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToFhirTypes&quot;\r\nimports &quot;http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToBundle&quot;\r\nimports &quot;http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaItToBundle&quot;\r\n\r\ngroup CdaItRefertoMedicinaLaboratorio(source cda : ClinicalDocument, target bundle : Bundle) {\r\n  cda -&gt;  bundle.entry as e,  e.resource = create('Composition') as composition,  composition.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid),  bundle.entry as e2,  e2.resource = create('Patient') as patient,  patient share patient,  patient.id = uuid() as uuid2,  e2.fullUrl = append('urn:uuid:', uuid2) then CdaItRefertoMedicinaLaboratorioDocumentToBundle(cda, patient, composition, bundle) &quot;ClinicalDocumentToBody&quot;;\r\n}\r\n\r\ngroup CdaItRefertoMedicinaLaboratorioDocumentToBundle(source cda : ClinicalDocument, target patient : Patient, target composition : Composition, target bundle : Bundle) extends ClinicalDocumentToBundle {\r\n  cda then ClinicalDocumentCompositionIt(cda, composition, patient, bundle) &quot;composition&quot;;\r\n  cda.component as component then {\r\n    component.structuredBody as body then {\r\n      body.component as component then {\r\n        component.section as srcSection where ((code.code = '18729-4') and (code.codeSystem = '2.16.840.1.113883.6.1')) -&gt; composition.section as tgtSection then SectionUrine(cda, srcSection, patient, tgtSection, bundle);\r\n      };\r\n    } &quot;body&quot;;\r\n  };\r\n}\r\n\r\n// _________________________ Section Level Templates _________________________\r\ngroup SectionUrine(source cda : ClinicalDocument, source src : Section, source patient : Patient, target tgt, target bundle : Bundle) extends ClinicalDocumentSection {\r\n  src.component as component then {\r\n    component.section as srcSection where ((code.code = '14957-5') and (code.codeSystem = '2.16.840.1.113883.6.1')) -&gt; tgt.section as tgtSection then SectionEsameDelleUrine(cda, srcSection, patient, tgtSection, bundle);\r\n  };\r\n}\r\n\r\ngroup SectionEsameDelleUrine(source cda : ClinicalDocument, source src : Section, source patient : Patient, target tgt, target bundle : Bundle) extends ClinicalDocumentSection {\r\n}\r\n\r\n</pre></div>"
+  },
+  "url": "http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaItRefertoMedicinaLaboratorio",
+  "name": "CdaItRefertoMedicinaLaboratorio",
+  "description": "\r\nReferto di Radiologia",
+  "structure": [ {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/ClinicalDocument",
+    "mode": "source",
+    "alias": "ClinicalDocument"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/AssignedAuthor",
+    "mode": "source",
+    "alias": "AssignedAuthor"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/AssignedEntity",
+    "mode": "source",
+    "alias": "AssignedEntity"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/Author",
+    "mode": "source",
+    "alias": "Author"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/CustodianOrganization",
+    "mode": "source",
+    "alias": "CustodianOrganization"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/IVL_TS",
+    "mode": "source",
+    "alias": "IVL_TS"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/EIVL_TS",
+    "mode": "source",
+    "alias": "EIVL_TS"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/Observation",
+    "mode": "source",
+    "alias": "Observation"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/PatientRole",
+    "mode": "source",
+    "alias": "PatientRole"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/RecordTarget",
+    "mode": "source",
+    "alias": "RecordTarget"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/Section",
+    "mode": "source",
+    "alias": "Section"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/SubstanceAdministration",
+    "mode": "source",
+    "alias": "SubstanceAdministration"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/SXPR_TS",
+    "mode": "source",
+    "alias": "SXPR_TS"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+    "mode": "target",
+    "alias": "Bundle"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Composition",
+    "mode": "produced",
+    "alias": "Composition"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Patient",
+    "mode": "produced",
+    "alias": "Patient"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Practitioner",
+    "mode": "produced",
+    "alias": "Practitioner"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Organization",
+    "mode": "produced",
+    "alias": "Organization"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/MedicationStatement",
+    "mode": "produced",
+    "alias": "MedicationStatement"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Dosage",
+    "mode": "produced",
+    "alias": "Dosage"
+  } ],
+  "import": [ "http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToFhirTypes", "http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToBundle", "http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaItToBundle" ],
+  "group": [ {
+    "name": "CdaItRefertoMedicinaLaboratorio",
+    "typeMode": "none",
+    "input": [ {
+      "name": "cda",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "ClinicalDocumentToBody",
+      "source": [ {
+        "context": "cda"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "e"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "composition",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Composition"
+        } ]
+      }, {
+        "context": "composition",
+        "contextType": "variable",
+        "element": "id",
+        "variable": "uuid",
+        "transform": "uuid"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "fullUrl",
+        "transform": "append",
+        "parameter": [ {
+          "valueString": "urn:uuid:"
+        }, {
+          "valueId": "uuid"
+        } ]
+      }, {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "e2"
+      }, {
+        "context": "e2",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "patient",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Patient"
+        } ]
+      }, {
+        "contextType": "variable",
+        "listMode": [ "share" ],
+        "listRuleId": "patient",
+        "transform": "copy",
+        "parameter": [ {
+          "valueId": "patient"
+        } ]
+      }, {
+        "context": "patient",
+        "contextType": "variable",
+        "element": "id",
+        "variable": "uuid2",
+        "transform": "uuid"
+      }, {
+        "context": "e2",
+        "contextType": "variable",
+        "element": "fullUrl",
+        "transform": "append",
+        "parameter": [ {
+          "valueString": "urn:uuid:"
+        }, {
+          "valueId": "uuid2"
+        } ]
+      } ],
+      "dependent": [ {
+        "name": "CdaItRefertoMedicinaLaboratorioDocumentToBundle",
+        "variable": [ "cda", "patient", "composition", "bundle" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "CdaItRefertoMedicinaLaboratorioDocumentToBundle",
+    "extends": "ClinicalDocumentToBundle",
+    "typeMode": "none",
+    "input": [ {
+      "name": "cda",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "patient",
+      "type": "Patient",
+      "mode": "target"
+    }, {
+      "name": "composition",
+      "type": "Composition",
+      "mode": "target"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "composition",
+      "source": [ {
+        "context": "cda"
+      } ],
+      "dependent": [ {
+        "name": "ClinicalDocumentCompositionIt",
+        "variable": [ "cda", "composition", "patient", "bundle" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "component",
+      "source": [ {
+        "context": "cda",
+        "element": "component",
+        "variable": "component"
+      } ],
+      "rule": [ {
+        "name": "body",
+        "source": [ {
+          "context": "component",
+          "element": "structuredBody",
+          "variable": "body"
+        } ],
+        "rule": [ {
+          "name": "component",
+          "source": [ {
+            "context": "body",
+            "element": "component",
+            "variable": "component"
+          } ],
+          "rule": [ {
+            "name": "section",
+            "source": [ {
+              "context": "component",
+              "element": "section",
+              "variable": "srcSection",
+              "condition": "((code.code = '18729-4') and (code.codeSystem = '2.16.840.1.113883.6.1'))"
+            } ],
+            "target": [ {
+              "context": "composition",
+              "contextType": "variable",
+              "element": "section",
+              "variable": "tgtSection"
+            } ],
+            "dependent": [ {
+              "name": "SectionUrine",
+              "variable": [ "cda", "srcSection", "patient", "tgtSection", "bundle" ],
+              "_variable": [ {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              } ]
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "SectionUrine",
+    "extends": "ClinicalDocumentSection",
+    "typeMode": "none",
+    "documentation": "_________________________ Section Level Templates _________________________",
+    "input": [ {
+      "name": "cda",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "src",
+      "type": "Section",
+      "mode": "source"
+    }, {
+      "name": "patient",
+      "type": "Patient",
+      "mode": "source"
+    }, {
+      "name": "tgt",
+      "mode": "target"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "component",
+      "source": [ {
+        "context": "src",
+        "element": "component",
+        "variable": "component"
+      } ],
+      "rule": [ {
+        "name": "section",
+        "source": [ {
+          "context": "component",
+          "element": "section",
+          "variable": "srcSection",
+          "condition": "((code.code = '14957-5') and (code.codeSystem = '2.16.840.1.113883.6.1'))"
+        } ],
+        "target": [ {
+          "context": "tgt",
+          "contextType": "variable",
+          "element": "section",
+          "variable": "tgtSection"
+        } ],
+        "dependent": [ {
+          "name": "SectionEsameDelleUrine",
+          "variable": [ "cda", "srcSection", "patient", "tgtSection", "bundle" ],
+          "_variable": [ {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "SectionEsameDelleUrine",
+    "extends": "ClinicalDocumentSection",
+    "typeMode": "none",
+    "input": [ {
+      "name": "cda",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "src",
+      "type": "Section",
+      "mode": "source"
+    }, {
+      "name": "patient",
+      "type": "Patient",
+      "mode": "source"
+    }, {
+      "name": "tgt",
+      "mode": "target"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ]
+  } ]
+}

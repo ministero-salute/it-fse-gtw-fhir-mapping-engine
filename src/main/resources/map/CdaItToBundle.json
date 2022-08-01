@@ -1,0 +1,1466 @@
+{
+  "resourceType": "StructureMap",
+  "id": "1554",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-07-15T17:50:10.554+02:00",
+    "source": "#COmU8Ol0s4gTfstN"
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><pre>map &quot;http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaItToBundle&quot; = &quot;CdaItToBundle&quot;\r\n\r\n\r\n// CDA-IT document\r\n// 2022-06-18 Oliver Egger, copyright ahdis ag, Apache License\r\n\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/ClinicalDocument&quot; alias ClinicalDocument as source\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/Section&quot; alias Section as queried\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/PatientRole&quot; alias PatientRole as queried\r\nuses &quot;http://hl7.org/fhir/cda/StructureDefinition/DataEnterer&quot; alias DataEnterer as queried\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Bundle&quot; alias Bundle as target\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Composition&quot; alias Composition as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Patient&quot; alias Patient as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Person&quot; alias Person as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Practitioner&quot; alias Practitioner as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Practitioner&quot; alias PractitionerRole as produced\r\nuses &quot;http://hl7.org/fhir/StructureDefinition/Organization&quot; alias Organization as produced\r\n\r\nimports &quot;http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToFhirTypes&quot;\r\nimports &quot;http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToBundle&quot;\r\n\r\ngroup CdaItToBundle(source cda : ClinicalDocument, target bundle : Bundle) {\r\n  cda -&gt;  bundle.entry as e,  e.resource = create('Composition') as composition,  composition.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid),  bundle.entry as e2,  e2.resource = create('Patient') as patient,  patient.id = uuid() as uuid2,  e2.fullUrl = append('urn:uuid:', uuid2) then ClinicalDocumentItToBundle(cda, patient, composition, bundle) &quot;ClinicalDocumentToBody&quot;;\r\n}\r\n\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.1.14\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-core-document.html\r\ngroup ClinicalDocumentItToBundle(source cda : ClinicalDocument, target patient : Patient, target composition : Composition, target bundle : Bundle) extends ClinicalDocumentToBundle {\r\n  cda then ClinicalDocumentCompositionCh(cda, composition, patient, bundle) &quot;composition&quot;;\r\n  cda.component as component then {\r\n    component.structuredBody as body then {\r\n      body.component as component then {\r\n        component.section as srcSection where (templateId.where(root = '2.16.756.5.30.1.1.10.3.2')) -&gt; composition.section as tgtSection then ClinicalDocumentSection(cda, srcSection, patient, tgtSection, bundle);\r\n        component.section as srcSection where (templateId.where(root = '2.16.756.5.30.1.1.10.3.45')) -&gt; composition.section as tgtSection then SectionOriginalRepresentation(cda, srcSection, patient, tgtSection, bundle);\r\n      };\r\n    } &quot;body&quot;;\r\n  };\r\n}\r\n\r\n// _________________________ Section Level Templates _________________________\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.1.14\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-core-composition-definitions.html#Composition.section\r\n// TODO: not excplicitly modeled in CH-Core\r\ngroup SectionOriginalRepresentation(source cda : ClinicalDocument, source src : Section, source patient : Patient, target tgt, target bundle : Bundle) extends ClinicalDocumentSection {\r\n  src.entry as cdaEntry -&gt;  bundle.entry as e,  e.resource = create('Binary') as binary,  binary.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid) as urnuuid,  tgt.entry = create('Reference') as reference,  reference.reference = urnuuid then {\r\n    cdaEntry.observationMedia as observationMedia then {\r\n      observationMedia then ObservationMedia(observationMedia, binary) &quot;observationMedia&quot;;\r\n      observationMedia.ID as value -&gt; reference.extension as ext then NarrativeLink(value, ext) &quot;narrativeLink&quot;;\r\n    };\r\n  } &quot;cdaEntry&quot;;\r\n}\r\n\r\n// _________________________ Entry Level Templates   ________________________\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.4.83\r\n// TODO: not excplicitly modeled in CH-Core\r\ngroup ObservationMedia(source observationMedia, target binary : Binary) {\r\n  observationMedia.value as value then {\r\n    value.mediaType as mediaType -&gt; binary.contentType = mediaType &quot;contentType&quot;;\r\n    value -&gt; binary.data = (value.dataBase64Binary) &quot;dataString&quot;;\r\n  };\r\n  observationMedia.languageCode as languageCode then {\r\n    languageCode.code as lang -&gt; binary.language = lang &quot;lang&quot;;\r\n  };\r\n}\r\n\r\n// _________________________ Header Level Templates _________________________\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-confidentialitycode.html\r\ngroup ChExtEprConfidentialityCode(source src : CE, target ext : Extension) {\r\n  src -&gt; ext.url = 'http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-confidentialitycode' &quot;url&quot;;\r\n  src -&gt; ext.value = create('CodeableConcept') as value then CECodeableConcept(src, value) &quot;code&quot;;\r\n}\r\n\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-versionnumber.html\r\ngroup ChExtEprVersionNumber(source src : INT, target ext : Extension) {\r\n  src -&gt; ext.url = 'http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-versionnumber' &quot;url&quot;;\r\n  src -&gt; ext.value = create('unsignedInt') as value then INT(src, value) &quot;value&quot;;\r\n}\r\n\r\ngroup ChExtEprVersionNumber1(source src, target ext : Extension) {\r\n  src -&gt; ext.url = 'http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-versionnumber' &quot;url&quot;;\r\n  src -&gt;  ext.value = create('unsignedInt') as value,  value.value = '1' &quot;value&quot;;\r\n}\r\n\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-informationrecipient.html\r\ngroup ChExtEprInformationRecipient(source src : IntendedRecipient, target patient : Patient, target ext : Extension) {\r\n  src -&gt; ext.url = 'http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-informationrecipient' &quot;url&quot;;\r\n  src -&gt;  ext.value = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %patient.id) &quot;value&quot;;\r\n  src.addr as addr -&gt; patient.address as address then ADAddress(addr, address) &quot;address&quot;;\r\n  src.informationRecipient as informationRecipient then {\r\n    informationRecipient.name as cdaname -&gt; patient.name as fhirname then ENHumanName(cdaname, fhirname);\r\n  };\r\n}\r\n\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-informationrecipient.html\r\ngroup ChExtEprInformationRecipientOrganization(source src : IntendedRecipient, target organization : Organization, target ext : Extension) {\r\n  src -&gt; ext.url = 'http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-informationrecipient' &quot;url&quot;;\r\n  src -&gt;  ext.value = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organization.id) &quot;value&quot;;\r\n  src.receivedOrganization as receivedOrganization then ClinicalDocumentOrganization(receivedOrganization, organization) &quot;organization&quot;;\r\n}\r\n\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?section=templates&amp;id=2.16.756.5.30.1.1.10.2.7\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/StructureDefinition-ch-ext-epr-dataenterer.html\r\ngroup ChExtEprDataEnterer(source src : DataEnterer, target bundle : Bundle, target practitionerRole : PractitionerRole, target ext : Extension) {\r\n  src -&gt; ext.url = 'http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-dataenterer' &quot;url&quot;;\r\n  src.assignedEntity as assignedEntity -&gt;  ext.extension as ext,  ext.url = 'enterer',  ext.value = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) &quot;PractitionerRole&quot;;\r\n  src.time as time -&gt; ext.extension as exttime then ChExtEprTime(time, exttime);\r\n  src.assignedEntity as assignedEntity then {\r\n    assignedEntity -&gt;  bundle.entry as e,  e.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid),  practitionerRole.practitioner = create('Reference') as reference,  reference.reference = append('urn:uuid:', uuid) then ClinicalDocumentEntityPractitioner(assignedEntity, practitioner) &quot;Practitioner&quot;;\r\n    assignedEntity.representedOrganization as representedOrganization -&gt;  bundle.entry as e,  e.resource = create('Organization') as organization,  organization.id = uuid() as uuid2,  e.fullUrl = append('urn:uuid:', uuid2),  practitionerRole.organization = create('Reference') as referenceOrg,  referenceOrg.reference = append('urn:uuid:', uuid2) then ClinicalDocumentOrganization(representedOrganization, organization) &quot;Organization&quot;;\r\n  };\r\n}\r\n\r\n// _________________________ Template Type not specified  ___________________\r\n// source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\n// target: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-core-composition-epr.html\r\ngroup ClinicalDocumentCompositionIt(source src : ClinicalDocument, target tgt : Composition, target patientResource : Patient, target bundle : Bundle) {\r\n  src.confidentialityCode as confidentialityCode then {\r\n    confidentialityCode.code as v where ('http://fhir.ch/ig/ch-epr-term/ValueSet/DocumentEntry.confidentialityCode'.resolve().compose.include.concept.where($this.code = src.confidentialityCode.code).exists()) -&gt;  tgt.confidentiality = translate(v, 'http://fhir.ch/ig/ch-core/ConceptMap/documententry-confidentialitycode-to-fhir', 'code') as fhirconf,  fhirconf.extension as ext then ChExtEprConfidentialityCode(confidentialityCode, ext) &quot;confCode&quot;;\r\n  };\r\n  src.versionNumber as versionNumber where (versionNumber &gt; 1) -&gt; tgt.extension as ext2 then ChExtEprVersionNumber(versionNumber, ext2);\r\n  src.informationRecipient as informationRecipient -&gt; bundle.entry as e then {\r\n    informationRecipient.intendedRecipient as intendedRecipient where $this.receivedOrganization.exists() = false -&gt;  e.resource = create('Patient') as recipient,  recipient.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid),  tgt.extension as ext then ChExtEprInformationRecipient(intendedRecipient, recipient, ext) &quot;informationRecipient&quot;;\r\n    informationRecipient.intendedRecipient as intendedRecipient then {\r\n      intendedRecipient.receivedOrganization -&gt;  e.resource = create('Organization') as recipient,  recipient.id = uuid() as uuid2,  e.fullUrl = append('urn:uuid:', uuid2),  tgt.extension as ext then ChExtEprInformationRecipientOrganization(intendedRecipient, recipient, ext) &quot;informationRecipientOrganization&quot;;\r\n    } &quot;intendedRecipientAsOrganization&quot;;\r\n  } &quot;entry&quot;;\r\n  src.dataEnterer as dataEnterer -&gt;  bundle.entry as e,  e.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid),  tgt.extension as ext then ChExtEprDataEnterer(dataEnterer, bundle, practitionerRole, ext);\r\n}\r\n\r\n</pre></div>"
+  },
+  "url": "http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaItToBundle",
+  "name": "CdaItToBundle",
+  "description": "\r\nCDA-IT document\r\n2022-06-18 Oliver Egger, copyright ahdis ag, Apache License",
+  "structure": [ {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/ClinicalDocument",
+    "mode": "source",
+    "alias": "ClinicalDocument"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/Section",
+    "mode": "queried",
+    "alias": "Section"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/PatientRole",
+    "mode": "queried",
+    "alias": "PatientRole"
+  }, {
+    "url": "http://hl7.org/fhir/cda/StructureDefinition/DataEnterer",
+    "mode": "queried",
+    "alias": "DataEnterer"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+    "mode": "target",
+    "alias": "Bundle"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Composition",
+    "mode": "produced",
+    "alias": "Composition"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Patient",
+    "mode": "produced",
+    "alias": "Patient"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Person",
+    "mode": "produced",
+    "alias": "Person"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Practitioner",
+    "mode": "produced",
+    "alias": "Practitioner"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Practitioner",
+    "mode": "produced",
+    "alias": "PractitionerRole"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Organization",
+    "mode": "produced",
+    "alias": "Organization"
+  } ],
+  "import": [ "http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToFhirTypes", "http://fhir.ch/ig/cda-fhir-maps/StructureMap/CdaToBundle" ],
+  "group": [ {
+    "name": "CdaItToBundle",
+    "typeMode": "none",
+    "input": [ {
+      "name": "cda",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "ClinicalDocumentToBody",
+      "source": [ {
+        "context": "cda"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "e"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "composition",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Composition"
+        } ]
+      }, {
+        "context": "composition",
+        "contextType": "variable",
+        "element": "id",
+        "variable": "uuid",
+        "transform": "uuid"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "fullUrl",
+        "transform": "append",
+        "parameter": [ {
+          "valueString": "urn:uuid:"
+        }, {
+          "valueId": "uuid"
+        } ]
+      }, {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "e2"
+      }, {
+        "context": "e2",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "patient",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Patient"
+        } ]
+      }, {
+        "context": "patient",
+        "contextType": "variable",
+        "element": "id",
+        "variable": "uuid2",
+        "transform": "uuid"
+      }, {
+        "context": "e2",
+        "contextType": "variable",
+        "element": "fullUrl",
+        "transform": "append",
+        "parameter": [ {
+          "valueString": "urn:uuid:"
+        }, {
+          "valueId": "uuid2"
+        } ]
+      } ],
+      "dependent": [ {
+        "name": "ClinicalDocumentItToBundle",
+        "variable": [ "cda", "patient", "composition", "bundle" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ClinicalDocumentItToBundle",
+    "extends": "ClinicalDocumentToBundle",
+    "typeMode": "none",
+    "documentation": "source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.1.14\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-core-document.html",
+    "input": [ {
+      "name": "cda",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "patient",
+      "type": "Patient",
+      "mode": "target"
+    }, {
+      "name": "composition",
+      "type": "Composition",
+      "mode": "target"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "composition",
+      "source": [ {
+        "context": "cda"
+      } ],
+      "dependent": [ {
+        "name": "ClinicalDocumentCompositionCh",
+        "variable": [ "cda", "composition", "patient", "bundle" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "component",
+      "source": [ {
+        "context": "cda",
+        "element": "component",
+        "variable": "component"
+      } ],
+      "rule": [ {
+        "name": "body",
+        "source": [ {
+          "context": "component",
+          "element": "structuredBody",
+          "variable": "body"
+        } ],
+        "rule": [ {
+          "name": "component",
+          "source": [ {
+            "context": "body",
+            "element": "component",
+            "variable": "component"
+          } ],
+          "rule": [ {
+            "name": "section",
+            "source": [ {
+              "context": "component",
+              "element": "section",
+              "variable": "srcSection",
+              "condition": "(templateId.where(root = '2.16.756.5.30.1.1.10.3.2'))"
+            } ],
+            "target": [ {
+              "context": "composition",
+              "contextType": "variable",
+              "element": "section",
+              "variable": "tgtSection"
+            } ],
+            "dependent": [ {
+              "name": "ClinicalDocumentSection",
+              "variable": [ "cda", "srcSection", "patient", "tgtSection", "bundle" ],
+              "_variable": [ {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              } ]
+            } ]
+          }, {
+            "name": "section",
+            "source": [ {
+              "context": "component",
+              "element": "section",
+              "variable": "srcSection",
+              "condition": "(templateId.where(root = '2.16.756.5.30.1.1.10.3.45'))"
+            } ],
+            "target": [ {
+              "context": "composition",
+              "contextType": "variable",
+              "element": "section",
+              "variable": "tgtSection"
+            } ],
+            "dependent": [ {
+              "name": "SectionOriginalRepresentation",
+              "variable": [ "cda", "srcSection", "patient", "tgtSection", "bundle" ],
+              "_variable": [ {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              }, {
+                "extension": [ {
+                  "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                  "valueUrl": "id"
+                } ]
+              } ]
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "SectionOriginalRepresentation",
+    "extends": "ClinicalDocumentSection",
+    "typeMode": "none",
+    "documentation": "_________________________ Section Level Templates _________________________\r\nsource: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.1.14\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-core-composition-definitions.html#Composition.section\r\nTODO: not excplicitly modeled in CH-Core",
+    "input": [ {
+      "name": "cda",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "src",
+      "type": "Section",
+      "mode": "source"
+    }, {
+      "name": "patient",
+      "type": "Patient",
+      "mode": "source"
+    }, {
+      "name": "tgt",
+      "mode": "target"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "cdaEntry",
+      "source": [ {
+        "context": "src",
+        "element": "entry",
+        "variable": "cdaEntry"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "e"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "binary",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Binary"
+        } ]
+      }, {
+        "context": "binary",
+        "contextType": "variable",
+        "element": "id",
+        "variable": "uuid",
+        "transform": "uuid"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "fullUrl",
+        "variable": "urnuuid",
+        "transform": "append",
+        "parameter": [ {
+          "valueString": "urn:uuid:"
+        }, {
+          "valueId": "uuid"
+        } ]
+      }, {
+        "context": "tgt",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "reference",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Reference"
+        } ]
+      }, {
+        "context": "reference",
+        "contextType": "variable",
+        "element": "reference",
+        "transform": "copy",
+        "parameter": [ {
+          "valueId": "urnuuid"
+        } ]
+      } ],
+      "rule": [ {
+        "name": "observationMedia",
+        "source": [ {
+          "context": "cdaEntry",
+          "element": "observationMedia",
+          "variable": "observationMedia"
+        } ],
+        "rule": [ {
+          "name": "observationMedia",
+          "source": [ {
+            "context": "observationMedia"
+          } ],
+          "dependent": [ {
+            "name": "ObservationMedia",
+            "variable": [ "observationMedia", "binary" ],
+            "_variable": [ {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                "valueUrl": "id"
+              } ]
+            }, {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                "valueUrl": "id"
+              } ]
+            } ]
+          } ]
+        }, {
+          "name": "narrativeLink",
+          "source": [ {
+            "context": "observationMedia",
+            "element": "ID",
+            "variable": "value"
+          } ],
+          "target": [ {
+            "context": "reference",
+            "contextType": "variable",
+            "element": "extension",
+            "variable": "ext"
+          } ],
+          "dependent": [ {
+            "name": "NarrativeLink",
+            "variable": [ "value", "ext" ],
+            "_variable": [ {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                "valueUrl": "id"
+              } ]
+            }, {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                "valueUrl": "id"
+              } ]
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ObservationMedia",
+    "typeMode": "none",
+    "documentation": "_________________________ Entry Level Templates   ________________________\r\nsource: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.4.83\r\nTODO: not excplicitly modeled in CH-Core",
+    "input": [ {
+      "name": "observationMedia",
+      "mode": "source"
+    }, {
+      "name": "binary",
+      "type": "Binary",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "value",
+      "source": [ {
+        "context": "observationMedia",
+        "element": "value",
+        "variable": "value"
+      } ],
+      "rule": [ {
+        "name": "contentType",
+        "source": [ {
+          "context": "value",
+          "element": "mediaType",
+          "variable": "mediaType"
+        } ],
+        "target": [ {
+          "context": "binary",
+          "contextType": "variable",
+          "element": "contentType",
+          "transform": "copy",
+          "parameter": [ {
+            "valueId": "mediaType"
+          } ]
+        } ]
+      }, {
+        "name": "dataString",
+        "source": [ {
+          "context": "value"
+        } ],
+        "target": [ {
+          "context": "binary",
+          "contextType": "variable",
+          "element": "data",
+          "transform": "evaluate",
+          "parameter": [ {
+            "valueString": "value.dataBase64Binary"
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "languageCode",
+      "source": [ {
+        "context": "observationMedia",
+        "element": "languageCode",
+        "variable": "languageCode"
+      } ],
+      "rule": [ {
+        "name": "lang",
+        "source": [ {
+          "context": "languageCode",
+          "element": "code",
+          "variable": "lang"
+        } ],
+        "target": [ {
+          "context": "binary",
+          "contextType": "variable",
+          "element": "language",
+          "transform": "copy",
+          "parameter": [ {
+            "valueId": "lang"
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ChExtEprConfidentialityCode",
+    "typeMode": "none",
+    "documentation": "_________________________ Header Level Templates _________________________\r\nsource: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-confidentialitycode.html",
+    "input": [ {
+      "name": "src",
+      "type": "CE",
+      "mode": "source"
+    }, {
+      "name": "ext",
+      "type": "Extension",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "url",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "url",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-confidentialitycode"
+        } ]
+      } ]
+    }, {
+      "name": "code",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "value",
+        "variable": "value",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "CodeableConcept"
+        } ]
+      } ],
+      "dependent": [ {
+        "name": "CECodeableConcept",
+        "variable": [ "src", "value" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ChExtEprVersionNumber",
+    "typeMode": "none",
+    "documentation": "source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-versionnumber.html",
+    "input": [ {
+      "name": "src",
+      "type": "INT",
+      "mode": "source"
+    }, {
+      "name": "ext",
+      "type": "Extension",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "url",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "url",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-versionnumber"
+        } ]
+      } ]
+    }, {
+      "name": "value",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "value",
+        "variable": "value",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "unsignedInt"
+        } ]
+      } ],
+      "dependent": [ {
+        "name": "INT",
+        "variable": [ "src", "value" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ChExtEprVersionNumber1",
+    "typeMode": "none",
+    "input": [ {
+      "name": "src",
+      "mode": "source"
+    }, {
+      "name": "ext",
+      "type": "Extension",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "url",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "url",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-versionnumber"
+        } ]
+      } ]
+    }, {
+      "name": "value",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "value",
+        "variable": "value",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "unsignedInt"
+        } ]
+      }, {
+        "context": "value",
+        "contextType": "variable",
+        "element": "value",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "1"
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ChExtEprInformationRecipient",
+    "typeMode": "none",
+    "documentation": "source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-informationrecipient.html",
+    "input": [ {
+      "name": "src",
+      "type": "IntendedRecipient",
+      "mode": "source"
+    }, {
+      "name": "patient",
+      "type": "Patient",
+      "mode": "target"
+    }, {
+      "name": "ext",
+      "type": "Extension",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "url",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "url",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-informationrecipient"
+        } ]
+      } ]
+    }, {
+      "name": "value",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "value",
+        "variable": "reference",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Reference"
+        } ]
+      }, {
+        "context": "reference",
+        "contextType": "variable",
+        "element": "reference",
+        "transform": "evaluate",
+        "parameter": [ {
+          "valueString": "'urn:uuid:' + %patient.id"
+        } ]
+      } ]
+    }, {
+      "name": "address",
+      "source": [ {
+        "context": "src",
+        "element": "addr",
+        "variable": "addr"
+      } ],
+      "target": [ {
+        "context": "patient",
+        "contextType": "variable",
+        "element": "address",
+        "variable": "address"
+      } ],
+      "dependent": [ {
+        "name": "ADAddress",
+        "variable": [ "addr", "address" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "informationRecipient",
+      "source": [ {
+        "context": "src",
+        "element": "informationRecipient",
+        "variable": "informationRecipient"
+      } ],
+      "rule": [ {
+        "name": "name",
+        "source": [ {
+          "context": "informationRecipient",
+          "element": "name",
+          "variable": "cdaname"
+        } ],
+        "target": [ {
+          "context": "patient",
+          "contextType": "variable",
+          "element": "name",
+          "variable": "fhirname"
+        } ],
+        "dependent": [ {
+          "name": "ENHumanName",
+          "variable": [ "cdaname", "fhirname" ],
+          "_variable": [ {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ChExtEprInformationRecipientOrganization",
+    "typeMode": "none",
+    "documentation": "source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-ext-epr-informationrecipient.html",
+    "input": [ {
+      "name": "src",
+      "type": "IntendedRecipient",
+      "mode": "source"
+    }, {
+      "name": "organization",
+      "type": "Organization",
+      "mode": "target"
+    }, {
+      "name": "ext",
+      "type": "Extension",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "url",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "url",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-informationrecipient"
+        } ]
+      } ]
+    }, {
+      "name": "value",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "value",
+        "variable": "reference",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Reference"
+        } ]
+      }, {
+        "context": "reference",
+        "contextType": "variable",
+        "element": "reference",
+        "transform": "evaluate",
+        "parameter": [ {
+          "valueString": "'urn:uuid:' + %organization.id"
+        } ]
+      } ]
+    }, {
+      "name": "organization",
+      "source": [ {
+        "context": "src",
+        "element": "receivedOrganization",
+        "variable": "receivedOrganization"
+      } ],
+      "dependent": [ {
+        "name": "ClinicalDocumentOrganization",
+        "variable": [ "receivedOrganization", "organization" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ChExtEprDataEnterer",
+    "typeMode": "none",
+    "documentation": "source: https://art-decor.org/art-decor/decor-templates--hl7chcda-?section=templates&id=2.16.756.5.30.1.1.10.2.7\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/StructureDefinition-ch-ext-epr-dataenterer.html",
+    "input": [ {
+      "name": "src",
+      "type": "DataEnterer",
+      "mode": "source"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    }, {
+      "name": "practitionerRole",
+      "type": "PractitionerRole",
+      "mode": "target"
+    }, {
+      "name": "ext",
+      "type": "Extension",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "url",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "url",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "http://fhir.ch/ig/ch-core/StructureDefinition/ch-ext-epr-dataenterer"
+        } ]
+      } ]
+    }, {
+      "name": "PractitionerRole",
+      "source": [ {
+        "context": "src",
+        "element": "assignedEntity",
+        "variable": "assignedEntity"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "extension",
+        "variable": "ext"
+      }, {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "url",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "enterer"
+        } ]
+      }, {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "value",
+        "variable": "reference",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Reference"
+        } ]
+      }, {
+        "context": "reference",
+        "contextType": "variable",
+        "element": "reference",
+        "transform": "evaluate",
+        "parameter": [ {
+          "valueString": "'urn:uuid:' + %practitionerRole.id"
+        } ]
+      } ]
+    }, {
+      "name": "time",
+      "source": [ {
+        "context": "src",
+        "element": "time",
+        "variable": "time"
+      } ],
+      "target": [ {
+        "context": "ext",
+        "contextType": "variable",
+        "element": "extension",
+        "variable": "exttime"
+      } ],
+      "dependent": [ {
+        "name": "ChExtEprTime",
+        "variable": [ "time", "exttime" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "assignedEntity",
+      "source": [ {
+        "context": "src",
+        "element": "assignedEntity",
+        "variable": "assignedEntity"
+      } ],
+      "rule": [ {
+        "name": "Practitioner",
+        "source": [ {
+          "context": "assignedEntity"
+        } ],
+        "target": [ {
+          "context": "bundle",
+          "contextType": "variable",
+          "element": "entry",
+          "variable": "e"
+        }, {
+          "context": "e",
+          "contextType": "variable",
+          "element": "resource",
+          "variable": "practitioner",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "Practitioner"
+          } ]
+        }, {
+          "context": "practitioner",
+          "contextType": "variable",
+          "element": "id",
+          "variable": "uuid",
+          "transform": "uuid"
+        }, {
+          "context": "e",
+          "contextType": "variable",
+          "element": "fullUrl",
+          "transform": "append",
+          "parameter": [ {
+            "valueString": "urn:uuid:"
+          }, {
+            "valueId": "uuid"
+          } ]
+        }, {
+          "context": "practitionerRole",
+          "contextType": "variable",
+          "element": "practitioner",
+          "variable": "reference",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "Reference"
+          } ]
+        }, {
+          "context": "reference",
+          "contextType": "variable",
+          "element": "reference",
+          "transform": "append",
+          "parameter": [ {
+            "valueString": "urn:uuid:"
+          }, {
+            "valueId": "uuid"
+          } ]
+        } ],
+        "dependent": [ {
+          "name": "ClinicalDocumentEntityPractitioner",
+          "variable": [ "assignedEntity", "practitioner" ],
+          "_variable": [ {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          } ]
+        } ]
+      }, {
+        "name": "Organization",
+        "source": [ {
+          "context": "assignedEntity",
+          "element": "representedOrganization",
+          "variable": "representedOrganization"
+        } ],
+        "target": [ {
+          "context": "bundle",
+          "contextType": "variable",
+          "element": "entry",
+          "variable": "e"
+        }, {
+          "context": "e",
+          "contextType": "variable",
+          "element": "resource",
+          "variable": "organization",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "Organization"
+          } ]
+        }, {
+          "context": "organization",
+          "contextType": "variable",
+          "element": "id",
+          "variable": "uuid2",
+          "transform": "uuid"
+        }, {
+          "context": "e",
+          "contextType": "variable",
+          "element": "fullUrl",
+          "transform": "append",
+          "parameter": [ {
+            "valueString": "urn:uuid:"
+          }, {
+            "valueId": "uuid2"
+          } ]
+        }, {
+          "context": "practitionerRole",
+          "contextType": "variable",
+          "element": "organization",
+          "variable": "referenceOrg",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "Reference"
+          } ]
+        }, {
+          "context": "referenceOrg",
+          "contextType": "variable",
+          "element": "reference",
+          "transform": "append",
+          "parameter": [ {
+            "valueString": "urn:uuid:"
+          }, {
+            "valueId": "uuid2"
+          } ]
+        } ],
+        "dependent": [ {
+          "name": "ClinicalDocumentOrganization",
+          "variable": [ "representedOrganization", "organization" ],
+          "_variable": [ {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ClinicalDocumentCompositionIt",
+    "typeMode": "none",
+    "documentation": "_________________________ Template Type not specified  ___________________\r\nsource: https://art-decor.org/art-decor/decor-templates--hl7chcda-?id=2.16.756.5.30.1.1.10.9.36\r\ntarget: http://build.fhir.org/ig/hl7ch/ch-core/branches/master/StructureDefinition-ch-core-composition-epr.html",
+    "input": [ {
+      "name": "src",
+      "type": "ClinicalDocument",
+      "mode": "source"
+    }, {
+      "name": "tgt",
+      "type": "Composition",
+      "mode": "target"
+    }, {
+      "name": "patientResource",
+      "type": "Patient",
+      "mode": "target"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "confidentialityCode",
+      "source": [ {
+        "context": "src",
+        "element": "confidentialityCode",
+        "variable": "confidentialityCode"
+      } ],
+      "rule": [ {
+        "name": "confCode",
+        "source": [ {
+          "context": "confidentialityCode",
+          "element": "code",
+          "variable": "v",
+          "condition": "('http://fhir.ch/ig/ch-epr-term/ValueSet/DocumentEntry.confidentialityCode'.resolve().compose.include.concept.where($this.code = src.confidentialityCode.code).exists())"
+        } ],
+        "target": [ {
+          "context": "tgt",
+          "contextType": "variable",
+          "element": "confidentiality",
+          "variable": "fhirconf",
+          "transform": "translate",
+          "parameter": [ {
+            "valueId": "v"
+          }, {
+            "valueString": "http://fhir.ch/ig/ch-core/ConceptMap/documententry-confidentialitycode-to-fhir"
+          }, {
+            "valueString": "code"
+          } ]
+        }, {
+          "context": "fhirconf",
+          "contextType": "variable",
+          "element": "extension",
+          "variable": "ext"
+        } ],
+        "dependent": [ {
+          "name": "ChExtEprConfidentialityCode",
+          "variable": [ "confidentialityCode", "ext" ],
+          "_variable": [ {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "versionNumber",
+      "source": [ {
+        "context": "src",
+        "element": "versionNumber",
+        "variable": "versionNumber",
+        "condition": "(versionNumber > 1)"
+      } ],
+      "target": [ {
+        "context": "tgt",
+        "contextType": "variable",
+        "element": "extension",
+        "variable": "ext2"
+      } ],
+      "dependent": [ {
+        "name": "ChExtEprVersionNumber",
+        "variable": [ "versionNumber", "ext2" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "entry",
+      "source": [ {
+        "context": "src",
+        "element": "informationRecipient",
+        "variable": "informationRecipient"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "e"
+      } ],
+      "rule": [ {
+        "name": "informationRecipient",
+        "source": [ {
+          "context": "informationRecipient",
+          "element": "intendedRecipient",
+          "variable": "intendedRecipient",
+          "condition": "$this.receivedOrganization.exists() = false"
+        } ],
+        "target": [ {
+          "context": "e",
+          "contextType": "variable",
+          "element": "resource",
+          "variable": "recipient",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "Patient"
+          } ]
+        }, {
+          "context": "recipient",
+          "contextType": "variable",
+          "element": "id",
+          "variable": "uuid",
+          "transform": "uuid"
+        }, {
+          "context": "e",
+          "contextType": "variable",
+          "element": "fullUrl",
+          "transform": "append",
+          "parameter": [ {
+            "valueString": "urn:uuid:"
+          }, {
+            "valueId": "uuid"
+          } ]
+        }, {
+          "context": "tgt",
+          "contextType": "variable",
+          "element": "extension",
+          "variable": "ext"
+        } ],
+        "dependent": [ {
+          "name": "ChExtEprInformationRecipient",
+          "variable": [ "intendedRecipient", "recipient", "ext" ],
+          "_variable": [ {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          }, {
+            "extension": [ {
+              "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+              "valueUrl": "id"
+            } ]
+          } ]
+        } ]
+      }, {
+        "name": "intendedRecipientAsOrganization",
+        "source": [ {
+          "context": "informationRecipient",
+          "element": "intendedRecipient",
+          "variable": "intendedRecipient"
+        } ],
+        "rule": [ {
+          "name": "informationRecipientOrganization",
+          "source": [ {
+            "context": "intendedRecipient",
+            "element": "receivedOrganization"
+          } ],
+          "target": [ {
+            "context": "e",
+            "contextType": "variable",
+            "element": "resource",
+            "variable": "recipient",
+            "transform": "create",
+            "parameter": [ {
+              "valueString": "Organization"
+            } ]
+          }, {
+            "context": "recipient",
+            "contextType": "variable",
+            "element": "id",
+            "variable": "uuid2",
+            "transform": "uuid"
+          }, {
+            "context": "e",
+            "contextType": "variable",
+            "element": "fullUrl",
+            "transform": "append",
+            "parameter": [ {
+              "valueString": "urn:uuid:"
+            }, {
+              "valueId": "uuid2"
+            } ]
+          }, {
+            "context": "tgt",
+            "contextType": "variable",
+            "element": "extension",
+            "variable": "ext"
+          } ],
+          "dependent": [ {
+            "name": "ChExtEprInformationRecipientOrganization",
+            "variable": [ "intendedRecipient", "recipient", "ext" ],
+            "_variable": [ {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                "valueUrl": "id"
+              } ]
+            }, {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                "valueUrl": "id"
+              } ]
+            }, {
+              "extension": [ {
+                "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+                "valueUrl": "id"
+              } ]
+            } ]
+          } ]
+        } ]
+      } ]
+    }, {
+      "name": "dataEnterer",
+      "source": [ {
+        "context": "src",
+        "element": "dataEnterer",
+        "variable": "dataEnterer"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "e"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "practitionerRole",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "PractitionerRole"
+        } ]
+      }, {
+        "context": "practitionerRole",
+        "contextType": "variable",
+        "element": "id",
+        "variable": "uuid",
+        "transform": "uuid"
+      }, {
+        "context": "e",
+        "contextType": "variable",
+        "element": "fullUrl",
+        "transform": "append",
+        "parameter": [ {
+          "valueString": "urn:uuid:"
+        }, {
+          "valueId": "uuid"
+        } ]
+      }, {
+        "context": "tgt",
+        "contextType": "variable",
+        "element": "extension",
+        "variable": "ext"
+      } ],
+      "dependent": [ {
+        "name": "ChExtEprDataEnterer",
+        "variable": [ "dataEnterer", "bundle", "practitionerRole", "ext" ],
+        "_variable": [ {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        }, {
+          "extension": [ {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/original-item-type",
+            "valueUrl": "id"
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+}
