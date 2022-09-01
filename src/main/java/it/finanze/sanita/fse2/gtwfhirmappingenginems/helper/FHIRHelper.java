@@ -12,11 +12,13 @@ public class FHIRHelper {
 		//This method is left intentionally empty.
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <T> T deserializeResource(Class<? extends IBaseResource> resourceClass, String input) {
 		IParser parser = ContextHelper.getFhirContextR5().newJsonParser();
 		return (T) parser.parseResource(resourceClass, input);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <T> T deserializeXMLResource(Class<? extends IBaseResource> resourceClass, String input) {
 		IParser parser = ContextHelper.getFhirContextR5().newJsonParser();
 		return (T) parser.parseResource(resourceClass, input);

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.7</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<version>2.7.3</version>
+		<relativePath />
+		<!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>it.finanze.sanita.fse2</groupId>
 	<artifactId>gtw-fhir-mapping-engine-ms</artifactId>
-	<version>0.0.6-SNAPSHOT</version> <!-- SPRINT6 -->
+	<version>0.0.6-SNAPSHOT</version>	<!-- SPRINT6 -->
 	<name>gtw-fhir-mapping-engine-ms</name>
 	<description>FSE Gateway Fhir Mapping engine</description>
 
@@ -149,14 +149,14 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.9</version>
+			<version>1.6.11</version>
 		</dependency>
-		
+
 		<!-- JSOUP -->
 		<dependency>
-		    <groupId>org.jsoup</groupId>
-		    <artifactId>jsoup</artifactId>
-		    <version>1.14.3</version>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.15.3</version>
 		</dependency>
 	</dependencies>
 
@@ -212,6 +212,20 @@
 				</executions>
 			</plugin>
 
+			<!-- Security check -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>7.1.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- Build -->
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -236,27 +250,21 @@
 						</goals>
 						<configuration>
 							<target>
-								<taskdef
-									resource="net/sf/antcontrib/antcontrib.properties" />
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 								<if>
 									<available file="infrastructure" />
 									<then>
 										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output.runtime}"
-											overwrite="true" failonerror="false">
+										<copy todir="${container.output.runtime}" overwrite="true" failonerror="false">
 											<fileset dir="${config.infra}/runtime" includes="**" />
 										</copy>
 										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output}" overwrite="true"
-											failonerror="false">
-											<fileset dir="${project.basedir}"
-												includes="Dockerfile" />
+										<copy todir="${container.output}" overwrite="true" failonerror="false">
+											<fileset dir="${project.basedir}" includes="Dockerfile" />
 										</copy>
 										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output}" overwrite="true"
-											failonerror="false">
-											<fileset dir="${project.basedir}/target"
-												includes="${project.artifactId}.jar" />
+										<copy todir="${container.output}" overwrite="true" failonerror="false">
+											<fileset dir="${project.basedir}/target" includes="${project.artifactId}.jar" />
 										</copy>
 									</then>
 								</if>

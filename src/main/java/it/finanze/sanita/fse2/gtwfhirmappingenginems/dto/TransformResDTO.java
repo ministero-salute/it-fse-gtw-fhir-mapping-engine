@@ -5,6 +5,7 @@ import javax.validation.constraints.Size;
 import org.bson.Document;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class TransformResDTO extends AbstractDTO {
 
 	/**

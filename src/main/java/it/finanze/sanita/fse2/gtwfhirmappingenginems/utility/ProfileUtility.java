@@ -5,7 +5,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 public class ProfileUtility {

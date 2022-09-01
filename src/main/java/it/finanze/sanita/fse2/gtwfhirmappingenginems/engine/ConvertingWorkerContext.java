@@ -120,7 +120,7 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 		return result;
 	}
 
-
+	@SuppressWarnings("unchecked")
 	public <T extends org.hl7.fhir.r4.model.Resource> T fetchResourceAsR4(Class<T> clazz, String uri) {
 		return (T) doFetchResource(clazz, uri);
 	}
@@ -143,6 +143,7 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends Resource> T fetchResource(Class<T> clazz, String uri) { 
 		if (StringUtility.isNullOrEmpty(uri)) {
 			return null;
@@ -151,6 +152,7 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 	}
 
 
+	@SuppressWarnings("unchecked")
 	private <T extends IBaseResource> IBaseResource doFetchResource(@Nullable Class<T> theClass, String theUri) {
 		IBaseResource out = null; 
 		IBaseResource myNoMatch = null;
