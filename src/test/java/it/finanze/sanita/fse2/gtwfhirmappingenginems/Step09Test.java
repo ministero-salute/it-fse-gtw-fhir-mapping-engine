@@ -23,7 +23,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
-class Step10 extends AbstractTest{
+class Step09Test extends AbstractTest{
 
 	@Autowired
 	private StructureDefinitionSRV structureDefinitionSRV;
@@ -31,19 +31,19 @@ class Step10 extends AbstractTest{
 	@BeforeEach
 	void setup() {
 		dropCollections();
-		saveStructureDefinition("src\\test\\resources\\step10\\structure" , "step10");
+		saveStructureDefinition("src\\test\\resources\\step09\\structure" , "step09");
 		structureDefinitionSRV.postConstruct();
 	}
-
+     
 	@Test
-	void testStep10() throws Exception {
+	void testStep09() throws Exception {
 
-		InputStream iStream = new ByteArrayInputStream(FileUtility.getFileFromInternalResources("step10" + File.separator + "source" + File.separator + "source.xml"));		
+		InputStream iStream = new ByteArrayInputStream(FileUtility.getFileFromInternalResources("step09" + File.separator + "source" + File.separator + "source.xml"));		
 		StructureMapUtilities smu5 = new StructureMapUtilities(ContextHelper.getSimpleWorkerContextR5());
-		StructureMap structuredMap = smu5.parse(new String(FileUtility.getFileFromInternalResources("step10" + File.separator +"map" + File.separator+"step10.map")) , "map");
-
-		String json10 = Trasformer.transform(iStream, structuredMap);
-		System.out.println(json10);
-		assertNotNull(json10);
+    	StructureMap structuredMap = smu5.parse(new String(FileUtility.getFileFromInternalResources("step09" + File.separator +"map" + File.separator+"step09.map")) , "map");
+		
+		String json09 = Trasformer.transform(iStream, structuredMap);
+		System.out.println(json09);
+		assertNotNull(json09);
 	}
 }

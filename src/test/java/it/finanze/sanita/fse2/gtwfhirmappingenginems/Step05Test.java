@@ -23,7 +23,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
-class Step02 extends AbstractTest {
+class Step05Test extends AbstractTest{
 
 	@Autowired
 	private StructureDefinitionSRV structureDefinitionSRV;
@@ -31,18 +31,19 @@ class Step02 extends AbstractTest {
 	@BeforeEach
 	void setup() {
 		dropCollections();
-		saveStructureDefinition("src\\test\\resources\\step02\\structure" , "step02");
+		saveStructureDefinition("src\\test\\resources\\step05\\structure" , "step05");
 		structureDefinitionSRV.postConstruct();
 	}
      
 	@Test
-	void testStep02() throws Exception {
-		InputStream iStream = new ByteArrayInputStream(FileUtility.getFileFromInternalResources("step02" + File.separator + "source" + File.separator + "source.xml"));
+	void testStep05() throws Exception {
+
+		InputStream iStream = new ByteArrayInputStream(FileUtility.getFileFromInternalResources("step05" + File.separator + "source" + File.separator + "source.xml"));		
 		StructureMapUtilities smu5 = new StructureMapUtilities(ContextHelper.getSimpleWorkerContextR5());
-    	StructureMap structuredMap = smu5.parse(new String(FileUtility.getFileFromInternalResources("step02" + File.separator +"map" + File.separator+"step02.map")) , "map");
+    	StructureMap structuredMap = smu5.parse(new String(FileUtility.getFileFromInternalResources("step05" + File.separator +"map" + File.separator+"step05.map")) , "map");
 		
-		String json02 = Trasformer.transform(iStream, structuredMap);
-		assertNotNull(json02);
-		System.out.println(json02);
+		String json05 = Trasformer.transform(iStream, structuredMap);
+		System.out.println(json05);
+		assertNotNull(json05);
 	}
 }

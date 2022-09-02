@@ -23,7 +23,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
-class Step03 extends AbstractTest{
+class Step03Test extends AbstractTest{
 
 	@Autowired
 	private StructureDefinitionSRV structureDefinitionSRV;

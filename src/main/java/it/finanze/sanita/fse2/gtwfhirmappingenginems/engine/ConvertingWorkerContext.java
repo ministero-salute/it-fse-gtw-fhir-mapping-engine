@@ -87,7 +87,7 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 
 		List<org.hl7.fhir.r5.model.StructureDefinition> retVal = myAllStructures;
 		if (retVal == null) {
-			DefaultProfileValidationSupport defaultProfileValidationSupport = new DefaultProfileValidationSupport(FhirContext.forR4Cached());
+			DefaultProfileValidationSupport defaultProfileValidationSupport = new DefaultProfileValidationSupport(FhirContext.forR4());
 			retVal = new ArrayList<>();
 			for (IBaseResource next : defaultProfileValidationSupport.fetchAllStructureDefinitions()) {
 				try {

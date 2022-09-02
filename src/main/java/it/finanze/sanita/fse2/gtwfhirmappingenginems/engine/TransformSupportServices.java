@@ -49,7 +49,7 @@ public class TransformSupportServices implements ITransformerServices {
 	public Base resolveReference(Object appContext, String url) throws FHIRException {	
 		org.hl7.fhir.r4.model.Resource resource = fhirContext.fetchResourceAsR4(org.hl7.fhir.r4.model.Resource.class, url);
 		if (resource != null) {
-			String inStr = FhirContext.forR4Cached().newJsonParser().encodeResourceToString(resource);
+			String inStr = FhirContext.forR4().newJsonParser().encodeResourceToString(resource);
 			try {
 				return Manager.parseSingle(fhirContext, new ByteArrayInputStream(inStr.getBytes()), FhirFormat.JSON);
 			} catch (IOException e) {

@@ -22,10 +22,9 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.StructureDefinitionSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
-class CdaLabIta extends AbstractTest {
+class CdaLabItaTest extends AbstractTest {
 
 	private static final String TEMPLATE_ID_ROOT = "2.16.840.1.113883.2.9.2.30.10.8";
 	
