@@ -15,7 +15,7 @@ public class CDAHelper {
     
     public static String extractTemplateId(final String cda) {
 		try {
-            log.info("Extracting template_id from cda");
+            log.debug("Extracting template_id from CDA");
 			final Document docT = Jsoup.parse(cda);
 			return docT.select("templateid").get(0).attr("root");
 		} catch(final Exception ex) {

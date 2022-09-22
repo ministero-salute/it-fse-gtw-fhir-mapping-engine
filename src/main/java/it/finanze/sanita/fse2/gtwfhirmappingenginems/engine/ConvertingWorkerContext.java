@@ -189,7 +189,7 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 			out = structuredMapSingleton.getStructureMap();
 			break;
 		default:
-			log.info("Can't fetch resource type: " + resourceType);
+			log.warn("Can't fetch resource type: {}", resourceType);
 			break;
 		}
 		return out;
