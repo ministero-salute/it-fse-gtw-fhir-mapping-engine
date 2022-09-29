@@ -3,7 +3,6 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +45,6 @@ public class Trasformer {
 
 	private static ByteArrayOutputStream transform(Boolean xmlOutputFlag, Boolean xmlInputFlag, InputStream input, org.hl7.fhir.r5.model.StructureMap map, ConvertingWorkerContext fhirContext) throws IOException {
 		
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		FhirFormat inFormat = FhirFormat.JSON;
 		if (xmlInputFlag!=null && xmlInputFlag) {
 			inFormat = FhirFormat.XML;
@@ -72,9 +70,7 @@ public class Trasformer {
 		if (xmlOutputFlag!=null && xmlOutputFlag) {
 			responseContentType = Constants.CT_FHIR_XML_NEW;
 		}
-		writeOutputStream(fhirContext, responseContentType, r, output);
-		 
-		return output;
+		return writeOutputStream(fhirContext, responseContentType, r);
 	}
 
 	private static void removeBundleEntryIds(org.hl7.fhir.r5.elementmodel.Element bundle) {
@@ -98,7 +94,8 @@ public class Trasformer {
 		}
 	}
 
-	private static void writeOutputStream(ConvertingWorkerContext fhirContext, String responseContentType, org.hl7.fhir.r5.elementmodel.Element r, OutputStream output) throws IOException {
+	private static ByteArrayOutputStream writeOutputStream(ConvertingWorkerContext fhirContext, String responseContentType, org.hl7.fhir.r5.elementmodel.Element r) throws IOException {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			if (output != null) {
 				if (responseContentType.equals(Constants.CT_FHIR_JSON_NEW))
@@ -107,11 +104,11 @@ public class Trasformer {
 					new org.hl7.fhir.r5.elementmodel.XmlParser(fhirContext).compose(r, output, OutputStyle.PRETTY, null);
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			log.error("Error while perform writeOutputStream method", e);
 			output.write("Exception during Transform: ".getBytes());
 			output.write(e.getMessage().getBytes());
 		}
-		output.close();
+		return output;
 	}
 
 	private static org.hl7.fhir.r5.elementmodel.Element getTargetResourceFromStructureMap(org.hl7.fhir.r5.model.StructureMap map, IWorkerContext fhirContext) {

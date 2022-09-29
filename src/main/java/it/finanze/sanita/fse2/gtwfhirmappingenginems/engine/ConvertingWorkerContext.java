@@ -151,19 +151,21 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 		return (T) doFetchResource(clazz, uri);
 	}
 
-
 	@SuppressWarnings("unchecked")
 	private <T extends IBaseResource> IBaseResource doFetchResource(@Nullable Class<T> theClass, String theUri) {
-		IBaseResource out = null; 
+		IBaseResource out = null;
 		IBaseResource myNoMatch = null;
-		if (theClass == null || "Resource".equals(theClass.getSimpleName())) {
+
+		if (theClass == null || Resource.class.equals(theClass)) {
 			Supplier<IBaseResource>[] fetchers = new Supplier[] { () -> doFetchResource(ValueSet.class, theUri),
 					() -> doFetchResource(CodeSystem.class, theUri), () -> doFetchResource(StructureDefinition.class, theUri),
 					() -> doFetchResource(Questionnaire.class, theUri),() -> doFetchResource(ConceptMap.class, theUri) };
 			return Arrays.stream(fetchers).map(t -> t.get()).filter(t -> t != myNoMatch).findFirst().orElse(myNoMatch);
 		}
-
-		String resourceType = theClass.getSimpleName(); 
+		String resourceType = "UNKNOWN";
+		if (theClass != null) {
+			resourceType = theClass.getSimpleName(); 
+		}
 		switch (resourceType) {
 
 		case "ValueSet":
