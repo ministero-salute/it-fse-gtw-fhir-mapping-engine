@@ -97,7 +97,7 @@ public class StructuresRepo implements IStructuresRepo {
 			query.addCriteria(Criteria.where("last_update_date").gt(lastUpdateDate));
 			Document definitions = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
 			if(definitions!=null) {
-				List<Document> definition = (List<Document>) definitions.get("definition");
+				List<Document> definition = definitions.getList("definition",Document.class);
 				for(Document d : definition) {
 					String filename = d.getString("filename_definition");
 					Binary contentBinary = (Binary)d.get("content_definition");
@@ -122,7 +122,7 @@ public class StructuresRepo implements IStructuresRepo {
 			FindIterable<Document> documents =	mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort);
 			for(Document d : documents) {
 				if(d.get("map")!=null) {
-					List<Document> map = (List<Document>)d.get("map");
+					List<Document> map = d.getList("map",Document.class);
 					for(Document m : map) {
 						out = new StructureMapDTO();
 						out.setContentStructureMap((Binary)m.get("content_map"));
@@ -155,7 +155,7 @@ public class StructuresRepo implements IStructuresRepo {
 			FindIterable<Document> documents =	mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort);
 			for(Document d : documents) {
 				if(d.get("map")!=null) {
-					List<Document> map = (List<Document>)d.get("map");
+					List<Document> map = d.getList("map",Document.class);
 					for(Document m : map) {
 						out = new StructureMapDTO();
 						out.setContentStructureMap((Binary)m.get("content_map"));
