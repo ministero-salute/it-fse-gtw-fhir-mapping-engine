@@ -13,12 +13,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.Trasformer;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.CDAHelper;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructureMapRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IValueSetRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.StructureMapETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapSingleton;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.ValueSetSingleton;
@@ -34,18 +33,15 @@ public class TransformerSRV implements ITransformerSRV {
 	private static final long serialVersionUID = 527508018653373276L;
 
 	@Autowired
-	private IStructureMapRepo structureMapRepo;
-
-	@Autowired
-	private IValueSetRepo valueSetRepo;
+	private IStructuresRepo structuresRepo;
 
 	@Autowired
 	private Environment environment;
 
 	@PostConstruct
 	void postConstruct() {
-		ValueSetSingleton.initialize(valueSetRepo);
-		StructureMapSingleton.initialize(structureMapRepo);
+		ValueSetSingleton.initialize(structuresRepo);
+		StructureMapSingleton.initialize(structuresRepo);
 	}
 
 
@@ -54,12 +50,12 @@ public class TransformerSRV implements ITransformerSRV {
 		String bundle = "";
 		try {
 			if(isDevProfile() && cda.contains("http://hl7.org/fhir/tutorial")) {
-				StructureMapETY mapETY = structureMapRepo.findMapByName("step01");
+				StructureMapDTO mapETY = structuresRepo.findMapByName("step01");
 				StructureMapSingleton singleton = StructureMapSingleton.getAndUpdateInstance(mapETY.getNameStructureMap());
 				bundle = Trasformer.transform(new ByteArrayInputStream(cda.getBytes(StandardCharsets.UTF_8)), singleton.getStructureMap());
 			} else {
 				String templateIdRoot = CDAHelper.extractTemplateId(cda);
-				StructureMapETY mapETY = structureMapRepo.findMapByTemplateIdRoot(templateIdRoot);
+				StructureMapDTO mapETY = structuresRepo.findMapByTemplateIdRoot(templateIdRoot);
 				if(mapETY!=null) {
 					StructureMapSingleton singleton = StructureMapSingleton.getAndUpdateInstance(mapETY.getNameStructureMap());
 					bundle = Trasformer.transform(new ByteArrayInputStream(cda.getBytes(StandardCharsets.UTF_8)), singleton.getStructureMap());

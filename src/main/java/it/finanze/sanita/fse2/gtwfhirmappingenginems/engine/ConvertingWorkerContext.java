@@ -58,7 +58,7 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 	private final IVersionTypeConverter myModelConverter;
 
 	private XVerExtensionManager xverManager;
- 
+
 
 
 	public ConvertingWorkerContext(IValidationSupport myValidationSupport) {
@@ -156,18 +156,15 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 		IBaseResource out = null;
 		IBaseResource myNoMatch = null;
 
-		if (theClass == null || Resource.class.equals(theClass)) {
+		if (theClass == null || "Resource".equals(theClass.getSimpleName())) {
 			Supplier<IBaseResource>[] fetchers = new Supplier[] { () -> doFetchResource(ValueSet.class, theUri),
 					() -> doFetchResource(CodeSystem.class, theUri), () -> doFetchResource(StructureDefinition.class, theUri),
 					() -> doFetchResource(Questionnaire.class, theUri),() -> doFetchResource(ConceptMap.class, theUri) };
 			return Arrays.stream(fetchers).map(t -> t.get()).filter(t -> t != myNoMatch).findFirst().orElse(myNoMatch);
 		}
-		String resourceType = "UNKNOWN";
-		if (theClass != null) {
-			resourceType = theClass.getSimpleName(); 
-		}
+		
+		String resourceType = theClass.getSimpleName(); 
 		switch (resourceType) {
-
 		case "ValueSet":
 			ValueSetSingleton valuesetSingleton = ValueSetSingleton.getAndUpdateInstance(theUri);
 			out = valuesetSingleton.getValueSet();

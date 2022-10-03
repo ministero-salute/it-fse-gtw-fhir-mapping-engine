@@ -17,8 +17,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.provider.ValueSetProvider;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.StructureMapETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.StructureDefinitionSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
@@ -52,7 +52,7 @@ class CdaLabItaTest extends AbstractTest {
 		mapsToAdd.add("CdaToFhirTypes.map");
 		
 		for(String mapToAdd : mapsToAdd) {
-			StructureMapETY structureMapETY = new StructureMapETY();
+			StructureMapDTO structureMapETY = new StructureMapDTO();
 			structureMapETY.setContentStructureMap(new Binary(FileUtility.getFileFromInternalResources("lab"+File.separator+"map"+File.separator+mapToAdd)));
 			structureMapETY.setLastUpdateDate(new Date());
 			structureMapETY.setTemplateIdExtension("1.0.0");

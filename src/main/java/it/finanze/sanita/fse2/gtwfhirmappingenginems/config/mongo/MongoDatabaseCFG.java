@@ -57,8 +57,6 @@ public class MongoDatabaseCFG {
                 new MappingMongoConverter(new DefaultDbRefResolver(factory), mongoMappingContext);
 
         converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-
-
         return new MongoTemplate(factory, converter);
     }
   

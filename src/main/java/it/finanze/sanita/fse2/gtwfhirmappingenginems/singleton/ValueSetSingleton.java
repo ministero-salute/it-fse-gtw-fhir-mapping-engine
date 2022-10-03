@@ -6,10 +6,10 @@ import java.util.Map;
 
 import org.hl7.fhir.r4.model.ValueSet;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValuesetDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.FHIRR4Helper;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IValueSetRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.ValuesetETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +29,17 @@ public class ValueSetSingleton {
     @Getter
     private ValueSet valueSet;
     
-    private static IValueSetRepo valuesetRepo;
+    private static IStructuresRepo structuresRepo;
 
 	private ValueSetSingleton(String inValuesetName,ValueSet inValueSet) {
 		valueSet = inValueSet;
 		valuesetName = inValuesetName;
 	}
 
-	public static void initialize(final IValueSetRepo inValuesetRepo) {
-		valuesetRepo = inValuesetRepo;
+	public static void initialize(final IStructuresRepo inStructuresRepo) {
+		if(structuresRepo==null) {
+			structuresRepo = inStructuresRepo;
+		}
 	}
  
     public static ValueSetSingleton getAndUpdateInstance(final String valuesetUri) {
@@ -51,7 +53,7 @@ public class ValueSetSingleton {
     	synchronized(StructureMapSingleton.class) {
 			if (instance == null) {
 				try { 
-	            	ValuesetETY valueSetETY = valuesetRepo.findValueSetByName(valuesetName);
+	            	ValuesetDTO valueSetETY = structuresRepo.findValueSetByName(valuesetName);
 	            	ValueSet valSet = FHIRR4Helper.deserializeResource(ValueSet.class, new String(valueSetETY.getContentValueset().getData(),StandardCharsets.UTF_8));
 	                instance = new ValueSetSingleton(valuesetName, valSet);
 	                mapInstance.put(valuesetName,instance);

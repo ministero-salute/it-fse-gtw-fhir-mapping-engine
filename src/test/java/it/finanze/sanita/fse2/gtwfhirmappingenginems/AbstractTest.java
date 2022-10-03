@@ -6,9 +6,9 @@ import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureDefinitionDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.StructureDefinitionETY;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.StructureMapETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl.StructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,8 +19,7 @@ public abstract class AbstractTest {
 	private MongoTemplate mongoTemplate;
 
 	protected void dropCollections() {
-		mongoTemplate.dropCollection(StructureMapETY.class);
-		mongoTemplate.dropCollection(StructureDefinitionETY.class);
+		mongoTemplate.dropCollection(StructuresRepo.class);
 	}
 	
 	protected void saveStructureDefinition(final String completePath, final String rootDefinition) {
@@ -32,7 +31,7 @@ public abstract class AbstractTest {
 				if (listOfFiles[i].isFile()) {
 					String fileName = listOfFiles[i].getName();
 					byte[] content = FileUtility.getFileFromInternalResources(rootDefinition + File.separator + "structure" +File.separator +fileName);
-					StructureDefinitionETY defETY = new StructureDefinitionETY();
+					StructureDefinitionDTO defETY = new StructureDefinitionDTO();
 					defETY.setContentFile(new Binary(content));
 					defETY.setFileName(fileName);
 					mongoTemplate.insert(defETY);
