@@ -31,7 +31,7 @@ public class TransformerCTL implements ITransformerCTL {
 
 	@Override
 	public TransformResDTO transform(@RequestPart("file") MultipartFile cda, HttpServletRequest request) {
-		log.info("Invoked transform controller");
+		log.debug("Invoked transform controller");
 		TransformResDTO out = new TransformResDTO();
 		if(cda!=null){
 			try {
@@ -43,7 +43,7 @@ public class TransformerCTL implements ITransformerCTL {
 				out.setErrorMessage(ex.getMessage());
 			}
 		}
-		log.info("Conversion of CDA completed");
+		log.debug("Conversion of CDA completed");
 		return out;
 	}
 
