@@ -22,7 +22,7 @@ public class StructureMapDTO {
 
 	private String templateIdRoot;
 	
-	private String templateIdExtension;
+	private String version;
 	
 	private Date lastUpdateDate;
 	 

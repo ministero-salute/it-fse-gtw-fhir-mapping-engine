@@ -21,6 +21,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValuesetDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Repository
@@ -32,7 +33,7 @@ public class StructuresRepo implements IStructuresRepo {
 	 */
 	private static final long serialVersionUID = 8598684510246631340L;
 
-	private static final String COLLECTION_STRUCTURES = "structures";
+	private static final String COLLECTION_STRUCTURES = "transform";
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -69,11 +70,11 @@ public class StructuresRepo implements IStructuresRepo {
 		List<StructureDefinitionDTO> out = new ArrayList<>();
 		try {
 			Query query = new Query();
-			query.fields().include("definition");
+			query.fields().include("definitions");
 			query.with(Sort.by(Sort.Direction.DESC, "last_update_date"));
 			Document definitions = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
 			if(definitions!=null) {
-				List<Document> docs = definitions.getList("definition", Document.class);
+				List<Document> docs = definitions.getList("definitions", Document.class);
 				for(Document d : docs) {
 					String filename = d.getString("filename_definition");
 					Binary contentBinary = (Binary)d.get("content_definition");
@@ -93,11 +94,11 @@ public class StructuresRepo implements IStructuresRepo {
 		List<StructureDefinitionDTO> out = new ArrayList<>();
 		try {
 			Query query = new Query();
-			query.fields().include("definition");
+			query.fields().include("definitions");
 			query.addCriteria(Criteria.where("last_update_date").gt(lastUpdateDate));
 			Document definitions = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
 			if(definitions!=null) {
-				List<Document> definition = definitions.getList("definition",Document.class);
+				List<Document> definition = definitions.getList("definitions",Document.class);
 				for(Document d : definition) {
 					String filename = d.getString("filename_definition");
 					Binary contentBinary = (Binary)d.get("content_definition");
@@ -116,24 +117,32 @@ public class StructuresRepo implements IStructuresRepo {
 	public StructureMapDTO findMapByTemplateIdRoot(final String templateIdRoot) {
 		StructureMapDTO out = null;
 		try {
-			BasicDBObject query=new BasicDBObject("map.template_id_root",templateIdRoot);
-			BasicDBObject fields=new BasicDBObject("map.$", 1);
-			BasicDBObject sort = new BasicDBObject("last_update_date" , -1);
-			FindIterable<Document> documents =	mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort);
-			for(Document d : documents) {
-				if(d.get("map")!=null) {
-					List<Document> map = d.getList("map",Document.class);
-					for(Document m : map) {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("template_id_root").is(templateIdRoot));
+			query.with(Sort.by(Sort.Direction.DESC, "last_update_date"));
+			
+			Document document = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
+			if(document!=null && document.get("maps")!=null) {
+				String rootMap = document.getString("root_map");
+				String version = document.getString("version");
+				Date lastUpdateDate = document.getDate("last_update_date");
+				if(StringUtility.isNullOrEmpty(rootMap)) {
+					throw new BusinessException("Root map non trovata");
+				}
+				
+				List<Document> map = document.getList("maps",Document.class);
+				for(Document m : map) {
+					if(rootMap.equals(m.getString("name_map"))) {
 						out = new StructureMapDTO();
 						out.setContentStructureMap((Binary)m.get("content_map"));
-						out.setLastUpdateDate(m.getDate("last_update_date"));
+						out.setLastUpdateDate(lastUpdateDate);
 						out.setNameStructureMap(m.getString("name_map"));
-						out.setTemplateIdExtension(m.getString("template_id_extension"));
-						out.setTemplateIdRoot(m.getString("template_id_root"));
+						out.setVersion(version);
+						out.setTemplateIdRoot(templateIdRoot);
 						break;
 					}
-				} 
-			}
+				}
+			} 
 
 		} catch(Exception ex) {
 			log.error("Error while perform find map by template id root: ",ex);
@@ -143,31 +152,28 @@ public class StructuresRepo implements IStructuresRepo {
 	}
 
 
-
-
 	@Override
 	public StructureMapDTO findMapByName(final String mapName) {
 		StructureMapDTO out = null;
 		try {
-			BasicDBObject query=new BasicDBObject("map.name_map",mapName);
-			BasicDBObject fields=new BasicDBObject("map.$", 1);
+			BasicDBObject query=new BasicDBObject("maps.name_map",mapName);
+			BasicDBObject fields=new BasicDBObject("maps.$", 1);
 			BasicDBObject sort = new BasicDBObject("last_update_date" , -1);
-			FindIterable<Document> documents =	mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort);
-			for(Document d : documents) {
-				if(d.get("map")!=null) {
-					List<Document> map = d.getList("map",Document.class);
-					for(Document m : map) {
-						out = new StructureMapDTO();
-						out.setContentStructureMap((Binary)m.get("content_map"));
-						out.setLastUpdateDate(m.getDate("last_update_date"));
-						out.setNameStructureMap(m.getString("name_map"));
-						out.setTemplateIdExtension(m.getString("template_id_extension"));
-						out.setTemplateIdRoot(m.getString("template_id_root"));
-						break;
-					}
-				} 
-			}
-
+			Document document = mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort).first();
+			if(document!=null && document.get("maps")!=null) {
+				String templateIdRoot = document.getString("template_id_root");
+				String version = document.getString("version");
+				Date lastUpdateDate = document.getDate("last_update_date");
+				Document map = document.getList("maps",Document.class).get(0);
+				if(map!=null) {
+					out = new StructureMapDTO();
+					out.setContentStructureMap((Binary)map.get("content_map"));
+					out.setLastUpdateDate(lastUpdateDate);
+					out.setNameStructureMap(map.getString("name_map"));
+					out.setVersion(version);
+					out.setTemplateIdRoot(templateIdRoot);
+				}
+			} 
 		} catch(Exception ex) {
 			log.error("Error while perform find map by template id root: ",ex);
 			throw new BusinessException("Error while perform find map by template id root: ",ex);

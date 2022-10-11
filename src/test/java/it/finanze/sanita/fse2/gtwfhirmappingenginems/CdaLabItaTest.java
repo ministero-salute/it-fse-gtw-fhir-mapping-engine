@@ -55,7 +55,7 @@ class CdaLabItaTest extends AbstractTest {
 			StructureMapDTO structureMapETY = new StructureMapDTO();
 			structureMapETY.setContentStructureMap(new Binary(FileUtility.getFileFromInternalResources("lab"+File.separator+"map"+File.separator+mapToAdd)));
 			structureMapETY.setLastUpdateDate(new Date());
-			structureMapETY.setTemplateIdExtension("1.0.0");
+			structureMapETY.setVersion("1.0");
 			structureMapETY.setTemplateIdRoot(TEMPLATE_ID_ROOT);
 			
 			int lastIndext = mapToAdd.lastIndexOf(".");

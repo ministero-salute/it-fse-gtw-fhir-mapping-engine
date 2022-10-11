@@ -41,7 +41,6 @@ public class StructureDefinitionSRV implements IStructureDefinitionSRV {
 		if(structures!=null && !structures.isEmpty()) {
 			for(StructureDefinitionDTO structure:structures) {
 				try {
-					
 					StructureDefinition sd = FHIRHelper.deserializeResource(StructureDefinition.class, new String(structure.getContentFile().getData()));
 					ContextHelper.getConv().getStructures().add(sd);
 				} catch(Exception ex) {
