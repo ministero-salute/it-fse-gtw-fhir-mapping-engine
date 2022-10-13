@@ -1,6 +1,5 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -95,13 +94,11 @@ public class StructuresRepo implements IStructuresRepo {
 	public List<StructureDefinitionDTO> findDeltaStructureDefinition(Date lastUpdateDate) {
 		List<StructureDefinitionDTO> out = new ArrayList<>();
 		try {
-			System.out.println(lastUpdateDate);
 			Query query = new Query();
 			query.fields().include("definitions");
 			query.addCriteria(Criteria.where("last_update_date").gt(lastUpdateDate));
 			Document definitions = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
 			if(definitions!=null) {
-				System.out.println("Sono qui");
 				List<Document> definition = definitions.getList("definitions",Document.class);
 				for(Document d : definition) {
 					String filename = d.getString("filename_definition");

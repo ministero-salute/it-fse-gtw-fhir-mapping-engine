@@ -1,7 +1,5 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
@@ -31,8 +29,6 @@ public class StructureDefinitionSRV implements IStructureDefinitionSRV {
 	@Autowired
 	private IStructuresRepo structuresRepo;
 
-
-	private OffsetDateTime lastUpdateDate;
 	
 	private Date dateUpdate;
 	
@@ -40,9 +36,6 @@ public class StructureDefinitionSRV implements IStructureDefinitionSRV {
 	public void postConstruct() {
 		List<StructureDefinitionDTO> strc =  structuresRepo.findAllStructureDefinition();
 		refreshSDInContext(strc);
-		
-		Date d = new Date();
-		lastUpdateDate = d.toInstant().atOffset(ZoneOffset.UTC);
 		dateUpdate = new Date();
 	}
 
@@ -53,7 +46,6 @@ public class StructureDefinitionSRV implements IStructureDefinitionSRV {
 					StructureDefinition sd = FHIRHelper.deserializeResource(StructureDefinition.class, new String(structure.getContentFile().getData()));
 					ContextHelper.getConv().getStructures().add(sd);
 					dateUpdate = new Date();
-					lastUpdateDate = new Date().toInstant().atOffset(ZoneOffset.UTC);
 				} catch(Exception ex) {
 					log.error("Error while refresh context for structure definitions: " , ex);
 				}
