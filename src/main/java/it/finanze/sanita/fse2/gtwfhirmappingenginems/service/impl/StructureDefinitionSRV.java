@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
@@ -15,8 +17,10 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.ContextHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.FHIRHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IStructureDefinitionSRV;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class StructureDefinitionSRV implements IStructureDefinitionSRV {
 
 	/**
@@ -28,13 +32,18 @@ public class StructureDefinitionSRV implements IStructureDefinitionSRV {
 	private IStructuresRepo structuresRepo;
 
 
-	private Date lastUpdateDate;
+	private OffsetDateTime lastUpdateDate;
+	
+	private Date dateUpdate;
 	
 	@PostConstruct
 	public void postConstruct() {
 		List<StructureDefinitionDTO> strc =  structuresRepo.findAllStructureDefinition();
 		refreshSDInContext(strc);
-		lastUpdateDate = new Date();
+		
+		Date d = new Date();
+		lastUpdateDate = d.toInstant().atOffset(ZoneOffset.UTC);
+		dateUpdate = new Date();
 	}
 
 	private void refreshSDInContext(final List<StructureDefinitionDTO> structures) {
@@ -43,9 +52,10 @@ public class StructureDefinitionSRV implements IStructureDefinitionSRV {
 				try {
 					StructureDefinition sd = FHIRHelper.deserializeResource(StructureDefinition.class, new String(structure.getContentFile().getData()));
 					ContextHelper.getConv().getStructures().add(sd);
+					dateUpdate = new Date();
+					lastUpdateDate = new Date().toInstant().atOffset(ZoneOffset.UTC);
 				} catch(Exception ex) {
-					System.out.println(new String(structure.getContentFile().getData()));
-					System.out.println("Stop:" + ex);
+					log.error("Error while refresh context for structure definitions: " , ex);
 				}
 			}
 		}
@@ -56,7 +66,8 @@ public class StructureDefinitionSRV implements IStructureDefinitionSRV {
      */
     @Scheduled(cron = "${scheduler.structure-definition.run}")   
     public void schedulingTask() {
-    	refreshSDInContext(structuresRepo.findDeltaStructureDefinition(lastUpdateDate));
-    	lastUpdateDate = new Date();
+    	refreshSDInContext(structuresRepo.findDeltaStructureDefinition(dateUpdate));
     }
+    
+ 
 }

@@ -1,8 +1,10 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bson.Document;
 import org.bson.types.Binary;
@@ -42,13 +44,13 @@ public class StructuresRepo implements IStructuresRepo {
 	public ValuesetDTO findValueSetByName(final String valuesetName) {
 		ValuesetDTO out = null;
 		try {
-			BasicDBObject query=new BasicDBObject("valueset.name_valueset",valuesetName);
-			BasicDBObject fields=new BasicDBObject("valueset.$", 1);
+			BasicDBObject query=new BasicDBObject("valuesets.name_valueset",valuesetName);
+			BasicDBObject fields=new BasicDBObject("valuesets.$", 1);
 			BasicDBObject sort = new BasicDBObject("last_update_date" , -1); //Desc sort
 			FindIterable<Document> documents =	mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort);
 			for(Document d : documents) {
-				if(d.get("valueset")!=null) {
-					List<Document> valueset = d.getList("valueset", Document.class);
+				if(d.get("valuesets")!=null) {
+					List<Document> valueset = d.getList("valuesets", Document.class);
 					for(Document v : valueset) {
 						out = new ValuesetDTO();
 						out.setNameValuset(v.getString("name_valueset"));
@@ -93,11 +95,13 @@ public class StructuresRepo implements IStructuresRepo {
 	public List<StructureDefinitionDTO> findDeltaStructureDefinition(Date lastUpdateDate) {
 		List<StructureDefinitionDTO> out = new ArrayList<>();
 		try {
+			System.out.println(lastUpdateDate);
 			Query query = new Query();
 			query.fields().include("definitions");
 			query.addCriteria(Criteria.where("last_update_date").gt(lastUpdateDate));
 			Document definitions = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
 			if(definitions!=null) {
+				System.out.println("Sono qui");
 				List<Document> definition = definitions.getList("definitions",Document.class);
 				for(Document d : definition) {
 					String filename = d.getString("filename_definition");
@@ -156,7 +160,7 @@ public class StructuresRepo implements IStructuresRepo {
 	public StructureMapDTO findMapByName(final String mapName) {
 		StructureMapDTO out = null;
 		try {
-			BasicDBObject query=new BasicDBObject("maps.name_map",mapName);
+			BasicDBObject query=new BasicDBObject("maps.name_map",Pattern.compile(mapName , Pattern.CASE_INSENSITIVE));
 			BasicDBObject fields=new BasicDBObject("maps.$", 1);
 			BasicDBObject sort = new BasicDBObject("last_update_date" , -1);
 			Document document = mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort).first();

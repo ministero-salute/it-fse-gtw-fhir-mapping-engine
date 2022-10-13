@@ -14,7 +14,7 @@ public interface IStructuresRepo extends Serializable{
 	
 	List<StructureDefinitionDTO> findAllStructureDefinition();
 	
-	List<StructureDefinitionDTO> findDeltaStructureDefinition(Date lastUpdateDate);
+	List<StructureDefinitionDTO> findDeltaStructureDefinition(Date lastUpdateDate); 
 	
 	StructureMapDTO findMapByTemplateIdRoot(String templateIdRoot);
 	
