@@ -19,7 +19,7 @@ public final class Constants {
 		/**
 		 * Base path.
 		 */
-		public static final String BASE = "it.finanze.sanita.fse2.gtwfhirmappingenginemsit.sanita.fse.fhirmapping";
+		public static final String BASE = "it.finanze.sanita.fse2.gtwfhirmappingenginems";
 
 		/**
 		 * Controller path.
@@ -46,24 +46,25 @@ public final class Constants {
 		 */
 		public static final String REPOSITORY_MONGO = "it.finanze.sanita.fse2.gtwfhirmappingenginems.repository";
 
-		public static final class Collections {
-
-			public static final String STRUCTURE_DEFINITIONS = "structure_definition";
-			
-			public static final String STRUCTURE_MAP = "structure_map";
-			
-			public static final String VALUESET = "valueset";
-
-			 
-			private Collections() {
-
-			}
-		}
 		
 		private ComponentScan() {
 			//This method is intentionally left blank.
 		}
 
+	}
+	
+	public static final class Collections {
+
+		public static final String STRUCTURE_DEFINITIONS = "structure_definition";
+		
+		public static final String STRUCTURE_MAP = "structure_map";
+		
+		public static final String VALUESET = "valueset";
+
+		 
+		private Collections() {
+
+		}
 	}
  
 	public static final class Profile {
