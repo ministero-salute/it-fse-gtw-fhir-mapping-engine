@@ -16,7 +16,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.Trasformer;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapNewSingleton;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapSingleton;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.ValueSetSingleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +36,7 @@ public class TransformerSRV implements ITransformerSRV {
 	@PostConstruct
 	void postConstruct() {
 		ValueSetSingleton.initialize(structuresRepo);
-		StructureMapNewSingleton.initialize(structuresRepo);
+		StructureMapSingleton.initialize(structuresRepo);
 	}
 
 
@@ -46,7 +46,7 @@ public class TransformerSRV implements ITransformerSRV {
 		try {
 			StructureMapDTO mapsDTO = structuresRepo.findMapsById(objectId);
 			if(mapsDTO!=null) {
-				StructureMapNewSingleton singleton = StructureMapNewSingleton.getAndUpdateInstance(mapsDTO,objectId);
+				StructureMapSingleton singleton = StructureMapSingleton.getAndUpdateInstance(mapsDTO,objectId);
 //				StructureMapSingleton singleton = StructureMapSingleton.getAndUpdateInstance(mapETY.getNameStructureMap(),objectId);
 				bundle = Trasformer.transform(new ByteArrayInputStream(cda.getBytes(StandardCharsets.UTF_8)), singleton.getRootMap(),
 						objectId);

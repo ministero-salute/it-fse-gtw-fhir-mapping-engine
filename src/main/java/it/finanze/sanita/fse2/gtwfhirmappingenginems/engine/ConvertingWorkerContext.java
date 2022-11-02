@@ -36,7 +36,7 @@ import ca.uhn.fhir.context.support.ValidationSupportContext;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapNewSingleton;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapSingleton;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.ValueSetSingleton;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.Getter;
@@ -191,7 +191,7 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 				String objectId = theUri.substring(lastIndexPipe+1, theUri.length());
 				int lastIndexSlash = theUri.lastIndexOf("/");
 				String mapName = theUri.substring(lastIndexSlash+1, lastIndexPipe);
-				StructureMapNewSingleton maps = StructureMapNewSingleton.getMapInstance().get(objectId);
+				StructureMapSingleton maps = StructureMapSingleton.getMapInstance().get(objectId);
 				for(StructureMap sMap : maps.getChildMaps()) {
 					if(mapName.equalsIgnoreCase(sMap.getName())) {
 						out = sMap;
