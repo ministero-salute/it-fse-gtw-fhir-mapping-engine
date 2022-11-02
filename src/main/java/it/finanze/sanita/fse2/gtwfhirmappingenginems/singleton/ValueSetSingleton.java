@@ -53,7 +53,7 @@ public class ValueSetSingleton {
 			mapInstance = new HashMap<>();
 		}
 
-    	synchronized(StructureMapSingleton.class) {
+    	synchronized(ValueSetSingleton.class) {
 			if (instance == null) {
 				try { 
 	            	ValuesetDTO valueSetETY = structuresRepo.findValueSetByName(valuesetName);

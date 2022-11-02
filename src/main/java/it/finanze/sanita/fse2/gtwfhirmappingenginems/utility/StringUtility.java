@@ -94,5 +94,5 @@ public final class StringUtility {
 		}
 		return mapName;
 	}
- 
+	 
 }

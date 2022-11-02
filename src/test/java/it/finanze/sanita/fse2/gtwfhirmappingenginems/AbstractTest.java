@@ -31,8 +31,7 @@ public abstract class AbstractTest {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].isFile()) {
 					String fileName = listOfFiles[i].getName();
-					byte[] content = FileUtility.getFileFromInternalResources(
-							rootDefinition + File.separator + "structure" + File.separator + fileName);
+					byte[] content = FileUtility.getFileFromInternalResources(rootDefinition + File.separator + "structure" + File.separator + fileName);
 					StructureDefinitionDTO defETY = new StructureDefinitionDTO();
 					defETY.setContentFile(new Binary(content));
 					defETY.setFileName(fileName);

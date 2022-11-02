@@ -20,12 +20,14 @@ import org.hl7.fhir.r5.model.Property;
 import org.hl7.fhir.r5.model.StructureDefinition;
 import org.hl7.fhir.r5.model.StructureMap;
 import org.hl7.fhir.r5.model.StructureMap.StructureMapStructureComponent;
-import org.hl7.fhir.r5.utils.structuremap.StructureMapUtilities;
+import org.hl7.fhir.r5.model.UriType;
+
 import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.rest.api.Constants;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.ContextHelper;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StructureMapUtilities;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -33,10 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 public class Trasformer {
 	 
 
-	public static String transform(final InputStream cda, final StructureMap structureMap) {
+	public static String transform(final InputStream cda, final StructureMap structureMap,
+			final String objectId) {
 		String bundle = "";
 		try { 
-			ByteArrayOutputStream baos = transform(false, true, cda, structureMap, ContextHelper.getConv());
+			ByteArrayOutputStream baos = transform(false, true, cda, structureMap, ContextHelper.getConv(),
+					objectId);
 			bundle = new String(baos.toByteArray());
 		} catch(Exception ex) {
 			log.error("Error while perform transform method : " ,ex);
@@ -46,7 +50,8 @@ public class Trasformer {
 	}   
 
 
-	private static ByteArrayOutputStream transform(Boolean xmlOutputFlag, Boolean xmlInputFlag, InputStream input, org.hl7.fhir.r5.model.StructureMap map, ConvertingWorkerContext fhirContext) throws IOException {
+	private static ByteArrayOutputStream transform(Boolean xmlOutputFlag, Boolean xmlInputFlag, InputStream input, org.hl7.fhir.r5.model.StructureMap map, ConvertingWorkerContext fhirContext,
+			String objectId) throws IOException {
 		
 		FhirFormat inFormat = FhirFormat.JSON;
 		if (xmlInputFlag!=null && xmlInputFlag) {
@@ -60,7 +65,9 @@ public class Trasformer {
 		}
 		
 		StructureMapUtilities utils = new MatchboxStructureMapUtilities(fhirContext, new TransformSupportServices(fhirContext, new ArrayList<Base>()));
-		utils.transform(null, src, map, r);
+		 
+		
+		utils.transform(null, src, map, r,objectId);
 		ElementModelSorter.sort(r);
 		if (r.isResource() && "Bundle".contentEquals(r.getType())) {
 			Property bundleType = r.getChildByName("type");

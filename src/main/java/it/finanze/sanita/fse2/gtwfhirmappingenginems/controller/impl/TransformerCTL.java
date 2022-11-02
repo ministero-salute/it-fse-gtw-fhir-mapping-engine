@@ -9,11 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +32,13 @@ public class TransformerCTL implements ITransformerCTL {
 	private ITransformerSRV transformerSRV;
 
 	@Override
-	public TransformResDTO transform(@RequestPart("file") MultipartFile cda, HttpServletRequest request) {
+	public TransformResDTO convertCDAToBundle(FhirResourceDTO fhirResourceDTO, HttpServletRequest request) {
 		log.debug("Invoked transform controller");
 		TransformResDTO out = new TransformResDTO();
-		if(cda!=null){
+		if(fhirResourceDTO.getCda()!=null){
 			try {
-				String cdaString = new String(cda.getBytes(),StandardCharsets.UTF_8);
-				String cdaTrasformed = transformerSRV.transform(cdaString);
+				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
+				String cdaTrasformed = transformerSRV.transform(cdaString, fhirResourceDTO.getObjectId());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Exception ex) {

@@ -3,9 +3,7 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
-import java.util.Date;
-
-import org.bson.types.Binary;
+import java.util.List;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,20 +11,16 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author vincenzoingenito
- * Structur to map structure map.
+ * Structure to map structure map.
  */
 @Data
 @NoArgsConstructor
 public class StructureMapDTO {
  
-	private Binary contentStructureMap;
-
-	private String nameStructureMap;
-
-	private String templateIdRoot;
+	private String id;
 	
-	private String version;
+	private MapDTO rootMap;
 	
-	private Date lastUpdateDate;
+	private List<MapDTO> childsMap;
 	 
 }

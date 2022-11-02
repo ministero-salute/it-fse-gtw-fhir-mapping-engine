@@ -7,5 +7,5 @@ import java.io.Serializable;
 
 public interface ITransformerSRV extends Serializable {
 
-	String transform(String cda);
+	String transform(String cda,String objectId);
 }

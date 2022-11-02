@@ -8,8 +8,10 @@ import lombok.Data;
 @Data
 public class FhirResourceDTO {
 
-	private String cda;
-	
 	private DocumentReferenceDTO documentReferenceDTO;
 	
+	private String cda;
+
+	private String objectId;  
+
 }

@@ -36,7 +36,7 @@ import ca.uhn.fhir.context.support.ValidationSupportContext;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapSingleton;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapNewSingleton;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.ValueSetSingleton;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.Getter;
@@ -49,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper {
-
 
 	private static IValidatorFactory validatorFactory = null;
 
@@ -187,8 +186,26 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 			break;
 		} 
 		case "StructureMap":
-			StructureMapSingleton structuredMapSingleton = StructureMapSingleton.getAndUpdateInstance(theUri);
-			out = structuredMapSingleton.getStructureMap();
+			int lastIndexPipe = theUri.lastIndexOf("|");
+			if(lastIndexPipe!=-1) {
+				String objectId = theUri.substring(lastIndexPipe+1, theUri.length());
+				int lastIndexSlash = theUri.lastIndexOf("/");
+				String mapName = theUri.substring(lastIndexSlash+1, lastIndexPipe);
+				StructureMapNewSingleton maps = StructureMapNewSingleton.getMapInstance().get(objectId);
+				for(StructureMap sMap : maps.getChildMaps()) {
+					if(mapName.equalsIgnoreCase(sMap.getName())) {
+						out = sMap;
+						break;
+					}
+				}
+				
+				if(out==null) {
+					throw new BusinessException("Attenzione. Nessuna mappa trovata per l'id : " + theUri);
+				}
+			} else {
+				throw new BusinessException("Attenzione. Nessuna mappa trovata per l'id : " + theUri);
+			}
+			 
 			break;
 		default:
 			log.warn("Can't fetch resource type: {}", resourceType);

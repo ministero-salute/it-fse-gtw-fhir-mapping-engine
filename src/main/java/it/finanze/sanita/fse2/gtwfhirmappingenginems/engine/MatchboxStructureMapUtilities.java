@@ -51,7 +51,7 @@ import org.hl7.fhir.r5.utils.structuremap.TransformContext;
  * Class to overwrite translation method to fix certain problems with CDA2FHIR
  * mapping
  */
-public class MatchboxStructureMapUtilities extends StructureMapUtilities {
+public class MatchboxStructureMapUtilities extends it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StructureMapUtilities {
   
 
 	public MatchboxStructureMapUtilities(IWorkerContext worker, ITransformerServices services) {

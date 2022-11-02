@@ -6,7 +6,6 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.bson.Document;
 import org.bson.types.Binary;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureDefinitionDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValuesetDTO;
@@ -117,67 +117,46 @@ public class StructuresRepo implements IStructuresRepo {
 	}
 
  
+	
 	@Override
-	public StructureMapDTO findMapByTemplateIdRoot(final String templateIdRoot) {
-		StructureMapDTO out = null;
+	public StructureMapDTO findMapsById(final String objectId) {
+		StructureMapDTO out = new StructureMapDTO();
 		try {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("template_id_root").is(templateIdRoot));
-			query.with(Sort.by(Sort.Direction.DESC, "last_update_date"));
+			query.addCriteria(Criteria.where("_id").is(objectId));
 			
 			Document document = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
 			if(document!=null && document.get("maps")!=null) {
-				String rootMap = document.getString("root_map");
+				out.setId(document.getObjectId("_id").toString());
+				String rootMapName = document.getString("root_map");
 				String version = document.getString("version");
 				Date lastUpdateDate = document.getDate("last_update_date");
-				if(StringUtility.isNullOrEmpty(rootMap)) {
+				if(StringUtility.isNullOrEmpty(rootMapName)) {
 					throw new BusinessException("Root map non trovata");
 				}
 				
 				List<Document> map = document.getList("maps",Document.class);
+				List<MapDTO> childMaps = new ArrayList<>();
 				for(Document m : map) {
-					if(rootMap.equals(m.getString("name_map"))) {
-						out = new StructureMapDTO();
-						out.setContentStructureMap((Binary)m.get("content_map"));
-						out.setLastUpdateDate(lastUpdateDate);
-						out.setNameStructureMap(m.getString("name_map"));
-						out.setVersion(version);
-						out.setTemplateIdRoot(templateIdRoot);
-						break;
+					if(rootMapName.equals(m.getString("name_map"))) {
+						MapDTO rootMap = new MapDTO();
+						rootMap.setContentStructureMap((Binary)m.get("content_map"));
+						rootMap.setLastUpdateDate(lastUpdateDate);
+						rootMap.setNameStructureMap(m.getString("name_map"));
+						rootMap.setVersion(version);
+						out.setRootMap(rootMap);
+					} else {
+						MapDTO childMap = new MapDTO();
+						childMap.setContentStructureMap((Binary)m.get("content_map"));
+						childMap.setLastUpdateDate(lastUpdateDate);
+						childMap.setNameStructureMap(m.getString("name_map"));
+						childMap.setVersion(version);
+						childMaps.add(childMap);
 					}
 				}
+				out.setChildsMap(childMaps);
 			} 
 
-		} catch(Exception ex) {
-			log.error("Error while perform find map by template id root: ",ex);
-			throw new BusinessException("Error while perform find map by template id root: ",ex);
-		}
-		return out;
-	}
-
-
-	@Override
-	public StructureMapDTO findMapByName(final String mapName) {
-		StructureMapDTO out = null;
-		try {
-			BasicDBObject query=new BasicDBObject("maps.name_map",Pattern.compile(mapName , Pattern.CASE_INSENSITIVE));
-			BasicDBObject fields=new BasicDBObject("maps.$", 1);
-			BasicDBObject sort = new BasicDBObject("last_update_date" , -1);
-			Document document = mongoTemplate.getCollection(COLLECTION_STRUCTURES).find(query).projection(fields).sort(sort).first();
-			if(document!=null && document.get("maps")!=null) {
-				String templateIdRoot = document.getString("template_id_root");
-				String version = document.getString("version");
-				Date lastUpdateDate = document.getDate("last_update_date");
-				Document map = document.getList("maps",Document.class).get(0);
-				if(map!=null) {
-					out = new StructureMapDTO();
-					out.setContentStructureMap((Binary)map.get("content_map"));
-					out.setLastUpdateDate(lastUpdateDate);
-					out.setNameStructureMap(map.getString("name_map"));
-					out.setVersion(version);
-					out.setTemplateIdRoot(templateIdRoot);
-				}
-			} 
 		} catch(Exception ex) {
 			log.error("Error while perform find map by template id root: ",ex);
 			throw new BusinessException("Error while perform find map by template id root: ",ex);
