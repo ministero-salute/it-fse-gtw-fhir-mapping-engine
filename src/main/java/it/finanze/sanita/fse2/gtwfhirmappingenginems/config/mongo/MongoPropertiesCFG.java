@@ -13,7 +13,6 @@ import lombok.EqualsAndHashCode;
 
 
 /**
- *	@author vincenzoingenito
  *
  *	Mongo properties configuration.
  */

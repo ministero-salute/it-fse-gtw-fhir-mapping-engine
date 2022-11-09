@@ -22,7 +22,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 
 /**
  * 
- * @author vincenzoingenito
  *
  *	Controller di trasformazione clinical document.
  */
