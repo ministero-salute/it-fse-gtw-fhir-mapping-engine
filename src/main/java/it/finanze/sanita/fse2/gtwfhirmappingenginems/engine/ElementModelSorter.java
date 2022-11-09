@@ -17,7 +17,6 @@ import org.hl7.fhir.r5.model.StructureDefinition;
 /**
  * sort function for elementmodel.Element that can deal with multiple instances of the
  * same StructureMap 
- * @author alexander kreutz
  *
  */
 public class ElementModelSorter {

@@ -138,7 +138,6 @@ import org.hl7.fhir.utilities.xhtml.XhtmlNode;
  * analyse(appInfo, map) - generate profiles and other analysis artifacts for the targets of the transform
  * map generateMapFromMappings(StructureDefinition) - build a mapping from a structure definition with loigcal mappings
  *
- * @author Grahame Grieve
  */
 public class StructureMapUtilities {
 

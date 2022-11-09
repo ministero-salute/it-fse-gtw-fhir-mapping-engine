@@ -4,7 +4,6 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.exception;
 
 /**
- * @author vincenzoingenito
  * 
  * Generic business exception.
  */

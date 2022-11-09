@@ -27,7 +27,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
 
 /**
  * 
- * @author vincenzoingenito
  *
  *	Configuration for MongoDB.
  */

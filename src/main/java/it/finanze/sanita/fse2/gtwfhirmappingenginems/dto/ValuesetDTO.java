@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 
 /**
- * @author vincenzoingenito
  * Structure to map valueset.
  */
 @Data
