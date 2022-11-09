@@ -44,7 +44,6 @@ import org.hl7.fhir.r5.model.StructureMap;
 import org.hl7.fhir.r5.model.UriType;
 import org.hl7.fhir.r5.utils.structuremap.ITransformerServices;
 import org.hl7.fhir.r5.utils.structuremap.SourceElementComponentWrapper;
-import org.hl7.fhir.r5.utils.structuremap.StructureMapUtilities;
 import org.hl7.fhir.r5.utils.structuremap.TransformContext;
 
 /**

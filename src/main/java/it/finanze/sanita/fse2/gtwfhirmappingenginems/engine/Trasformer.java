@@ -20,8 +20,6 @@ import org.hl7.fhir.r5.model.Property;
 import org.hl7.fhir.r5.model.StructureDefinition;
 import org.hl7.fhir.r5.model.StructureMap;
 import org.hl7.fhir.r5.model.StructureMap.StructureMapStructureComponent;
-import org.hl7.fhir.r5.model.UriType;
-
 import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.rest.api.Constants;
@@ -35,12 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 public class Trasformer {
 	 
 
-	public static String transform(final InputStream cda, final StructureMap structureMap,
-			final String objectId) {
+	public static String transform(final InputStream cda, final StructureMap structureMap, final String objectId) {
 		String bundle = "";
 		try { 
-			ByteArrayOutputStream baos = transform(false, true, cda, structureMap, ContextHelper.getConv(),
-					objectId);
+			
+			ByteArrayOutputStream baos = transform(false, true, cda, structureMap, ContextHelper.getConv().get(objectId), objectId);
 			bundle = new String(baos.toByteArray());
 		} catch(Exception ex) {
 			log.error("Error while perform transform method : " ,ex);
@@ -50,13 +47,14 @@ public class Trasformer {
 	}   
 
 
-	private static ByteArrayOutputStream transform(Boolean xmlOutputFlag, Boolean xmlInputFlag, InputStream input, org.hl7.fhir.r5.model.StructureMap map, ConvertingWorkerContext fhirContext,
-			String objectId) throws IOException {
+	private static ByteArrayOutputStream transform(Boolean xmlOutputFlag, Boolean xmlInputFlag, InputStream input, org.hl7.fhir.r5.model.StructureMap map, ConvertingWorkerContext fhirContext, String objectId) throws IOException {
 		
 		FhirFormat inFormat = FhirFormat.JSON;
 		if (xmlInputFlag!=null && xmlInputFlag) {
 			inFormat = FhirFormat.XML;
 		}
+ 
+		
 		org.hl7.fhir.r5.elementmodel.Element src = Manager.parseSingle(fhirContext, input, inFormat);
 		
 		org.hl7.fhir.r5.elementmodel.Element r = getTargetResourceFromStructureMap(map, fhirContext);
@@ -66,7 +64,6 @@ public class Trasformer {
 		
 		StructureMapUtilities utils = new MatchboxStructureMapUtilities(fhirContext, new TransformSupportServices(fhirContext, new ArrayList<Base>()));
 		 
-		
 		utils.transform(null, src, map, r,objectId);
 		ElementModelSorter.sort(r);
 		if (r.isResource() && "Bundle".contentEquals(r.getType())) {

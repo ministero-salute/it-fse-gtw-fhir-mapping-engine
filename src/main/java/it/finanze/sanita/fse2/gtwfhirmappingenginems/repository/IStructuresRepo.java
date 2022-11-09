@@ -21,4 +21,6 @@ public interface IStructuresRepo extends Serializable{
 	
 	StructureMapDTO findMapsById(String objectId);
 	
+	List<StructureDefinitionDTO> findStuctureDefById(String objectId);
+	
 }

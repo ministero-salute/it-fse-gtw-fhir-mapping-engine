@@ -3,6 +3,10 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.helper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hl7.fhir.r5.context.SimpleWorkerContext;
 import org.hl7.fhir.r5.context.SimpleWorkerContext.SimpleWorkerContextBuilder;
 
@@ -31,7 +35,7 @@ public class ContextHelper {
 	private static FhirContext fhirContextR4;
 	
 	@Getter
-	private static ConvertingWorkerContext conv;
+	private static Map<String,ConvertingWorkerContext> conv;
 	
 	static {
 		try {
@@ -45,8 +49,7 @@ public class ContextHelper {
 			fhirContextR4 = FhirContext.forR4();
 			fhirContextR4.setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());
 			
-			IValidationSupport validation = new DefaultProfileValidationSupport(ContextHelper.getFhirContextR4());
-			conv = new ConvertingWorkerContext(validation);
+			conv = new HashMap<>();
 		} catch(Exception ex) {
 			log.error("Error while initialiting contextR5",ex);
 			throw new BusinessException("Error while initialiting contextR5",ex);

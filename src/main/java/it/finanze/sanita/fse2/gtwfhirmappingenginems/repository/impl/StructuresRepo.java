@@ -163,5 +163,31 @@ public class StructuresRepo implements IStructuresRepo {
 		}
 		return out;
 	}
+	
+	
+	@Override
+	public List<StructureDefinitionDTO> findStuctureDefById(final String objectId) {
+		List<StructureDefinitionDTO> out = new ArrayList<>();
+		try {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("_id").is(objectId));
+			
+			Document document = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
+			if(document!=null && document.get("definitions")!=null) {
+				List<Document> defs = document.getList("definitions",Document.class);
+				for(Document d : defs) {
+					StructureDefinitionDTO def = new StructureDefinitionDTO();
+					def.setContentFile((Binary)d.get("content_definition"));
+					def.setFileName(d.getString("name_definition"));
+					out.add(def);
+				}
+			} 
+
+		} catch(Exception ex) {
+			log.error("Error while perform find map by template id root: ",ex);
+			throw new BusinessException("Error while perform find map by template id root: ",ex);
+		}
+		return out;
+	}
 
 }

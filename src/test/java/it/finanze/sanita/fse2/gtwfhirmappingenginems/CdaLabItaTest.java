@@ -20,7 +20,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.provider.ValueSetProvider;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.StructureDefinitionSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,8 +34,8 @@ class CdaLabItaTest extends AbstractTest {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 	
-	@Autowired
-	private StructureDefinitionSRV structureDefinitionSRV;
+//	@Autowired
+//	private StructureDefinitionSRV structureDefinitionSRV;
 	 
 	private String id;
 	@BeforeEach
@@ -76,7 +75,7 @@ class CdaLabItaTest extends AbstractTest {
 		Document docSaved = mongoTemplate.save(docToSave,"transform");
 		id = docSaved.get("_id").toString();
 		
-		structureDefinitionSRV.postConstruct();
+//		structureDefinitionSRV.postConstruct();
 	}
 	
 	private List<Document> getStructureDefinition(final String completePath) {

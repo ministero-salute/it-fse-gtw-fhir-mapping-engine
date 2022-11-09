@@ -1200,8 +1200,7 @@ public class StructureMapUtilities {
 				result.add(v);
 	}
 
-	public void transform(Object appInfo, Base source, StructureMap map, Base target,
-			String objectIdMongo) throws FHIRException {
+	public void transform(Object appInfo, Base source, StructureMap map, Base target, String objectIdMongo) throws FHIRException {
 		TransformContext context = new TransformContext(appInfo);
 		log("Start Transform " + map.getUrl());
 		StructureMapGroupComponent g = map.getGroup().get(0);
