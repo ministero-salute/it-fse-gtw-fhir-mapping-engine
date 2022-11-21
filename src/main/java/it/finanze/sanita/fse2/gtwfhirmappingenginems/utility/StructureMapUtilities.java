@@ -128,6 +128,8 @@ import org.hl7.fhir.utilities.Utilities;
 import org.hl7.fhir.utilities.validation.ValidationOptions;
 import org.hl7.fhir.utilities.xhtml.NodeType;
 import org.hl7.fhir.utilities.xhtml.XhtmlNode;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 /**
  * Services in this class:
  * <p>
@@ -453,11 +455,15 @@ public class StructureMapUtilities {
 		}
 		if (r.hasName()) {
 			String n = ntail(r.getName());
-			if (!n.startsWith("\""))
-				n = "\"" + n + "\"";
-			if (!matchesName(n, r.getSource())) {
-				b.append(" ");
-				b.append(n);
+			if(n!=null) {
+				if (!n.startsWith("\""))
+					n = "\"" + n + "\"";
+				if (!matchesName(n, r.getSource())) {
+					b.append(" ");
+					b.append(n);
+				}
+			} else {
+				throw new BusinessException("n is null!");
 			}
 		}
 		b.append(";");
@@ -620,8 +626,6 @@ public class StructureMapUtilities {
 				b.append(rtp.getValueDecimalType().asStringValue());
 			else if (rtp.hasValueIdType())
 				b.append(rtp.getValueIdType().asStringValue());
-			else if (rtp.hasValueDecimalType())
-				b.append(rtp.getValueDecimalType().asStringValue());
 			else if (rtp.hasValueIntegerType())
 				b.append(rtp.getValueIntegerType().asStringValue());
 			else
@@ -633,13 +637,18 @@ public class StructureMapUtilities {
 	}
 
 	private static void renderDoco(StringBuilder b, String doco) {
-		if (Utilities.noString(doco))
-			return;
-		if (b != null && b.length() > 1 && b.charAt(b.length() - 1) != '\n' && b.charAt(b.length() - 1) != ' ') {
-			b.append(" ");
+		if(b!=null){
+			if (Utilities.noString(doco))
+				return;
+			if (b != null && b.length() > 1 && b.charAt(b.length() - 1) != '\n' && b.charAt(b.length() - 1) != ' ') {
+				b.append(" ");
+			}
+			b.append("// ");
+			b.append(doco.replace("\r\n", " ").replace("\r", " ").replace("\n", " "));
+		} else {
+			throw new BusinessException("b is null!");
 		}
-		b.append("// ");
-		b.append(doco.replace("\r\n", " ").replace("\r", " ").replace("\n", " "));
+
 	}
 
 	private static void renderMultilineDoco(StringBuilder b, String doco, int indent) {

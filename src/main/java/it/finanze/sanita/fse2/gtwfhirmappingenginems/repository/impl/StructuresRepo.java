@@ -57,7 +57,6 @@ public class StructuresRepo implements IStructuresRepo {
 						out = new ValuesetDTO();
 						out.setNameValuset(v.getString("name_valueset"));
 						out.setContentValueset((Binary)v.get("content_valueset"));
-						break;
 					}
 				} 
 			}

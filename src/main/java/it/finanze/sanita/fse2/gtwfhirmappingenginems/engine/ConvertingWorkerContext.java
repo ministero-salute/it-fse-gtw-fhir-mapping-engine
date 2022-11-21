@@ -157,8 +157,10 @@ public class ConvertingWorkerContext extends VersionSpecificWorkerContextWrapper
 	private <T extends IBaseResource> IBaseResource doFetchResource(@Nullable Class<T> theClass, String theUri) {
 		IBaseResource out = null;
 		IBaseResource myNoMatch = null;
-
-		if (theClass == null || "Resource".equals(theClass.getSimpleName())) {
+		
+		
+		
+		if (theClass == null || theClass.isAssignableFrom(Resource.class)) {
 			Supplier<IBaseResource>[] fetchers = new Supplier[] { () -> doFetchResource(ValueSet.class, theUri),
 					() -> doFetchResource(CodeSystem.class, theUri), () -> doFetchResource(StructureDefinition.class, theUri),
 					() -> doFetchResource(Questionnaire.class, theUri),() -> doFetchResource(ConceptMap.class, theUri) };
