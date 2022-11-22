@@ -1,0 +1,1173 @@
+{
+	"resourceType": "Bundle",
+	"id": "841ec968-62b9-4653-853b-83f990e647b1",
+	"identifier": {
+		"system": "urn:oid:2.16.840.1.113883.2.9.2.120.4.4",
+		"value": "030702.TSTSMN63A01F205H.20220325112426.OQlvTq1J",
+		"assigner": {
+			"display": "Regione Lazio"
+		}
+	},
+	"type": "transaction",
+	"timestamp": "2022-03-30T11:24:26+01:00",
+	"entry": [
+		{
+			"fullUrl": "urn:uuid:b90aa11e-4086-44d8-8693-ee03d93638be",
+			"resource": {
+				"resourceType": "Composition",
+				"id": "b90aa11e-4086-44d8-8693-ee03d93638be",
+				"language": "it-IT",
+				"identifier": {
+					"system": "urn:oid:2.16.840.1.113883.2.9.2.120.4.4",
+					"value": "c030702.TSTSMN63A01F205H.20220325112426.TSS1Tkju",
+					"assigner": {
+						"display": "Regione Lazio"
+					}
+				},
+				"status": "final",
+				"type": {
+					"coding": [
+						{
+							"system": "http://loinc.org",
+							"code": "11502-2",
+							"display": "Referto di laboratorio"
+						}
+					]
+				},
+				"subject": {
+					"reference": "urn:uuid:bc95ec28-600f-40f6-a9c1-d893ded82c81"
+				},
+				"encounter": {
+					"reference": "urn:uuid:6a286d21-01cf-4e09-9e69-9bfebe928420"
+				},
+				"date": "2022-03-30T11:24:26+01:00",
+				"author": [
+					{
+						"reference": "urn:uuid:62101aef-dfa5-4aaf-bbf1-4ad34bffb7ec"
+					},
+					{
+						"reference": "urn:uuid:0b208cca-bed2-4b6f-ae05-6be4990fd89d"
+					}
+				],
+				"title": "REFERTO DI LABORATORIO",
+				"confidentiality": "N",
+				"attester": [
+					{
+						"mode": "professional",
+						"party": {
+							"reference": "urn:uuid:e5c9035a-dbbc-4119-bfbe-607747587cf1"
+						}
+					},
+					{
+						"mode": "legal",
+						"time": "2022-03-25T11:00:00+01:00",
+						"party": {
+							"reference": "urn:uuid:15237e52-aeca-4e38-8c92-111e86cff475"
+						}
+					},
+					{
+						"mode": "professional",
+						"time": "2022-03-25T11:00:00+01:00",
+						"party": {
+							"reference": "urn:uuid:5e597536-c36a-4b8d-b1fa-41e607d10cd8"
+						}
+					}
+				],
+				"custodian": {
+					"reference": "urn:uuid:f036d99a-cb5d-47b8-9cc5-2a86646a979c"
+				},
+				"event": [
+					{
+						"period": {
+							"start": "2022-03-24T11:24:26+01:00"
+						},
+						"detail": [
+							{
+								"reference": "urn:uuid:7bb9b6b8-3bc2-4de2-b21b-ab35525abb63"
+							}
+						]
+					}
+				],
+				"section": [
+					{
+						"title": "Esami delle Urine",
+						"code": {
+							"coding": [
+								{
+									"system": "http://loinc.org",
+									"code": "18729-4",
+									"display": "ESAMI DELLE URINE"
+								}
+							]
+						},
+						"section": [
+							{
+								"title": "Albumina nelle Urine",
+								"code": {
+									"coding": [
+										{
+											"system": "http://loinc.org",
+											"code": "14957-5",
+											"display": "Microalbumin Massa/Volume in Urine"
+										},
+										{
+											"system": "urn:oid:2.16.840.1.113883.2.9.2.30.6.11",
+											"code": "0090334.02",
+											"display": "XXX"
+										}
+									]
+								},
+								"text": {
+									"status": "generated",
+									"div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><ul><li><table id=\"nota1\"><thead><tr><th>Esame</th><th>Metodo utilizzato per l'esame</th><th>Materiale utilizzato per l'esame</th><th>Risultato dell'esame</th><th>Commenti e note</th><th>Unità di Misura</th><th>Range di Riferimento</th><th>Criteri per il range di riferimento</th><th>Interpretazione</th><th>Allegati multimediali</th></tr></thead><tbody><tr><td>Microalbumina massa/volume in urine</td><td/><td>Urine</td><td>20</td><td/><td>mg/L</td><td> 0 - 20 </td><td/><td>N</td><td/></tr></tbody></table></li></ul></div>"
+								},
+								"entry": [
+									{
+										"reference": "urn:uuid:323849fb-31b2-403c-8360-f96b2ed8a91b"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"url": "Composition/b90aa11e-4086-44d8-8693-ee03d93638be"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:bc95ec28-600f-40f6-a9c1-d893ded82c81",
+			"resource": {
+				"resourceType": "Patient",
+				"id": "bc95ec28-600f-40f6-a9c1-d893ded82c81",
+				"extension": [
+					{
+						"url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+						"valueAddress": {
+							"line": [
+								"Via voltri 3"
+							],
+							"_line": [
+								{
+									"extension": [
+										{
+											"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+											"valueString": "058091"
+										}
+									]
+								}
+							],
+							"city": "Roma",
+							"district": "RM",
+							"state": "120",
+							"country": "100"
+						}
+					}
+				],
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "TKLEYP93Y27Z315J",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Verdi",
+						"given": [
+							"Giuseppe"
+						]
+					}
+				],
+				"telecom": [
+					{
+						"system": "email",
+						"value": "giuseppe.verdi@gmail.com",
+						"use": "home"
+					},
+					{
+						"system": "phone",
+						"value": "33224456",
+						"use": "mobile"
+					}
+				],
+				"gender": "male",
+				"birthDate": "1993-06-19",
+				"address": [
+					{
+						"use": "home",
+						"line": [
+							"Via Aurora 12"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00187",
+						"country": "100"
+					},
+					{
+						"use": "home",
+						"line": [
+							"Via Canevari 12B"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00138",
+						"country": "100"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Patient?identifier=TKLEYP93Y27Z315J"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:6a286d21-01cf-4e09-9e69-9bfebe928420",
+			"resource": {
+				"resourceType": "Encounter",
+				"id": "6a286d21-01cf-4e09-9e69-9bfebe928420",
+				"status": "finished",
+				"class": {
+					"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+					"code": "AMB",
+					"display": "ambulatory"
+				},
+				"subject": {
+					"reference": "urn:uuid:bc95ec28-600f-40f6-a9c1-d893ded82c81"
+				},
+				"basedOn": [
+					{
+						"reference": "urn:uuid:ce496507-cd4f-428e-8b2f-5cfebc41337d"
+					}
+				],
+				"participant": [
+					{
+						"type": [
+							{
+								"coding": [
+									{
+										"system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+										"code": "REF"
+									}
+								]
+							}
+						],
+						"period": {
+							"start": "2022-03-20T11:00:00+01:00"
+						},
+						"individual": {
+							"reference": "urn:uuid:9c4da581-bc1a-4e48-946d-d7bcdc50a73c"
+						}
+					},
+					{
+						"individual": {
+							"reference": "urn:uuid:68da90ed-7fce-4437-8aa5-73009be9d2a9"
+						}
+					}
+				],
+				"location": [
+					{
+						"location": {
+							"reference": "urn:uuid:a899d3ee-5ec6-495f-9a02-7e4e91442927"
+						}
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"url": "Encounter/6a286d21-01cf-4e09-9e69-9bfebe928420"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:55ef2c4e-d889-4978-8ca1-c0239516df12",
+			"resource": {
+				"resourceType": "Specimen",
+				"id": "55ef2c4e-d889-4978-8ca1-c0239516df12",
+				"type": {
+					"coding": [
+						{
+							"system": "urn:oid:2.16.840.1.113883.5.129",
+							"code": "UR",
+							"display": "Urine"
+						}
+					]
+				},
+				"subject": {
+					"reference": "urn:uuid:bc95ec28-600f-40f6-a9c1-d893ded82c81"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "Specimen/55ef2c4e-d889-4978-8ca1-c0239516df12"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:62101aef-dfa5-4aaf-bbf1-4ad34bffb7ec",
+			"resource": {
+				"resourceType": "PractitionerRole",
+				"id": "62101aef-dfa5-4aaf-bbf1-4ad34bffb7ec",
+				"practitioner": {
+					"reference": "urn:uuid:7e2f62e4-644e-4549-935e-b267c776d8cc"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "PractitionerRole/62101aef-dfa5-4aaf-bbf1-4ad34bffb7ec"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:7e2f62e4-644e-4549-935e-b267c776d8cc",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "7e2f62e4-644e-4549-935e-b267c776d8cc",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "MTCORV58E63L294G",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Cervone",
+						"given": [
+							"Matteo"
+						],
+						"prefix": [
+							"Dr"
+						]
+					}
+				],
+				"telecom": [
+					{
+						"system": "email",
+						"value": "matteo.cervone@gmail.it",
+						"use": "home"
+					},
+					{
+						"system": "email",
+						"value": "matteo.cervone@pec.it",
+						"use": "work"
+					},
+					{
+						"system": "phone",
+						"value": "3478129873",
+						"use": "mobile"
+					}
+				],
+				"address": [
+					{
+						"line": [
+							"Via Milano 7"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00184",
+						"country": "100"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=MTCORV58E63L294G"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:0b208cca-bed2-4b6f-ae05-6be4990fd89d",
+			"resource": {
+				"resourceType": "PractitionerRole",
+				"id": "0b208cca-bed2-4b6f-ae05-6be4990fd89d",
+				"practitioner": {
+					"reference": "urn:uuid:ef48b267-4505-4c2b-9581-2056367f3666"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "PractitionerRole/0b208cca-bed2-4b6f-ae05-6be4990fd89d"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:ef48b267-4505-4c2b-9581-2056367f3666",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "ef48b267-4505-4c2b-9581-2056367f3666",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "FPSSBN85G54D398H",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Mancusi",
+						"given": [
+							"Filippo"
+						]
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=FPSSBN85G54D398H"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:f036d99a-cb5d-47b8-9cc5-2a86646a979c",
+			"resource": {
+				"resourceType": "Organization",
+				"id": "f036d99a-cb5d-47b8-9cc5-2a86646a979c",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.1.2",
+						"value": "120148",
+						"assigner": {
+							"display": "Ministero della Salute"
+						}
+					}
+				],
+				"name": "SAN RAFFAELE NOMENTANA",
+				"telecom": [
+					{
+						"system": "phone",
+						"value": " 390 666 0581",
+						"use": "work"
+					}
+				],
+				"address": [
+					{
+						"line": [
+							"Via Emilio Praga 39"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00137",
+						"country": "100"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Organization?identifier=120148"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:e5c9035a-dbbc-4119-bfbe-607747587cf1",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "e5c9035a-dbbc-4119-bfbe-607747587cf1",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "MURRSI88Y67R012G",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Rossi",
+						"given": [
+							"Maura"
+						]
+					}
+				],
+				"telecom": [
+					{
+						"system": "phone",
+						"value": "062866794",
+						"use": "work"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=MURRSI88Y67R012G"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:15237e52-aeca-4e38-8c92-111e86cff475",
+			"resource": {
+				"resourceType": "PractitionerRole",
+				"id": "15237e52-aeca-4e38-8c92-111e86cff475",
+				"practitioner": {
+					"reference": "urn:uuid:d73195af-fd3e-42f8-8f08-703d88905a05"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "PractitionerRole/15237e52-aeca-4e38-8c92-111e86cff475"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:d73195af-fd3e-42f8-8f08-703d88905a05",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "d73195af-fd3e-42f8-8f08-703d88905a05",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "GPSDGK80E76C765V",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Righi",
+						"given": [
+							"Federico"
+						],
+						"prefix": [
+							"Dttr."
+						]
+					}
+				],
+				"telecom": [
+					{
+						"system": "email",
+						"value": "righi.federico@gmail.com",
+						"use": "home"
+					},
+					{
+						"system": "phone",
+						"value": "330987986",
+						"use": "mobile"
+					}
+				],
+				"address": [
+					{
+						"line": [
+							"Via Corvetto 3"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00164",
+						"country": "100"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=GPSDGK80E76C765V"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:5e597536-c36a-4b8d-b1fa-41e607d10cd8",
+			"resource": {
+				"resourceType": "PractitionerRole",
+				"id": "5e597536-c36a-4b8d-b1fa-41e607d10cd8",
+				"practitioner": {
+					"reference": "urn:uuid:b9cf50e9-8cda-4cf8-bf94-f68c8badcd44"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "PractitionerRole/5e597536-c36a-4b8d-b1fa-41e607d10cd8"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:b9cf50e9-8cda-4cf8-bf94-f68c8badcd44",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "b9cf50e9-8cda-4cf8-bf94-f68c8badcd44",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "RBTAMA67H99H467D",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Rossi",
+						"given": [
+							"Roberta"
+						]
+					}
+				],
+				"telecom": [
+					{
+						"system": "email",
+						"value": "maggi.roberta@gmail.com",
+						"use": "home"
+					},
+					{
+						"system": "phone",
+						"value": "22998276800",
+						"use": "home"
+					}
+				],
+				"address": [
+					{
+						"line": [
+							"Via Corvetto 3"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00164",
+						"country": "100"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=RBTAMA67H99H467D"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:9c4da581-bc1a-4e48-946d-d7bcdc50a73c",
+			"resource": {
+				"resourceType": "PractitionerRole",
+				"id": "9c4da581-bc1a-4e48-946d-d7bcdc50a73c",
+				"practitioner": {
+					"reference": "urn:uuid:73b319d4-8d9c-4a10-a533-244db6381672"
+				},
+				"organization": {
+					"reference": "urn:uuid:dae37b45-629c-4a05-a850-457586ce6d58"
+				},
+				"code": [
+					{
+						"coding": [
+							{
+								"system": "urn:oid:2.16.840.1.113883.2.9.5.1.88",
+								"code": "PRE"
+							}
+						]
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"url": "PractitionerRole/9c4da581-bc1a-4e48-946d-d7bcdc50a73c"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:73b319d4-8d9c-4a10-a533-244db6381672",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "73b319d4-8d9c-4a10-a533-244db6381672",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "STVMG77F45N079MF",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Maggi",
+						"given": [
+							"Silvia"
+						]
+					}
+				],
+				"telecom": [
+					{
+						"system": "email",
+						"value": "maggi.silvia@gmail.com",
+						"use": "home"
+					}
+				],
+				"address": [
+					{
+						"line": [
+							"Via Vittorio Veneto 3"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00187",
+						"country": "100"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=STVMG77F45N079MF"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:dae37b45-629c-4a05-a850-457586ce6d58",
+			"resource": {
+				"resourceType": "Organization",
+				"id": "dae37b45-629c-4a05-a850-457586ce6d58",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.1.2",
+						"value": "120148",
+						"assigner": {
+							"display": "Ministero della Salute"
+						}
+					}
+				],
+				"name": "SAN RAFFAELE NOMENTANA",
+				"telecom": [
+					{
+						"system": "phone",
+						"value": " 390 666 0581",
+						"use": "work"
+					}
+				],
+				"address": [
+					{
+						"line": [
+							"Via Emilio Praga 39"
+						],
+						"_line": [
+							{
+								"extension": [
+									{
+										"url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
+										"valueString": "058091"
+									}
+								]
+							}
+						],
+						"city": "Roma",
+						"district": "RM",
+						"state": "120",
+						"postalCode": "00137",
+						"country": "100"
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Organization?identifier=120148"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:ce496507-cd4f-428e-8b2f-5cfebc41337d",
+			"resource": {
+				"resourceType": "ServiceRequest",
+				"id": "ce496507-cd4f-428e-8b2f-5cfebc41337d",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.9",
+						"value": "[NRE]",
+						"assigner": {
+							"display": "Ministero delle Finanze"
+						}
+					}
+				],
+				"status": "active",
+				"intent": "order",
+				"priority": "asap",
+				"subject": {
+					"reference": "urn:uuid:bc95ec28-600f-40f6-a9c1-d893ded82c81"
+				},
+				"encounter": {
+					"reference": "urn:uuid:6a286d21-01cf-4e09-9e69-9bfebe928420"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "ServiceRequest/ce496507-cd4f-428e-8b2f-5cfebc41337d"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:7bb9b6b8-3bc2-4de2-b21b-ab35525abb63",
+			"resource": {
+				"resourceType": "PractitionerRole",
+				"id": "7bb9b6b8-3bc2-4de2-b21b-ab35525abb63",
+				"practitioner": {
+					"reference": "urn:uuid:c993c6ca-062a-4695-bb20-950522673af1"
+				},
+				"organization": {
+					"reference": "urn:uuid:7528f368-acf5-4edb-bef8-6656924e88e8"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "PractitionerRole/7bb9b6b8-3bc2-4de2-b21b-ab35525abb63"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:c993c6ca-062a-4695-bb20-950522673af1",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "c993c6ca-062a-4695-bb20-950522673af1",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "MRSSIO79H59Z317K",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Rossi",
+						"given": [
+							"Mario"
+						]
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=MRSSIO79H59Z317K"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:7528f368-acf5-4edb-bef8-6656924e88e8",
+			"resource": {
+				"resourceType": "Organization",
+				"id": "7528f368-acf5-4edb-bef8-6656924e88e8",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.1.3",
+						"value": "327700102",
+						"assigner": {
+							"display": "Ministero della Salute"
+						}
+					}
+				],
+				"name": "Nuovo Ospedale S.Agostino (MO)",
+				"partOf": {
+					"reference": "urn:uuid:a093edde-4e39-4c59-b01b-6ed95d7515fa"
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Organization?identifier=327700102"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:a093edde-4e39-4c59-b01b-6ed95d7515fa",
+			"resource": {
+				"resourceType": "Organization",
+				"id": "a093edde-4e39-4c59-b01b-6ed95d7515fa",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.1.1",
+						"value": "080105",
+						"assigner": {
+							"display": "Ministero della Salute"
+						}
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Organization?identifier=080105"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:68da90ed-7fce-4437-8aa5-73009be9d2a9",
+			"resource": {
+				"resourceType": "PractitionerRole",
+				"id": "68da90ed-7fce-4437-8aa5-73009be9d2a9",
+				"practitioner": {
+					"reference": "urn:uuid:2ee02424-1c99-47c3-b622-02cd7208f1d5"
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "PractitionerRole/68da90ed-7fce-4437-8aa5-73009be9d2a9"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:2ee02424-1c99-47c3-b622-02cd7208f1d5",
+			"resource": {
+				"resourceType": "Practitioner",
+				"id": "2ee02424-1c99-47c3-b622-02cd7208f1d5",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+						"value": "SVATPR85Y37T079B",
+						"assigner": {
+							"display": "MEF"
+						}
+					}
+				],
+				"name": [
+					{
+						"family": "Turri",
+						"given": [
+							"Silvia"
+						]
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Practitioner?identifier=SVATPR85Y37T079B"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:a899d3ee-5ec6-495f-9a02-7e4e91442927",
+			"resource": {
+				"resourceType": "Location",
+				"id": "a899d3ee-5ec6-495f-9a02-7e4e91442927",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.1.6",
+						"value": "XXX",
+						"assigner": {
+							"display": "Ministero della Salute"
+						}
+					}
+				],
+				"managingOrganization": {
+					"reference": "urn:uuid:c288f8d8-fec4-48a9-ad17-8d2dd7942ccb"
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Location?identifier=XXX"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:c288f8d8-fec4-48a9-ad17-8d2dd7942ccb",
+			"resource": {
+				"resourceType": "Organization",
+				"id": "c288f8d8-fec4-48a9-ad17-8d2dd7942ccb",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.1.2",
+						"value": "XXX",
+						"assigner": {
+							"display": "Ministero della Salute"
+						}
+					}
+				],
+				"name": "[nome_presidio]",
+				"telecom": [
+					{
+						"system": "phone",
+						"value": "0115678965",
+						"use": "work"
+					}
+				],
+				"partOf": {
+					"reference": "urn:uuid:c9f5ca43-de7e-477e-9019-1feba1a7666a"
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Organization?identifier=XXX"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:c9f5ca43-de7e-477e-9019-1feba1a7666a",
+			"resource": {
+				"resourceType": "Organization",
+				"id": "c9f5ca43-de7e-477e-9019-1feba1a7666a",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.840.1.113883.2.9.4.1.1",
+						"value": "XXX",
+						"assigner": {
+							"display": "Ministero della Salute"
+						}
+					}
+				]
+			},
+			"request": {
+				"method": "PUT",
+				"url": "Organization?identifier=XXX"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:323849fb-31b2-403c-8360-f96b2ed8a91b",
+			"resource": {
+				"resourceType": "DiagnosticReport",
+				"id": "323849fb-31b2-403c-8360-f96b2ed8a91b",
+				"status": "registered",
+				"code": {
+					"coding": [
+						{
+							"system": "http://loinc.org",
+							"code": "14957-5",
+							"display": "Microalbumin Massa/Volume in Urine"
+						}
+					]
+				},
+				"subject": {
+					"reference": "urn:uuid:bc95ec28-600f-40f6-a9c1-d893ded82c81"
+				},
+				"encounter": {
+					"reference": "urn:uuid:6a286d21-01cf-4e09-9e69-9bfebe928420"
+				},
+				"specimen": [
+					{
+						"reference": "urn:uuid:55ef2c4e-d889-4978-8ca1-c0239516df12"
+					}
+				],
+				"result": [
+					{
+						"reference": "urn:uuid:94fd7129-d898-4532-bb11-81c87fc9d6cf"
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"url": "DiagnosticReport/323849fb-31b2-403c-8360-f96b2ed8a91b"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:94fd7129-d898-4532-bb11-81c87fc9d6cf",
+			"resource": {
+				"resourceType": "Observation",
+				"id": "94fd7129-d898-4532-bb11-81c87fc9d6cf",
+				"status": "final",
+				"code": {
+					"coding": [
+						{
+							"system": "http://loinc.org",
+							"code": "14957-5",
+							"display": "Microalbumin Massa/Volume in Urine"
+						},
+						{
+							"system": "urn:oid:2.16.840.1.113883.2.9.2.30.6.11",
+							"code": "0090334.02",
+							"display": "Albumina nelle urine"
+						}
+					]
+				},
+				"subject": {
+					"reference": "urn:uuid:bc95ec28-600f-40f6-a9c1-d893ded82c81"
+				},
+				"encounter": {
+					"reference": "urn:uuid:6a286d21-01cf-4e09-9e69-9bfebe928420"
+				},
+				"effectiveDateTime": "2022-03-30T11:24:26+01:00",
+				"valueQuantity": {
+					"value": 16.00,
+					"unit": "mg/L"
+				},
+				"interpretation": [
+					{
+						"coding": [
+							{
+								"system": "urn:oid:2.16.840.1.113883.5.83",
+								"code": "N",
+								"display": "Normal"
+							}
+						]
+					}
+				],
+				"specimen": {
+					"reference": "urn:uuid:55ef2c4e-d889-4978-8ca1-c0239516df12"
+				},
+				"referenceRange": [
+					{
+						"low": {
+							"value": 0.00,
+							"unit": "mg/L"
+						},
+						"high": {
+							"value": 20.00,
+							"unit": "mg/L"
+						},
+						"type": {
+							"coding": [
+								{
+									"system": "urn:oid:2.16.840.1.113883.5.83",
+									"code": "N",
+									"display": "Normal"
+								}
+							]
+						}
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"url": "Observation/94fd7129-d898-4532-bb11-81c87fc9d6cf"
+			}
+		}
+	]
+}

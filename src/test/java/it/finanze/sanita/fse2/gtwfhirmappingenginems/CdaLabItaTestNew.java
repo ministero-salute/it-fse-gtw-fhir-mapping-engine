@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
-class CdaLabItaTest extends AbstractTest {
+class CdaLabItaTestNew extends AbstractTest {
 
 	@Autowired
 	private ITransformerSRV transformSRV;
@@ -43,21 +43,24 @@ class CdaLabItaTest extends AbstractTest {
 	void setup() {
 		dropCollections();
 		
-		List<Document> definitions = getStructureDefinition("src\\test\\resources\\lab\\structure");
+		List<Document> definitions = getStructureDefinition("src\\test\\resources\\labNew\\structure");
 		List<String> mapsToAdd = new ArrayList<>();
-		mapsToAdd.add("CdaItRefertoMedicinaLaboratorio.map");
-		mapsToAdd.add("CdaItToBundle.map");
-		mapsToAdd.add("CdaToBundle.map");
-		mapsToAdd.add("CdaToFhirTypes.map");
+		mapsToAdd.add("StructureMap-Full-Header_v1.0.map");
+		mapsToAdd.add("DataType_v1.0.map");
 		
 		List<Document> maps = new ArrayList<>();
 		for(String mapToAdd : mapsToAdd) {
 			Document doc = new Document();
 			int lastIndext = mapToAdd.lastIndexOf(".");
 			String nameMap = mapToAdd.substring(0, lastIndext);
-			doc.put("name_map", nameMap);
+			if(nameMap.equals("DataType_v1.0")) {
+				doc.put("name_map", "CdaToFhirDataTypes");
+			} else {
+				doc.put("name_map", nameMap);
+			}
+			
 			doc.put("filename_map", mapToAdd);
-			doc.put("content_map", new Binary(FileUtility.getFileFromInternalResources("lab"+File.separator+"map"+File.separator+mapToAdd)));
+			doc.put("content_map", new Binary(FileUtility.getFileFromInternalResources("labNew"+File.separator+"map"+File.separator+mapToAdd)));
 			maps.add(doc);
 		}
 		
@@ -68,7 +71,7 @@ class CdaLabItaTest extends AbstractTest {
 		docToSave.put("template_id_root", "2.16.840.1.113883.2.9.10.1.1");
 		docToSave.put("last_update_date", new Date());
 		docToSave.put("version", "1.0");
-		docToSave.put("root_map", "CdaItRefertoMedicinaLaboratorio");
+		docToSave.put("root_map", "StructureMap-Full-Header_v1.0");
 		docToSave.put("deleted", false);
 		docToSave.put("last_sync", new Date());
 		

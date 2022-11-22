@@ -1,0 +1,1191 @@
+map "http://hl7.org/fhir/StructureMap/FULLHEADER" = "FULLHEADER"
+
+conceptmap "cm-v3-administrative-gender" {
+  prefix s = "http://terminology.hl7.org/ValueSet/v3-AdministrativeGender"
+  prefix t = "http://hl7.org/fhir/ValueSet/administrative-gender"
+
+  s:M == t:male
+  s:F == t:female
+}
+conceptmap "priority" {
+ prefix s = "http://terminology.hl7.org/ValueSet/v3-ActPriority"
+  prefix t = "http://hl7.org/fhir/ValueSet/request-priority"
+
+  s:R == t:routine
+  s:P == t:asap
+  s:UR == t:urgent
+  s:EM == t: stat
+
+}
+conceptmap "cm-v3-relatesTo-code" {
+  prefix s = "http://terminology.hl7.org/ValueSet/typecode"
+  prefix t = "http://hl7.org/fhir/ValueSet/document-relationship-type"
+
+  s:APND == t:appends
+  s:XFRM == t:trasform
+  s:RPLC == t:replaces
+}
+
+uses "http://hl7.org/fhir/cda/StructureDefinition/ClinicalDocument" alias ClinicalDocument as source
+uses "http://hl7.org/fhir/cda/StructureDefinition/AssignedAuthor" alias AssignedAuthor as queried
+uses "http://hl7.org/fhir/cda/StructureDefinition/AssignedEntity" alias AssignedEntity as queried
+uses "http://hl7.org/fhir/cda/StructureDefinition/AssociatedEntity" alias AssociatedEntity as queried
+uses "http://hl7.org/fhir/cda/StructureDefinition/CustodianOrganization" alias CustodianOrganization as queried
+uses "http://hl7.org/fhir/cda/StructureDefinition/Section" alias Section as queried
+uses "http://hl7.org/fhir/cda/StructureDefinition/PatientRole" alias PatientRole as queried
+uses "http://hl7.org/fhir/StructureDefinition/Bundle" alias Bundle as target
+uses "http://hl7.org/fhir/StructureDefinition/Composition" alias Composition as produced
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as produced
+uses "http://hl7.org/fhir/StructureDefinition/Encounter" alias Encounter as produced
+uses "http://hl7.org/fhir/StructureDefinition/Person" alias Patient as produced
+uses "http://hl7.org/fhir/StructureDefinition/Practitioner" alias Practitioner as produced
+uses "http://hl7.org/fhir/StructureDefinition/Specimen" alias Specimen as produced
+uses "http://hl7.org/fhir/StructureDefinition/Organization" alias Organization as produced
+uses "http://hl7.org/fhir/StructureDefinition/HealthCareFacility" alias HealthCareFacility as queried
+
+imports "http://hl7.org/fhir/StructureMap/CdaToFhirDataTypes"
+
+group CdaToBundle(source cda : ClinicalDocument, target bundle : Bundle) {
+  cda ->  bundle.entry as e, e.request = create('BackboneElement') as request, request.method = 'POST',  e.resource = create('Composition') as composition,  composition.id = uuid() as uuid1,  e.fullUrl = append('urn:uuid:', uuid1), request.url = append('Composition/', uuid1),  bundle.entry as e2, e2.request = create('BackboneElement') as requestPAT, requestPAT.method = 'PUT', e2.resource = create('Patient') as patient,  patient.id = uuid() as uuid2,  e2.fullUrl = append('urn:uuid:', uuid2), bundle.entry as e3, e3.request = create('BackboneElement') as request, request.method = 'POST',  e3.resource = create('Encounter') as encounter,  encounter.id = uuid() as uuid3,  e3.fullUrl = append('urn:uuid:', uuid3),request.url = append('Encounter/', uuid3)
+   //bundle.entry as e4, e4.request = create('BackboneElement') as request, request.method = 'POST',  e4.resource = create('DocumentReference') as DocumentReference,  DocumentReference.id = uuid() as uuid4,  e4.fullUrl = append('urn:uuid:', uuid3),request.url = append('DocumentReference/', uuid4) then {
+then {
+   cda then ClinicalDocumentToBundle(cda, patient, composition, encounter, bundle) "cdatobundle";
+   cda.recordTarget as recordTarget then{
+    recordTarget.patientRole as patient then{
+      patient.id as id -> patient.identifier as identifier then {
+        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+        id.extension as ext->identifier.value = ext then {
+        recordTarget-> requestPAT.url = append('Patient?identifier=',ext) "UUID";
+        }"ext";
+        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"record";
+    }"recPat";
+   }"patient";
+ } "ClinicalDocumentToBody";
+}
+
+group ClinicalDocumentToBundle(source cda : ClinicalDocument, target patient : Patient, target composition : Composition, target encounter : Encounter, target bundle : Bundle) {
+  cda -> bundle.id = uuid() "id";
+  cda.id -> bundle.identifier "identifier";
+  cda -> bundle.type = 'transaction' "type";
+  cda.effectiveTime -> bundle.timestamp;
+cda then ClinicalDocumentComposition(cda, composition, patient, encounter, bundle) "composition";
+
+}
+
+group ClinicalDocumentComposition(source src : ClinicalDocument, target tgt : Composition, target patientResource : Patient, target encounter : Encounter, target bundle : Bundle) {
+  src.languageCode -> tgt.language;
+  src.id where src.setId.exists().not() -> tgt.identifier "identifier";
+  src.setId -> tgt.identifier "identifier";
+  src -> tgt.status = 'final' "status";
+  src.code -> tgt.type;
+  src.title as t -> tgt.title = (t.dataString);
+  src.effectiveTime -> tgt.date;
+  src.versionNumber as versionNumber where(value > 1) -> tgt.extension as ext2 then ChExtEprVersionNumber(versionNumber, ext2);
+  src.confidentialityCode -> tgt.confidentiality;
+  src.recordTarget as recordTarget then {
+    recordTarget.patientRole as patient ->  tgt.subject = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %patientResource.id) then ClinicalDocumentPatientRole(patient, patientResource, bundle) "subject";
+  } "patientRole";
+  
+  //START AUTHOR
+  src.author as srcAuthor ->  bundle.entry as e1, e1.request = create('BackboneElement') as request, request.method = 'POST', e1.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1,  e1.fullUrl = append('urn:uuid:', uuid1), request.url=append('PractitionerRole/', uuid1), tgt.author = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) then {
+    srcAuthor.time as time -> tgt.date;
+    srcAuthor.assignedAuthor as assignedAuthor then {
+      assignedAuthor.code as codice -> practitionerRole.code as code2 then CECodeableConcept(codice,code2);
+      assignedAuthor -> bundle.entry as e2,  e2.request = create('BackboneElement') as request, request.method = 'PUT', e2.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid2,  e2.fullUrl = append('urn:uuid:', uuid2),  practitionerRole.practitioner = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitioner.id) then {
+        srcAuthor.functionCode -> practitionerRole.code;
+        assignedAuthor.code -> practitionerRole.code;
+        assignedAuthor.id as id -> practitioner.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            assignedAuthor-> request.url = append('Practitioner?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+        assignedAuthor.addr -> practitioner.address;      
+        assignedAuthor.telecom -> practitioner.telecom;
+        assignedAuthor.assignedPerson as person then {
+        person.name -> practitioner.name;
+        person.birthTime -> practitioner.birthDate;
+        } "name";
+      } "ASSAUth";
+      assignedAuthor.representedOrganization as representedOrganization ->  bundle.entry as e3,  e3.request = create('BackboneElement') as request, request.method = 'PUT',  e3.resource = create('Organization') as organization,  organization.id = uuid() as uuid3,  e3.fullUrl = append('urn:uuid:', uuid3), practitionerRole.organization = create('Reference') as referenceOrg,  referenceOrg.reference = append('urn:uuid:', uuid3) then {
+        representedOrganization.id as id -> organization.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            representedOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+              representedOrganization.name as v -> organization.name = (v.other);
+        representedOrganization.telecom -> organization.telecom;
+        representedOrganization.addr -> organization.address;
+        representedOrganization.asOrganizationPartOf as OrgPartOf -> bundle.entry as e4,  e4.request = create('BackboneElement') as request, request.method = 'PUT',  e4.resource = create('Organization') as organization1,  organization1.id = uuid() as uuid4,  e4.fullUrl = append('urn:uuid:', uuid4), organization.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization1.id) then {
+          OrgPartOf.id as id -> organization1.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+          OrgPartOf.code -> organization1.type;
+          OrgPartOf.statusCode as status where (value ='active') -> organization1.active = create('boolean'), organization1.active = 'true';
+          OrgPartOf.wholeOrganization as wholeOrgan -> bundle.entry as e10bis,  e10bis.request = create('BackboneElement') as request, request.method = 'PUT',  e10bis.resource = create('Organization') as organization2,  organization2.id = uuid() as uuid5,  e10bis.fullUrl = append('urn:uuid:', uuid5), organization1.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization2.id) then{
+            wholeOrgan.id as id -> organization2.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                wholeOrgan-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+            wholeOrgan.name as v -> organization2.name = (v.other);
+            wholeOrgan.telecom -> organization2.telecom;
+            wholeOrgan.addr -> organization2.address;
+          }"wholeOrganization";
+       
+        } "OrgPartOf";
+      } "representedOrganization"; 
+      assignedAuthor.assignedAuthoringDevice as assignedAuthoringDevice -> bundle.entry as e6bis,  e6bis.request = create('BackboneElement') as request, request.method = 'POST',  e6bis.resource = create('Device') as device,  device.id = uuid() as uuid6bis,  e6bis.fullUrl = append('urn:uuid:', uuid6bis), request.url =append('Device/', uuid6bis), tgt.author = create('Reference') as reference, reference.reference= ('urn:uuid:' + %device.id) then{
+        assignedAuthoringDevice.templateId -> device.identifier;
+        assignedAuthoringDevice.code -> device.type;
+        assignedAuthoringDevice.manufacturerModelName as manufacturerModelName then{
+            manufacturerModelName as m-> device.manufacturer = (m.displayName) "displayRule";
+        } "manufacturer"; 
+        assignedAuthoringDevice.softwareName as softwareName -> device.deviceName as deviceName then{
+			softwareName -> deviceName.type = 'other' "typeName";		
+            softwareName as s -> deviceName.name = (s.displayName) "name";
+        } "deviceName";
+      }"Device";
+    } "assignedAuthor";
+
+    //START DATA ENTER
+  src.dataEnterer as dataEnt ->  bundle.entry as e6, e6.request = create('BackboneElement') as request, request.method = 'POST',  e6.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1,  e6.fullUrl = append('urn:uuid:', uuid1), request.url =append('PractitionerRole/',uuid1) , tgt.author = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) then {
+    dataEnt.time as time -> tgt.date;
+    dataEnt.assignedEntity as assignedEntity -> bundle.entry as e7,  e7.request = create('BackboneElement') as request, request.method = 'PUT', e7.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid2,  e7.fullUrl = append('urn:uuid:', uuid2),  practitionerRole.practitioner = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitioner.id) then {
+      assignedEntity.code as codice -> practitionerRole.code as code2 then CECodeableConcept(codice,code2);
+      assignedEntity.id as id -> practitioner.identifier as identifier then {
+        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+        id.extension as ext->identifier.value = ext then {
+          assignedEntity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+        }"ext";
+        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+    }"identifier";
+      assignedEntity.addr -> practitioner.address;
+      assignedEntity.telecom -> practitioner.telecom;
+      assignedEntity.assignedPerson as person then{
+        person.name -> practitioner.name;
+        person.birthTime -> practitioner.birthDate;
+      }"assignedPerson";
+      assignedEntity.representedOrganization as representedOrganization ->  bundle.entry as e8,  e8.request = create('BackboneElement') as request, request.method = 'PUT',  e8.resource = create('Organization') as organization,  organization.id = uuid() as uuid3, e8.fullUrl = append('urn:uuid:', uuid3), practitionerRole.organization = create('Reference') as referenceOrg,  referenceOrg.reference = append('urn:uuid:', uuid3) then {
+        representedOrganization.id as id -> organization.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            representedOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+        representedOrganization.name as v -> organization.name = (v.other);
+        representedOrganization.telecom -> organization.telecom;
+        representedOrganization.addr -> organization.address;
+        representedOrganization.asOrganizationPartOf as OrgPartOf -> bundle.entry as e9,  e9.request = create('BackboneElement') as request, request.method = 'PUT',  e9.resource = create('Organization') as organization1,  organization1.id = uuid() as uuid4,  e9.fullUrl = append('urn:uuid:', uuid4), organization.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization1.id) then{
+          OrgPartOf.id as id -> organization1.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+          OrgPartOf.code -> organization1.type;
+          OrgPartOf.statusCode as status where (value ='active') -> organization1.active = create('boolean'), organization1.active = 'true';
+          OrgPartOf.wholeOrganization as wholeOrgan -> bundle.entry as e10,  e10.request = create('BackboneElement') as request, request.method = 'PUT',  e10.resource = create('Organization') as organization2,  organization2.id = uuid() as uuid5,  e10.fullUrl = append('urn:uuid:', uuid5), organization1.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization2.id) then{
+            wholeOrgan.id as id -> organization2.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                wholeOrgan-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+            wholeOrgan.name as v -> organization2.name = (v.other);
+            wholeOrgan.telecom -> organization2.telecom;
+            wholeOrgan.addr -> organization2.address;
+          }"wholeOrganization";
+        }"asOrganizationPartOf";
+      }"RepresentedOrganization";
+    }"AssignedEntity";
+  }"DataEnter";
+  } "srcAuthor";
+  
+  //START INFORMANT 1
+  src.informant as informant ->  bundle.entry as e11, e11.request = create('BackboneElement') as request, request.method = 'POST', e11.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1,  e11.fullUrl = append('urn:uuid:', uuid1), request.url = append('PractitionerRole/', uuid1) then {
+    informant -> tgt.attester as attester then {
+        informant -> attester.mode='professional' "mode";
+        informant.assignedEntity as assignedEntity  -> attester.party = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) then {
+        assignedEntity.code -> practitionerRole.code;
+        assignedEntity as entity-> bundle.entry as e12, e12.request = create('BackboneElement') as request, request.method = 'PUT', e12.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid2,  e12.fullUrl = append('urn:uuid:', uuid2), practitionerRole.practitioner = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitioner.id) then {
+          entity.id as id -> practitioner.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              entity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+        entity.addr -> practitioner.address;
+        entity.telecom -> practitioner.telecom;
+        entity.assignedPerson as person then {
+        person.name -> practitioner.name;
+        person.birthTime -> practitioner.birthDate;
+        }"person";
+        entity.representedOrganization as representedOrganization-> bundle.entry as e13, e13.request = create('BackboneElement') as request, request.method = 'PUT', e13.resource = create('Organization') as organization,  organization.id = uuid() as uuid3,  e13.fullUrl = append('urn:uuid:', uuid3),  practitionerRole.organization = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organization.id) then {
+          representedOrganization.id as id -> organization.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              representedOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+        representedOrganization.name as v -> organization.name = (v.other);
+        representedOrganization.telecom -> organization.telecom;
+        representedOrganization.addr -> organization.address;
+        representedOrganization.asOrganizationPartOf -> organization.partOf as partOf then {
+        representedOrganization.asOrganizationPartOf as organizationPartOf -> bundle.entry as e14, e14.request = create('BackboneElement') as request, request.method = 'PUT', e14.resource = create('Organization') as organization1 ,  organization1.id = uuid() as uuid4,  e14.fullUrl = append('urn:uuid:', uuid4), organization.partOf = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organization1.id) then {
+          organizationPartOf.id as id -> organization1.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              organizationPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+        organizationPartOf.code -> organization1.type;
+        organizationPartOf.statusCode as status where(code='active')-> organization1.active =create ('boolean'),organization1.active='true';
+        organizationPartOf.wholeOrganization -> organization1.partOf as partOf1 then{
+        organizationPartOf.wholeOrganization  as wholeOrganization-> bundle.entry as e15, e15.request = create('BackboneElement') as request, request.method = 'PUT', e15.resource = create('Organization') as organization2 ,  organization2.id = uuid() as uuid5,  e15.fullUrl = append('urn:uuid:', uuid5)  , organization1.partOf = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organization2.id) then {
+          wholeOrganization.id as id -> organization2.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              wholeOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+        wholeOrganization.name as v -> organization2.name = (v.other);
+        wholeOrganization.telecom -> organization2.telecom;
+        wholeOrganization.addr -> organization2.address;
+       }"wholeOrganization";
+       }"asOrganizationPartOf";
+       }"partOf";
+        }"qualification";
+        }"organization"; 
+        }"assignedEntity";
+    }"attester";
+    }"informant";
+    }"inform";
+  //START INFORMANT 2
+  src.informant as informant ->  bundle.entry as e16, e16.request = create('BackboneElement') as request, request.method = 'POST', e16.resource = create('RelatedPerson') as relatedPerson,  relatedPerson.id = uuid() as uuid1,  e16.fullUrl = append('urn:uuid:', uuid1),request.url = append('RelatedPerson/',uuid1) then {
+    informant -> tgt.attester as attester then {
+    informant -> attester.mode='professional' "mode";
+    informant.relatedEntity as related  -> attester.party = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %relatedPerson.id) then {
+    related.code -> relatedPerson.relationship;
+    related.telecom -> relatedPerson.telecom;
+    related.addr -> relatedPerson.address;
+    related.name -> relatedPerson.name;
+    related.birthTime -> relatedPerson.birthDate;
+    related->relatedPerson.patient= create('Reference') as reference,  reference.reference = ('urn:uuid:' + %patientResource.id) "reference";
+    
+      }"relatedPerson";
+    }"informant";
+  }"inform2";
+  
+  //START CUSTODIAN
+  src.custodian as custodian then {
+    custodian.assignedCustodian as assignedCustodian -> bundle.entry as e17, e17.request = create('BackboneElement') as request, request.method = 'PUT', e17.resource = create('Organization') as Organization,  Organization.id = uuid() as uuid,  e17.fullUrl = append('urn:uuid:', uuid) then {
+      assignedCustodian.representedCustodianOrganization as representedCustodianOrganization then{
+        representedCustodianOrganization.id as id -> Organization.identifier as identifier then {
+        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+        id.extension as ext->identifier.value = ext then {
+          representedCustodianOrganization -> request.url = append('Organization?identifier=',ext)"UUID";
+        }"ext";
+        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+    }"identifier";
+    representedCustodianOrganization ->  tgt.custodian = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %Organization.id) then CustodianOrganization(representedCustodianOrganization,Organization) "custodian1";
+    }"representedCustodianOrganization";
+    }"organization";
+  }"custodian";
+
+  //START INFORMATION RECIPIENT 
+  src.informationRecipient as informationRecipient then{
+      informationRecipient.intendedRecipient as intendedRecipient  then {
+            intendedRecipient.informationRecipient as informationRecipient2 then{
+                informationRecipient -> tgt.attester as attester then {
+                    informationRecipient2 -> attester.mode = 'professional' "mode";
+                    informationRecipient2 ->  bundle.entry as e19, e19.request = create('BackboneElement') as request, request.method = 'PUT',  e19.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid2,  e19.fullUrl = append('urn:uuid:', uuid2),  attester.party = create('Reference') as reference1, reference1.reference = ('urn:uuid:' + %practitioner.id)  then {
+                      intendedRecipient.id as id -> practitioner.identifier as identifier then {
+                        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                        id.extension as ext->identifier.value = ext then {
+                          intendedRecipient-> request.url = append('Practitioner?identifier=',ext)"UUID";
+                        }"ext";
+                        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                    }"identifier";
+                        intendedRecipient.addr -> practitioner.address;
+                        intendedRecipient.telecom -> practitioner.telecom;
+                        informationRecipient2.name -> practitioner.name;
+                        informationRecipient2.birthTime as bt then {
+                            bt.value as v -> practitioner.birthDate = (v.date);
+                        }"date";
+                    }"PersonRecipient";
+                }"intendedRecipienPract";
+            }"attesterOrg";
+            intendedRecipient.receivedOrganization as receivedOrganization then{
+                informationRecipient -> tgt.attester as attester then {
+                receivedOrganization -> attester.mode = 'official' "mode";
+                receivedOrganization -> bundle.entry as e20, e20.request = create('BackboneElement') as request, request.method = 'PUT',  e20.resource = create('Organization') as organization,  organization.id = uuid() as uuid3,  e20.fullUrl = append('urn:uuid:', uuid3),  attester.party = create('Reference') as reference2, reference2.reference = ('urn:uuid:' + %organization.id) then {
+                  receivedOrganization.id as id -> organization.identifier as identifier then {
+                    id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                    id.extension as ext->identifier.value = ext then {
+                      receivedOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+                    }"ext";
+                    id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                }"identifier";
+                receivedOrganization.name as v -> organization.name = (v.other);
+                receivedOrganization.telecom -> organization.telecom;
+                receivedOrganization.addr -> organization.address;
+                receivedOrganization.asOrganizationPartOf as asOrganizationPartOf -> bundle.entry as e21, e21.request = create('BackboneElement') as request, request.method = 'PUT', e21.resource = create('Organization') as organization2 , organization2.id = uuid() as uuid4,  e21.fullUrl = append('urn:uuid:', uuid4), organization.partOf = create('Reference') as referenceor, referenceor.reference = ('urn:uuid:' + %organization2.id) then {
+                  asOrganizationPartOf.id as id -> organization2.identifier as identifier then {
+                    id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                    id.extension as ext->identifier.value = ext then {
+                      asOrganizationPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+                    }"ext";
+                    id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                }"identifier";
+                    asOrganizationPartOf.code -> organization2.type;
+                    asOrganizationPartOf.statusCode as status where (value ='active') -> organization2.active = create('boolean'), organization2.active = 'true';
+                    asOrganizationPartOf.wholeOrganization as wholeOrganization3 -> bundle.entry as e22, e22.request = create('BackboneElement') as request, request.method = 'PUT', e22.resource = create('Organization') as organization3, organization3.id = uuid() as uuid5,  e22.fullUrl = append('urn:uuid:', uuid5),  organization2.partOf = create('Reference') as referenceor, referenceor.reference = ('urn:uuid:' + %organization3.id) then {
+                      wholeOrganization3.id as id -> organization3.identifier as identifier then {
+                        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                        id.extension as ext->identifier.value = ext then {
+                          wholeOrganization3-> request.url = append('Organization?identifier=',ext)"UUID";
+                        }"ext";
+                        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                    }"identifier";
+                        wholeOrganization3.name as v -> organization3.name = (v.other);
+                        wholeOrganization3.telecom -> organization3.telecom;
+                        wholeOrganization3.addr -> organization3.address;
+                    }"wholeOrganization";
+                }"asOrganizationPartOf";
+                }"receivedOrganization";
+            } "intendedRecipienOrg";
+            }"attesterOrg";
+        }"intendedRecipent";
+    
+}"informationRecipent";
+
+  //START Legal Authenticator
+  src.legalAuthenticator as legalAuth ->  bundle.entry as e23, e23.request = create('BackboneElement') as request, request.method = 'POST', e23.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid,  e23.fullUrl = append('urn:uuid:', uuid), request.url = append('PractitionerRole/', uuid) then {
+    legalAuth -> tgt.attester as attester then {
+      legalAuth -> attester.mode = 'legal' "mode";
+      legalAuth.time -> attester.time;
+      legalAuth -> attester.party = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) then{
+        legalAuth.assignedEntity as entity then {
+          entity ->  bundle.entry as e24, e24.request = create('BackboneElement') as request, request.method = 'PUT', e24.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid1,  e24.fullUrl = append('urn:uuid:', uuid1), practitionerRole.practitioner = create('Reference') as reference, reference.reference = ('urn:uuid:' + %practitioner.id) then {
+            entity.id as id -> practitioner.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                entity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+            entity.addr -> practitioner.address;
+            entity.telecom -> practitioner.telecom;
+            entity.assignedPerson as person then {
+              person.name -> practitioner.name;
+              person.birthTime -> practitioner.birthDate;
+              person.birthTime as birthTime -> practitioner.birthDate = create('date') as date then TSDate(birthTime, date) "birthTime";
+            }"person";
+          }"practitioner";
+          entity.code -> practitionerRole.code; 
+          entity.representedOrganization as rapresentedOrg ->  bundle.entry as e25, e25.request = create('BackboneElement') as request, request.method = 'PUT', e25.resource = create('Organization') as organization,  organization.id = uuid() as uuid2,  e25.fullUrl = append('urn:uuid:', uuid2),  practitionerRole.organization = create('Reference') as reference, reference.reference = ('urn:uuid:' + %organization.id) then {
+            rapresentedOrg.id as id -> organization.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                rapresentedOrg-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+            rapresentedOrg.name as v -> organization.name = (v.other);
+            rapresentedOrg.telecom -> organization.telecom;
+            rapresentedOrg.addr -> organization.address;
+            rapresentedOrg.asOrganizationPartOf as asOrgPartOf then {
+                asOrgPartOf as asOrgPartOf1 -> bundle.entry as e26, e26.request = create('BackboneElement') as request, request.method = 'PUT', e26.resource = create('Organization') as asorganization,  asorganization.id = uuid() as uuid3,  e26.fullUrl = append('urn:uuid:', uuid3), organization.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %asorganization.id) then {
+                  asOrgPartOf1.id as id -> asorganization.identifier as identifier then {
+                    id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                    id.extension as ext->identifier.value = ext then {
+                      asOrgPartOf1-> request.url = append('Organization?identifier=',ext)"UUID";
+                    }"ext";
+                    id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                }"identifier";
+                    asOrgPartOf1.code -> asorganization.type;
+                    asOrgPartOf1.statusCode as status where (code='active') -> asorganization.active = create('boolean'), asorganization.active = true;
+                    //asOrgPartOf1.effectiveTime -> 
+                    asOrgPartOf1.wholeOrganization as wholeOrg then{
+                        wholeOrg as wholeOrg1 -> bundle.entry as e27, e27.request = create('BackboneElement') as request, request.method = 'PUT', e27.resource = create('Organization') as wholeorganization,  wholeorganization.id = uuid() as uuid4,  e27.fullUrl = append('urn:uuid:', uuid4), asorganization.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %wholeorganization.id) then {
+                          wholeOrg1.id as id -> wholeorganization.identifier as identifier then {
+                            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                            id.extension as ext->identifier.value = ext then {
+                              wholeOrg1-> request.url = append('Organization?identifier=',ext)"UUID";
+                            }"ext";
+                            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                        }"identifier";
+                            wholeOrg1.name as v -> wholeorganization.name = (v.other);
+                            wholeOrg1.telecom -> wholeorganization.telecom;
+                            wholeOrg1.addr -> wholeorganization.address;
+                        }"wholeOrg1";
+                    }"wholeOrg";
+                }"asOrgPO";   
+            }"asOrgID";
+          }"LAOrganiz";
+        }"attester1";
+      }"assignedEntity1";
+
+    } "attester";
+   }"legalAuth";
+
+  // START Authenticator 
+  src.authenticator as Auth ->  bundle.entry as e28, e28.request = create('BackboneElement') as request, request.method = 'POST', e28.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1,  e28.fullUrl = append('urn:uuid:', uuid1), request.url = append('PractitionerRole/', uuid1) then {
+    Auth -> tgt.attester as attester then {
+      Auth.time -> attester.time;
+      Auth -> attester.mode = 'professional' "mode";
+      Auth.assignedEntity as entity ->  attester.party = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) then {
+        entity.code -> practitionerRole.code;
+        entity -> bundle.entry as e29, e29.request = create('BackboneElement') as request, request.method = 'PUT', e29.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid2,  e29.fullUrl = append('urn:uuid:', uuid2),  practitionerRole.practitioner = create('Reference') as reference, reference.reference = ('urn:uuid:' + %practitioner.id) then {
+          entity.id as id -> practitioner.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              entity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+        entity.addr -> practitioner.address "address";
+        entity.telecom -> practitioner.telecom "telecom";
+        entity.assignedPerson as person then {
+          person.name -> practitioner.name "personName";
+          person.birthTime -> practitioner.birthDate "birthDate";
+        }"person"; 
+
+      } "practitioner";
+      entity.representedOrganization as reporganization -> bundle.entry as e30, e30.request = create('BackboneElement') as request, request.method = 'PUT', e30.resource = create('Organization') as organization,  organization.id = uuid() as uuid3,  e30.fullUrl = append('urn:uuid:', uuid3), practitionerRole.organization = create('Reference') as reference, reference.reference = ('urn:uuid:' + %organization.id) then {
+        reporganization.id as id -> organization.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            reporganization-> request.url = append('Organization?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+      reporganization.name as v -> organization.name = (v.other);
+      reporganization.telecom -> organization.telecom;
+      reporganization.addr -> organization.address;
+    
+      reporganization.asOrganizationPartOf as organizationpartof-> bundle.entry as e31, e31.request = create('BackboneElement') as request, request.method = 'PUT', e31.resource = create('Organization') as asOrganizationpartof,  asOrganizationpartof.id = uuid() as uuid4,  e31.fullUrl = 'Organization', organization.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %asOrganizationpartof.id) then {
+        organizationpartof.id as id -> asOrganizationpartof.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            organizationpartof-> request.url = append('Organization?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+        organizationpartof.code -> asOrganizationpartof.type;
+        organizationpartof.statusCode as status where (code='active') -> asOrganizationpartof.active = create('boolean'), asOsrganizationpartof.active = 'true';     
+            organizationpartof.wholeOrganization as wholeorg -> bundle.entry as e32, e32.request = create('BackboneElement') as request, request.method = 'PUT', e32.resource = create('Organization') as wholeOrganization,  wholeOrganization.id = uuid() as uuid5,  e32.fullUrl = append('urn:uuid:', uuid5), asOrganizationpartof.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %wholeOrganization.id) then {
+              wholeorg.id as id -> wholeOrganization.identifier as identifier then {
+                id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                id.extension as ext->identifier.value = ext then {
+                  wholeorg-> request.url = append('Organization?identifier=',ext)"UUID";
+                }"ext";
+                id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+            wholeorg.name as v -> wholeOrganization.name = (v.other);
+            wholeorg.telecom -> wholeOrganization.telecom;
+            wholeorg.addr -> wholeOrganization.address;
+
+            }"wholeorg";
+        }"organizationpartof";
+    } "reporganization";
+    }"entity"; 
+    } "attester";
+  } "Auth";
+  // PARTICIPANT
+  src.participant as participant  then {
+     participant.associatedEntity as associetedEntity -> bundle.entry as e313,   e313.request = create('BackboneElement') as request, request.method = 'POST',  e313.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1 ,  e313.fullUrl = append('urn:uuid:', uuid1), request.url = append('PractitionerRole/',uuid1), encounter.participant = create('BackboneElement') as participant1 then { 
+      participant.time as time->participant1.period as period ,period.start=(time.value);
+      participant as p -> participant1.type as type then { 
+        p -> type.coding as coding then{
+          p-> coding.code = (p.typeCode) "codice";
+          p-> coding.system = 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType' "system";
+        } "codeType"; 
+      }"type";
+      participant-> participant1.individual = create('Reference') as referencepart, referencepart.reference =  ('urn:uuid:' + %practitionerRole.id)"par";
+      participant.functionCode -> practitionerRole.code;
+      associetedEntity  -> bundle.entry as e33, e33.request = create('BackboneElement') as request, request.method = 'PUT', e33.resource = create('Practitioner') as practitioner, practitioner.id = uuid() as uuid2, e33.fullUrl = append('urn:uuid:', uuid2),  practitionerRole.practitioner = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitioner.id) then {
+        associetedEntity.id as id -> practitioner.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            associetedEntity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+      associetedEntity.code -> practitionerRole.code;
+      associetedEntity.addr -> practitioner.address;
+      associetedEntity.telecom -> practitioner.telecom;
+      associetedEntity.associatedPerson as associatedperson then {
+      associatedperson.name -> practitioner.name;
+      associatedperson.birthTime -> practitioner.birthDate;
+    } "name";
+    associetedEntity.scopingOrganization as scopingOrganization ->  bundle.entry as e34, e34.request = create('BackboneElement') as request, request.method = 'PUT', e34.resource = create('Organization') as organization,  organization.id = uuid() as uuid3,  e34.fullUrl = append('urn:uuid:', uuid3),  practitionerRole.organization = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organization.id) then{
+      scopingOrganization.id as id -> organization.identifier as identifier then {
+        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+        id.extension as ext->identifier.value = ext then {
+          scopingOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+        }"ext";
+        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+    }"identifier";
+      scopingOrganization.name as v -> organization.name = (v.other);
+      scopingOrganization.telecom -> organization.telecom;
+      scopingOrganization.addr -> organization.address; 
+      scopingOrganization.asOrganizationPartOf as OrgPartOf -> bundle.entry as e35,  e35.request = create('BackboneElement') as request, request.method = 'PUT',  e35.resource = create('Organization') as organization1,  organization1.id = uuid() as uuid4,  e35.fullUrl = append('urn:uuid:', uuid4),  organization.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization1.id) then{
+        OrgPartOf.id as id -> organization1.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+        OrgPartOf.code -> organization1.type;
+        OrgPartOf.statusCode as status where (value ='active') -> organization1.active = create('boolean'), organization1.active = true;
+        OrgPartOf.wholeOrganization as wholeOrgan -> bundle.entry as e36, e36.request = create('BackboneElement') as request, request.method = 'PUT',  e36.resource = create('Organization') as organization2,  organization1.id = uuid() as uuid5,  e36.fullUrl = append('urn:uuid:', uuid5), organization1.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization2.id) then {
+          wholeOrgan.id as id -> organization2.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              wholeOrgan-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+          wholeOrgan.name as v -> organization2.name = (v.other);
+          wholeOrgan.telecom -> organization2.telecom;
+          wholeOrgan.addr -> organization2.address;
+        }"wholeOrgan";
+      }"OrgPartOf";       
+    }"scopingOrganization";
+  } "associetedEntity";
+ } "Participant";
+ participant.associatedEntity as associetedEntity where (classCode='PROV')-> bundle.entry as e313,   e313.request = create('BackboneElement') as request, request.method = 'POST',  e313.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1 ,  e313.fullUrl = append('urn:uuid:', uuid1), request.url = append('PractitionerRole/',uuid1), encounter.participant = create('BackboneElement') as participant2 then { 
+  participant.time as time->participant2.period as period, period.start=(time.value);
+  participant as p -> participant2.type as type then { 
+    p -> type.coding as coding then{
+      p-> coding.code = (p.typeCode) "codice";
+      p-> coding.system = 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType' "system";
+    } "codeType"; 
+  }"type";
+  participant-> participant2.individual = create('Reference') as referencepart, referencepart.reference =  ('urn:uuid:' + %practitionerRole.id)"par";
+  participant.functionCode -> practitionerRole.code;
+  associetedEntity  -> bundle.entry as e33, e33.request = create('BackboneElement') as request, request.method = 'PUT', e33.resource = create('Practitioner') as practitioner, practitioner.id = uuid() as uuid2, e33.fullUrl = append('urn:uuid:', uuid2),  practitionerRole.practitioner = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitioner.id) then {
+    associetedEntity.id as id -> practitioner.identifier as identifier then {
+      id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+      id.extension as ext->identifier.value = ext then {
+        associetedEntity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+      }"ext";
+      id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+  }"identifier";
+  associetedEntity.code -> practitionerRole.code;
+  associetedEntity.addr -> practitioner.address;
+  associetedEntity.telecom -> practitioner.telecom;
+  associetedEntity.associatedPerson as associatedperson then {
+  associatedperson.name -> practitioner.name;
+  associatedperson.birthTime -> practitioner.birthDate;
+} "name";
+associetedEntity.scopingOrganization as scopingOrganization ->  bundle.entry as e34, e34.request = create('BackboneElement') as request, request.method = 'PUT', e34.resource = create('Organization') as organization,  organization.id = uuid() as uuid3,  e34.fullUrl = append('urn:uuid:', uuid3),  practitionerRole.organization = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organization.id) then{
+  scopingOrganization.id as id -> organization.identifier as identifier then {
+    id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+    id.extension as ext->identifier.value = ext then {
+      scopingOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+    }"ext";
+    id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+}"identifier";
+  scopingOrganization.name as v -> organization.name = (v.other);
+  scopingOrganization.telecom -> organization.telecom;
+  scopingOrganization.addr -> organization.address; 
+  scopingOrganization.asOrganizationPartOf as OrgPartOf -> bundle.entry as e35,  e35.request = create('BackboneElement') as request, request.method = 'PUT',  e35.resource = create('Organization') as organization1,  organization1.id = uuid() as uuid4,  e35.fullUrl = append('urn:uuid:', uuid4),  organization.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization1.id) then{
+    OrgPartOf.id as id -> organization1.identifier as identifier then {
+      id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+      id.extension as ext->identifier.value = ext then {
+        OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+      }"ext";
+      id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+  }"identifier";
+    OrgPartOf.code -> organization1.type;
+    OrgPartOf.statusCode as status where (value ='active') -> organization1.active = create('boolean'), organization1.active = true;
+    OrgPartOf.wholeOrganization as wholeOrgan -> bundle.entry as e36, e36.request = create('BackboneElement') as request, request.method = 'PUT',  e36.resource = create('Organization') as organization2,  organization1.id = uuid() as uuid5,  e36.fullUrl = append('urn:uuid:', uuid5), organization1.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization2.id) then {
+      wholeOrgan.id as id -> organization2.identifier as identifier then {
+        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+        id.extension as ext->identifier.value = ext then {
+          wholeOrgan-> request.url = append('Organization?identifier=',ext)"UUID";
+        }"ext";
+        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+    }"identifier";
+      wholeOrgan.name as v -> organization2.name = (v.other);
+      wholeOrgan.telecom -> organization2.telecom;
+      wholeOrgan.addr -> organization2.address;
+    }"wholeOrgan";
+  }"OrgPartOf";       
+}"scopingOrganization";
+} "associetedEntity";
+} "Participant";
+
+}"02"; 
+
+	
+ // START PARTICIPANT GUAR
+  src.participant as participant then {
+    participant.time as timeHigh then {
+      timeHigh.high as HIGH -> patientResource.identifier as identifierP then {
+        HIGH -> identifierP.period as periodEnd then{
+          HIGH as high -> periodEnd.end = (high.value)"periodend";
+        }"period09";
+       }"timeH";
+    }"timePart";
+    participant.associatedEntity as associetedentity where (classCode='GUAR') then {
+      associetedentity.scopingOrganization as representedOrganization ->  bundle.entry as e37, e37.request = create('BackboneElement') as request, request.method = 'PUT', e37.resource = create('Organization') as organization,  organization.id = uuid() as uuid1,  e37.fullUrl = append('urn:uuid:', uuid1), patientResource.generalPractitioner = create('Reference') as referenceOrg,  referenceOrg.reference = append('urn:uuid:', uuid1) then {    
+        associetedentity.code -> organization.type;
+        associetedentity.scopingOrganization as scopingOrganization then { 
+          scopingOrganization.id as id -> organization.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              scopingOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+        scopingOrganization.name as v -> organization.name = (v.other);
+        scopingOrganization.telecom -> organization.telecom;
+        scopingOrganization.addr -> organization.address; 
+        scopingOrganization.asOrganizationPartOf as OrgPartOf -> bundle.entry as e38,  e38.request = create('BackboneElement') as request, request.method = 'PUT',  e38.resource = create('Organization') as organizationPOF,  organizationPOF.id = uuid() as uuid2, e38.fullUrl = append('urn:uuid:', uuid2), organization.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organizationPOF.id) then{
+          OrgPartOf.id as id -> organizationPOF.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+          OrgPartOf.code -> organizationPOF.type;
+          OrgPartOf.statusCode as status where (value ='active') -> organizationPOF.active = create('boolean'), organizationPOF.active = 'true';
+          OrgPartOf.wholeOrganization as wholeOrgan -> bundle.entry as e39,  e39.request = create('BackboneElement') as request, request.method = 'PUT',  e39.resource = create('Organization') as organizationW,  organizationW.id = uuid() as uuid3,  e39.fullUrl = append('urn:uuid:', uuid3), organizationPOF.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organizationW.id) then {
+            wholeOrgan.id as id -> organizationW.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                wholeOrgan-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+            wholeOrgan.name as v -> organizationW.name = (v.other);
+            wholeOrgan.telecom -> organizationW.telecom;
+            wholeOrgan.addr -> organizationW.address;
+          }"wholeOrgan";
+        }"OrgPartOf";       
+      }"scopingOrganization";
+      } "associetedEntity";
+    }"repOrg";
+  };  
+  src.inFulfillmentOf as inFulfillmentOf then{
+    inFulfillmentOf.order as order -> bundle.entry as e40,  e40.request = create('BackboneElement') as request, request.method = 'POST', e40.resource = create('ServiceRequest') as serviceRequest,  serviceRequest.id = uuid() as uuid1,  e40.fullUrl = append('urn:uuid:', uuid1), request.url = append('ServiceRequest/',uuid1), encounter.basedOn = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %serviceRequest.id) then {
+        order.id -> serviceRequest.identifier;
+        order -> serviceRequest.status='active'"status";
+        order -> serviceRequest.intent='order'"intent";
+        order -> serviceRequest.subject=create('Reference') as reference,  reference.reference = ('urn:uuid:' + %patientResource.id) "reference";
+        order -> serviceRequest.encounter=create('Reference') as reference,  reference.reference = ('urn:uuid:' + %encounter.id) "reference";
+         order.code -> serviceRequest.code;
+        order.priorityCode as priorityCode then{
+          priorityCode.code as v -> serviceRequest.priority = translate(v, '#priority', 'code') "priority";
+      }"priorityCode";
+    } "order";
+  } "inFulfillmentOf";
+  src.documentationOf as docOf then {
+    docOf.serviceEvent as serviceEvent -> tgt.event as event then {
+      serviceEvent.code -> event.code "eventCode";
+      serviceEvent.effectiveTime as effectiveTime then {
+        effectiveTime -> event.period as period then {
+        effectiveTime.low -> period.start;
+        effectiveTime.high -> period.end;        
+        effectiveTime where (effectiveTime.value) -> period.start = create('dateTime') as startP then TSDateTime(effectiveTime,startP) "startP";
+      }"period_DT";
+    }"eventDT";
+      serviceEvent.performer as performer ->  bundle.entry as e41, e41.request = create('BackboneElement') as request, request.method = 'POST',  e41.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1,  e41.fullUrl = append('urn:uuid:', uuid1), request.url = append('PractitionerRole/', uuid1) then{
+			performer -> event.detail = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) then {
+        performer.assignedEntity as assignedEntity -> bundle.entry as e42,  e42.request = create('BackboneElement') as request, request.method = 'PUT', e42.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as uuid2,  e42.fullUrl = append('urn:uuid:', uuid2), practitionerRole.practitioner = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitioner.id) then {
+          performer.functionCode -> practitionerRole.code;
+          assignedEntity.code -> practitionerRole.code;
+          assignedEntity.id as id -> practitioner.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              assignedEntity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+          assignedEntity.addr -> practitioner.address;
+          assignedEntity.telecom -> practitioner.telecom;
+          assignedEntity.assignedPerson as person then {
+            person.name -> practitioner.name;
+            person.birthTime -> practitioner.birthDate;
+            
+          } "name";
+          assignedEntity.representedOrganization as representedOrganization ->  bundle.entry as e8,  e8.request = create('BackboneElement') as request, request.method = 'PUT',  e8.resource = create('Organization') as organization,  organization.id = uuid() as uuid3, e8.fullUrl = append('urn:uuid:', uuid3), practitionerRole.organization = create('Reference') as referenceOrg,  referenceOrg.reference = append('urn:uuid:', uuid3) then {
+            representedOrganization.id as id -> organization.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                representedOrganization-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+            representedOrganization.name as v -> organization.name = (v.other);
+            representedOrganization.telecom -> organization.telecom;
+            representedOrganization.addr -> organization.address;
+            representedOrganization.asOrganizationPartOf as OrgPartOf -> bundle.entry as e9,  e9.request = create('BackboneElement') as request, request.method = 'PUT',  e9.resource = create('Organization') as organization1,  organization1.id = uuid() as uuid4,  e9.fullUrl = append('urn:uuid:', uuid4), organization.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization1.id) then{
+              OrgPartOf.id as id -> organization1.identifier as identifier then {
+                id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                id.extension as ext->identifier.value = ext then {
+                  OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+                }"ext";
+                id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+              OrgPartOf.code -> organization1.type;
+              OrgPartOf.statusCode as status where (value ='active') -> organization1.active = create('boolean'), organization1.active = 'true';
+              OrgPartOf.wholeOrganization as wholeOrgan -> bundle.entry as e10,  e10.request = create('BackboneElement') as request, request.method = 'PUT',  e10.resource = create('Organization') as organization2,  organization2.id = uuid() as uuid5,  e10.fullUrl = append('urn:uuid:', uuid5), organization1.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization2.id) then{
+                wholeOrgan.id as id -> organization2.identifier as identifier then {
+                  id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                  id.extension as ext->identifier.value = ext then {
+                    wholeOrgan-> request.url = append('Organization?identifier=',ext)"UUID";
+                  }"ext";
+                  id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+              }"identifier";
+                wholeOrgan.name as v -> organization2.name = (v.other);
+                wholeOrgan.telecom -> organization2.telecom;
+                wholeOrgan.addr -> organization2.address;
+              }"wholeOrganization";
+            }"asOrganizationPartOf";
+          }"RepresentedOrganization";
+        }"AssignedEntity";
+      }"performer";
+   } "docOf";
+  };
+  src.participant where src.componentOf.exists().not() ->  tgt.encounter = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %encounter.id) "encounterExist";
+  src.componentOf as comp then {
+    comp.encompassingEncounter as srcEnc ->  tgt.encounter = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %encounter.id) then ClinicalDocumentEncounter(srcEnc, bundle, encounter,patientResource);
+    }"encompassingEncounter";
+    
+    //Related document 
+    src.relatedDocument as relatedDocument -> tgt.relatesTo as relatesTo then{
+      relatedDocument.typecode as v-> relatesTo.code as code then{
+              v -> code = translate(v, '#cm-v3-relatesTo-code', 'code') "relationship";
+              } "code";
+      relatedDocument.parentDocument as parentDocument -> bundle.entry as e, e.request = create('BackboneElement') as request, request.method = 'POST', e.resource = create('Composition') as composition2,  composition2.id = uuid() as uuid2,  e.fullUrl = append('urn:uuid:', uuid2) then {
+          parentDocument -> relatesTo.target = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %composition2.id) then ClinicalDocumentRelatesTo(parentDocument, composition2) "referenceComposition";
+      } "parentDocument";
+  };
+  };
+}
+
+group ClinicalDocumentRelatesTo(source src: parentDocument, target tgt: composition){
+    src.id -> tgt.identifier;
+    src.code -> tgt.type;
+    src.setId -> tgt.identifier;
+    src.versionNumber as vNumber -> tgt.extension as ext then ChExtEprVersionNumber(vNumber, ext) "versionNumberEXT";
+}
+
+
+
+group EXTbirthplace(source src : AD, target ext : Extension) {
+  src -> ext.url = 'http://hl7.org/fhir/StructureDefinition/patient-birthPlace' "url";
+  src -> ext.value = create('Address') as value then ADAddress(src, value) "value";
+
+} 
+group ClinicalDocumentPatientRole(source src : PatientRole, target tgt : Patient, target bundle : Bundle) {
+  src.addr -> tgt.address;
+  src.telecom -> tgt.telecom;
+  src.patient as patient then {
+    patient.name -> tgt.name;
+    patient.administrativeGenderCode as gender then {
+      gender.code as v -> tgt.gender = translate(v, '#cm-v3-administrative-gender', 'code') "gender";
+    } "gender";
+    patient.birthTime -> tgt.birthDate "birthDate";
+    patient.deceasedInd as deceased where (value='false')-> tgt.deceased = create('boolean'), tgt.deceased = false "deceasedBL";
+    patient.deceasedInd as deceased where (value='true') then {
+        patient.deceasedTime as Time-> tgt.deceased = create('dateTime') as deceasedTime then TSDateTime(Time,deceasedTime);
+    };
+    patient.deceasedTime as Timet where Timet.empty() -> tgt.deceased = create('boolean'), tgt.deceased = true "deceasedBL";
+    patient.maritalStatusCode -> tgt.maritalStatus "maritalStatus";
+    patient.guardian as guardian then {
+        guardian.guardianPerson as person -> bundle.entry as e, e.request = create('BackboneElement') as request, request.method = 'POST',  e.resource = create('RelatedPerson') as relatedPerson,  relatedPerson.id = uuid() as uuid1,  e.fullUrl = append('urn:uuid:', uuid1), request.url= append('RelatedPerson',uuid1) then {
+          
+         person.name -> relatedPerson.name;
+          person.birthTime -> relatedPerson.birthDate;
+          person-> relatedPerson.patient = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %tgt.id) "reference";
+          person ->  tgt.link as link then {
+          person ->  link.type='refer'"type";
+          person -> link.other = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %relatedPerson.id) "reference";
+           guardian.addr -> relatedPerson.address;
+           guardian.telecom -> relatedPerson.telecom;
+           guardian.id -> relatedPerson.identifier;
+           guardian.code -> relatedPerson.relationship;
+         } "person";
+       }"guardianPerson";
+        guardian.guardianOrganization as guardianorg -> bundle.entry as e1, e1.request = create('BackboneElement') as request, request.method = 'PUT',   e1.resource = create('Organization') as organizationcontact,  organizationcontact.id = uuid() as uuid2,  e1.fullUrl = append('urn:uuid:', uuid2) then {
+           guardianorg ->  tgt.contact as contact then {
+            guardianorg -> contact.organization  = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organizationcontact.id) "OrganizationContact";
+            guardianorg.id as id -> organizationcontact.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                guardianorg-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+                 guardianorg.name as v -> organizationcontact.name = (v.other);
+                 guardianorg.telecom -> organizationcontact.telecom;
+                 guardianorg.addr -> organizationcontact.address;
+            guardianorg.asOrganizationPartOf as OrgPartOf -> bundle.entry as e2, e2.request = create('BackboneElement') as request, request.method = 'PUT',  e2.resource = create('Organization') as organizationpartOf,  organizationpartOf.id = uuid() as uuid3,  e2.fullUrl = append('urn:uuid:', uuid3) then {
+               OrgPartOf -> organizationcontact.partOf  = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organizationpartOf.id) "asorganization";
+               OrgPartOf.id as id -> organizationpartOf.identifier as identifier then {
+                id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                id.extension as ext->identifier.value = ext then {
+                  OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+                }"ext";
+                id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+                OrgPartOf.code -> organizationpartOf.type;
+                OrgPartOf.statusCode as status where (value ='active') -> organizationpartOf.active = 'true';
+                    OrgPartOf.wholeOrganization as wholeORG -> bundle.entry as e3, e3.request = create('BackboneElement') as request, request.method = 'PUT',  e3.resource = create('Organization') as WholeOrganization,  WholeOrganization.id = uuid() as uuid4,  e3.fullUrl = append('urn:uuid:', uuid4)  then {
+                       wholeORG -> organizationpartOf.partOf  = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %WholeOrganization.id) "asOrganization";
+                       wholeORG.id as id -> WholeOrganization.identifier as identifier then {
+                        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                        id.extension as ext->identifier.value = ext then {
+                          wholeORG-> request.url = append('Organization?identifier=',ext)"UUID";
+                        }"ext";
+                        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                    }"identifier";
+                       wholeORG.name as v -> WholeOrganization.name = (v.other);
+                      wholeORG.telecom -> WholeOrganization.telecom;
+                      wholeORG.addr -> WholeOrganization.address;
+                      }"WholeOrganization";
+                 }"OrganizationPartOf";
+              }"contact";
+         } "guardianorganization";
+    }"guardian";
+    patient.birthplace as birthplace then {
+      birthplace.place as place then {
+       place.addr as address-> tgt.extension as ext1 then EXTbirthplace(address, ext1) "birthplace";
+         } "place";
+      }"birthplace";
+ src.providerOrganization as org ->  bundle.entry as e4, e4.request = create('BackboneElement') as request, request.method = 'PUT',  e4.resource = create('Organization') as providerorganization,  providerorganization.id = uuid() as uuid5,  e4.fullUrl = append('urn:uuid:', uuid5) then {
+       org ->  tgt.managingOrganization = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %providerorganization.id) "reference";
+       org.id as id -> providerorganization.identifier as identifier then {
+        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+        id.extension as ext->identifier.value = ext then {
+          org-> request.url = append('Organization?identifier=',ext)"UUID";
+        }"ext";
+        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+    }"identifier";
+          org.name as v -> providerorganization.name = (v.other);
+           org.telecom -> providerorganization.telecom;
+            org.addr -> providerorganization.address;
+            org.asOrganizationPartOf as OrgPartOfProvider ->bundle.entry as e5, e5.request = create('BackboneElement') as request, request.method = 'PUT',  e5.resource = create('Organization') as organizationpartOfprovider,  organizationpartOfprovider.id = uuid() as uuid6,  e5.fullUrl = append('urn:uuid:', uuid6) then {
+              OrgPartOfProvider -> providerorganization.partOf  = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %organizationpartOfprovider.id) "asorganization";
+              OrgPartOfProvider.id as id -> organizationpartOfprovider.identifier as identifier then {
+                id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                id.extension as ext->identifier.value = ext then {
+                  OrgPartOfProvider-> request.url = append('Organization?identifier=',ext)"UUID";
+                }"ext";
+                id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+              OrgPartOfProvider.code -> organizationpartOfprovider.type;
+              OrgPartOfProvider.statusCode as status where (value ='active') -> organizationpartOfprovider.active = 'true';
+              OrgPartOfProvider.wholeOrganization as wholeORGproveder-> bundle.entry as e6, e6.request = create('BackboneElement') as request, request.method = 'PUT',  e6.resource = create('Organization') as WholeOrganizationprovider,  WholeOrganizationprovider.id = uuid() as uuid7,  e6.fullUrl = append('urn:uuid:', uuid7) then {
+                wholeORGproveder-> organizationpartOfprovider.partOf  = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %WholeOrganizationprovider.id) "asOrganization";
+                wholeORGproveder.id as id -> WholeOrganizationprovider.identifier as identifier then {
+                  id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                  id.extension as ext->identifier.value = ext then {
+                    wholeORGproveder-> request.url = append('Organization?identifier=',ext)"UUID";
+                  }"ext";
+                  id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+              }"identifier";
+                wholeORGproveder.name as v -> WholeOrganizationprovider.name = (v.other);
+                wholeORGproveder.telecom -> WholeOrganizationprovider.telecom;
+                wholeORGproveder.addr -> WholeOrganizationprovider.address;
+              }"wholeOrganizationprovider";
+            }"OrganizationPartOfprovider";
+  } "organization";
+   
+ }"patient";
+}
+group CustodianOrganization(source src : CustodianOrganization, target tgt : Organization){
+ src.name as v -> tgt.name = (v.other);
+  src.telecom -> tgt.telecom;
+  src.addr -> tgt.address;
+ 
+ }
+ 
+group ClinicalDocumentEncounter(source src : EncompassingEncounter, target bundle : Bundle, target encounter : Encounter, target patient : Patient) {
+  src.id -> encounter.identifier;
+  src.code as code1-> encounter.class = create('Coding') as coding then {
+   code1.code as code -> coding.code = cast(code, 'string');
+    code1.codeSystem as system->coding.system= translate(system, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri');
+   code1.displayName as display->coding.display= cast(display, 'string');
+  }"class";
+  src where src.code.exists().not()-> encounter.class = create('Coding') as coding then {
+    src  -> coding.code ='AMB' "code";
+    src ->coding.system= 'http://terminology.hl7.org/CodeSystem/v3-ActCode' "codeS";
+    src ->coding.display= 'ambulatory' "display";
+   }"NonCodeclass";
+  src -> encounter.subject=create('Reference') as reference,  reference.reference = ('urn:uuid:' + %patient.id) "reference";
+  src -> encounter.status='finished'"status";
+  src.effectiveTime -> encounter.period;
+  src.dischargeDispositionCode as dischargeDispositionCode then{
+    dischargeDispositionCode -> encounter.hospitalization as hospitalization then{ 
+        dischargeDispositionCode -> hospitalization.dischargeDisposition "disDisp";
+        }"disposition";
+  } "discharge";
+  src.responsibleParty as responsibleParty -> encounter.participant as participant then {
+    responsibleParty.assignedEntity as entity ->  bundle.entry as e, e.request = create('BackboneElement') as request, request.method = 'POST',  e.resource = create('PractitionerRole') as practitionerRole,  practitionerRole.id = uuid() as uuid1,  e.fullUrl = append('urn:uuid:', uuid1), request.url = append('PractitionerRole/', uuid1), participant.individual = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitionerRole.id) then {
+        entity.code -> practitionerRole.code;
+        entity-> bundle.entry as e1, e1.request = create('BackboneElement') as request, request.method = 'PUT',  e1.resource = create('Practitioner') as practitioner,  practitioner.id = uuid() as  uuid2,  e1.fullUrl = append('urn:uuid:', uuid2), practitionerRole.practitioner = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %practitioner.id) then {
+          entity.id as id -> practitioner.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+                entity-> request.url = append('Practitioner?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+
+          entity.addr -> practitioner.address;
+          entity.telecom -> practitioner.telecom;
+          entity.assignedPerson as person then {
+            person.name -> practitioner.name;
+            person.birthTime as birthTime -> practitioner.birthDate = create('date') as date then TSDate(birthTime, date) "birthTime";
+       } "name";
+       }"practitioner";
+       entity.representedOrganization as raporg ->  bundle.entry as e2, e2.request = create('BackboneElement') as request, request.method = 'PUT',  e2.resource = create('Organization') as rapresentedorganization,  rapresentedorganization.id = uuid() as uuid3,  e2.fullUrl = append('urn:uuid:', uuid3), practitionerRole.organization = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %rapresentedorganization.id)  then {
+           //raporg.id -> rapresentedorganization.identifier;
+           raporg.id as id -> rapresentedorganization.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext->identifier.value = ext then {
+              raporg-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+           raporg.name as v -> rapresentedorganization.name = (v.other);
+           raporg.telecom -> rapresentedorganization.telecom;
+           raporg.addr -> rapresentedorganization.address;
+           raporg.asOrganizationPartOf as OrgPartOf -> bundle.entry as e3,  e3.request = create('BackboneElement') as request, request.method = 'PUT',  e3.resource = create('Organization') as organization1,  organization1.id = uuid() as uuid4,  e3.fullUrl = append('urn:uuid:', uuid4), rapresentedorganization.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization1.id) then{
+            //OrgPartOf.id -> organization1.identifier;
+            OrgPartOf.id as id -> organization1.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                OrgPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+            OrgPartOf.code -> organization1.type;
+            OrgPartOf.statusCode as status where (value ='active') -> organization1.active = create('boolean'), organization1.active = true;
+            OrgPartOf.wholeOrganization as wholeOrgan -> bundle.entry as e4, e4.request = create('BackboneElement') as request, request.method = 'PUT',  e4.resource = create('Organization') as organization2,  organization2.id = uuid() as uuid5,  e4.fullUrl = append('urn:uuid:', uuid5), organization1.partOf = create('Reference') as reference, reference.reference= ('urn:uuid:' + %organization2.id) then {
+             // wholeOrgan.id -> organization2.identifier;
+             wholeOrgan.id as id -> organization2.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                wholeOrgan-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+              wholeOrgan.name as v -> organization2.name = (v.other);
+              wholeOrgan.telecom -> organization2.telecom;
+              wholeOrgan.addr -> organization2.address;
+            }"wholeOrgan";
+          }"OrgPartOf";       
+   } "organization";
+    }"entity";
+ }"particpant";
+ src.location as Location then {
+  Location.healthCareFacility as HCF -> bundle.entry as e5, e5.request = create('BackboneElement') as request, request.method = 'PUT', e5.resource = create('Location') as loc,  loc.id = uuid() as uuid6,  e5.fullUrl = append('urn:uuid:', uuid6) then {
+    HCF -> encounter.location as locations then {
+      HCF -> locations.location = create ('Reference') as reference, reference.reference = ('urn:uuid:' + %loc.id) then {
+    
+    HCF.id as id -> loc.identifier as identifier then {
+      id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+      id.extension as ext-> identifier.value = ext then {
+        HCF-> request.url = append('Location?identifier=',ext)"UUID";
+      }"ext";
+      id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+      }"identifier";
+      HCF.code -> loc.type;
+      HCF.location as srcLocation then {
+        srcLocation.name as v -> loc.name = (v.other);
+        srcLocation.addr -> loc.address;
+      }"location2";
+     HCF.serviceProviderOrganization as servProvOrg ->  bundle.entry as e, e.request = create('BackboneElement') as request, request.method = 'PUT',  e.resource = create('Organization') as serviceProviderOrganization,  serviceProviderOrganization.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid), loc.managingOrganization = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %serviceProviderOrganization.id)  then {
+        servProvOrg.id as id -> serviceProviderOrganization.identifier as identifier then {
+          id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+          id.extension as ext->identifier.value = ext then {
+            servProvOrg-> request.url = append('Organization?identifier=',ext)"UUID";
+          }"ext";
+          id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+        servProvOrg.name as v -> serviceProviderOrganization.name = (v.other);
+        servProvOrg.telecom -> serviceProviderOrganization.telecom;
+        servProvOrg.addr -> serviceProviderOrganization.address;
+        servProvOrg.asOrganizationPartOf as asOrgPartOf then {
+        asOrgPartOf as asOrgPartOf1 -> bundle.entry as e1, e1.request = create('BackboneElement') as request, request.method = 'PUT', e1.resource = create('Organization') as asorganization,  asorganization.id = uuid() as uuid1,  e1.fullUrl = append('urn:uuid:', uuid1), serviceProviderOrganization.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %asorganization.id) then {
+            
+            asOrgPartOf1.id as id -> asorganization.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+                asOrgPartOf1-> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+            asOrgPartOf1.code -> asorganization.type;
+            asOrgPartOf1.statusCode as status where (code='active') -> asorganization.active = create('boolean'), asorganization.active = 'true';
+            asOrgPartOf1.wholeOrganization as wholeOrg then{
+                wholeOrg as wholeOrg1 -> bundle.entry as e2, e2.request = create('BackboneElement') as request, request.method = 'PUT', e2.resource = create('Organization') as wholeorganization,  wholeorganization.id = uuid() as uuid2,  e2.fullUrl = append('urn:uuid:', uuid2), asorganization.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %wholeorganization.id) then {
+                   
+                    wholeOrg1.id as id -> asorganization.identifier as identifier then {
+                      id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                      id.extension as ext->identifier.value = ext then {
+                        wholeOrg1-> request.url = append('Organization?identifier=',ext)"UUID";
+                      }"ext";
+                      id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                    }"identifier";
+                    wholeOrg1.name as v -> wholeorganization.name = (v.other);
+                    wholeOrg1.telecom -> wholeorganization.telecom;
+                    wholeOrg1.addr -> wholeorganization.address;
+                  }"wholeOrg1";
+              }"wholeOrg";
+          }"OrganizationPartOfprovider";
+       }"asOrg1";
+    }"SPO";
+  }"location1";
+}"hcf";
+  }"location1"; 
+ }"location";
+
+}
+
+group ClinicalDocumentationOf(source src: representedOrganization, target tgt: organization, target bundle : Bundle){
+  src.name -> tgt.name;
+  src.telecom -> tgt.telecom;
+  src.addr -> tgt.address;
+  src.asOrganizationPartOf as asOrganizationPartOf then {
+        asOrganizationPartOf -> bundle.entry as e, e.request = create('BackboneElement') as request, request.method = 'PUT',  e.resource = create('Organization') as organization2,  organization2.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid), tgt.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:'+ %organization2.id) then {
+          asOrganizationPartOf.id as id -> organization2.identifier as identifier then {
+            id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+            id.extension as ext-> identifier.value = ext then {
+              asOrganizationPartOf-> request.url = append('Organization?identifier=',ext)"UUID";
+            }"ext";
+            id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+        }"identifier";
+          asOrganizationPartOf.code -> organization2.type;
+          asOrganizationPartOf.statusCode where(value = 'active') -> organization2.active = 'true';
+          asOrganizationPartOf.wholeOrganization as wholeOrganization -> bundle.entry as e3, e3.request = create('BackboneElement') as request, request.method = 'PUT',  e3.resource = create('Organization') as organization3,   organization3.id = uuid() as uuid1,  e.fullUrl = append('urn:uuid:', uuid1), organization2.partOf = create('Reference') as referenceOrg, referenceOrg.reference = append('urn:uuid:', uuid1) then{
+            wholeOrganization.id as id -> organization3.identifier as identifier then {
+              id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+              id.extension as ext->identifier.value = ext then {
+               wholeOrganization -> request.url = append('Organization?identifier=',ext)"UUID";
+              }"ext";
+              id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+          }"identifier";
+            wholeOrganization.id -> organization3.identifier;
+            wholeOrganization.name -> organization3.name;
+            wholeOrganization.telecom -> organization3.telecom;
+            wholeOrganization.addr -> organization3.address;
+          } "wholeOrganization";
+    } "organizationPartOf";
+  } "creation";
+ }
+
+
+
+
+group ClinicalDocumentLocation(source src : HealthCareFacility, target bundle : Bundle, target loc : Location){
+    src.id -> loc.identifier;
+    src.code -> loc.type;
+    src.location as srcLocation then {
+    srcLocation.name as v -> loc.name = (v.other);
+    srcLocation.addr -> loc.address;
+    }"location2";
+    src.serviceProviderOrganization as servProvOrg ->  bundle.entry as e, e.request = create('BackboneElement') as request, request.method = 'PUT',  e.resource = create('Organization') as serviceProviderOrganization,  serviceProviderOrganization.id = uuid() as uuid,  e.fullUrl = append('urn:uuid:', uuid),  loc.managingOrganization = create('Reference') as reference,  reference.reference = ('urn:uuid:' + %serviceProviderOrganization.id)  then {
+      servProvOrg.id as id -> serviceProviderOrganization.identifier as identifier then {
+        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+        id.extension as ext-> identifier.value = ext then {
+          servProvOrg-> request.url = append('Organization?identifier=',ext)"UUID";
+        }"ext";
+        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+    }"identifier";
+      servProvOrg.id -> serviceProviderOrganization.identifier;
+            servProvOrg.name as v -> serviceProviderOrganization.name = (v.other);
+            servProvOrg.telecom -> serviceProviderOrganization.telecom;
+            servProvOrg.addr -> serviceProviderOrganization.address;
+            servProvOrg.asOrganizationPartOf as asOrgPartOf then {
+            asOrgPartOf as asOrgPartOf1 -> bundle.entry as e1, e1.request = create('BackboneElement') as request, request.method = 'PUT', e1.resource = create('Organization') as asorganization,  asorganization.id = uuid() as uuid1,  e1.fullUrl = append('urn:uuid:', uuid1),   serviceProviderOrganization.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %asorganization.id) then {
+              asOrgPartOf1.id as id -> asorganization.identifier as identifier then {
+                id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                id.extension as ext-> identifier.value = ext then {
+                  asOrgPartOf1-> request.url = append('Organization?identifier=',ext)"UUID";
+                }"ext";
+                id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+            }"identifier";
+              asOrgPartOf1.id -> asorganization.identifier;
+                asOrgPartOf1.code -> asorganization.type;
+                asOrgPartOf1.statusCode as status where (code='active') -> asorganization.active = create('boolean'), asorganization.active = 'true';
+                //asOrgPartOf1.effectiveTime -> 
+                asOrgPartOf1.wholeOrganization as wholeOrg then{
+                    wholeOrg as wholeOrg1 -> bundle.entry as e2, e2.request = create('BackboneElement') as request, request.method = 'PUT', e2.resource = create('Organization') as wholeorganization,  wholeorganization.id = uuid() as uuid2,  e2.fullUrl = append('urn:uuid:', uuid2),  asorganization.partOf = create('Reference') as reference, reference.reference = ('urn:uuid:' + %wholeorganization.id) then {
+                      wholeOrg1.id as id -> wholeorganization.identifier as identifier then {
+                        id.root as r ->identifier.system= translate(r, 'http://hl7.org/fhir/ConceptMap/special-oid2uri', 'uri') "root1";
+                        id.extension as ext->identifier.value = ext then {
+                         wholeOrg1 -> request.url = append('Organization?identifier=',ext)"UUID";
+                        }"ext";
+                        id.assigningAuthorityName as s ->  identifier.assigner as a,  a.display = s;
+                    }"identifier";
+                      wholeOrg1.id -> wholeorganization.identifier;
+                        wholeOrg1.name as v -> wholeorganization.name = (v.other);
+                        wholeOrg1.telecom -> wholeorganization.telecom;
+                        wholeOrg1.addr -> wholeorganization.address;
+                    }"wholeOrg1";
+                }"wholeOrg";
+            }"OrganizationPartOfprovider";
+        }"asOrg1";
+    }"SPO";
+}
+
+group ChExtEprVersionNumber(source src: INT, target ext: Extension) {
+  src -> ext.url = 'http://hl7.org/fhir/StructureDefinition/composition-clinicaldocument-versionNumber' "url";
+  src -> ext.value = create('unsignedInt') as value then INT(src, value) "value"; 
+}
+
+
+//group ClinicalDocumentEntityPractitioner(source src : AssignedEntity, target tgt : Practitioner) {
+  //src.id -> tgt.identifier;
+  //src.addr -> tgt.address;
+  //src.telecom -> tgt.telecom;
+  //src.assignedPerson as person then {
+    //person.name -> tgt.name;
+  //} "name";
+//}
+
+//group ClinicalDocumentEntityPractitioner1(source src : associatedEntity, target tgt : Practitioner) {
+  //src.id -> tgt.identifier;
+  //src.addr -> tgt.address;
+  //src.telecom -> tgt.telecom;
+  //src.assignedPerson as person then {
+    //person.name -> tgt.name;
+  //} "name";
+//}
+
+
+
+group ClinicalDocumentOrganization(source src : CustodianOrganization, target tgt : Organization) {
+  src.id -> tgt.identifier;
+  src.name as v -> tgt.name = (v.other);
+  src.telecom -> tgt.telecom;
+  src.addr -> tgt.address;
+}
