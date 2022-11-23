@@ -128,6 +128,7 @@ import org.hl7.fhir.utilities.Utilities;
 import org.hl7.fhir.utilities.validation.ValidationOptions;
 import org.hl7.fhir.utilities.xhtml.NodeType;
 import org.hl7.fhir.utilities.xhtml.XhtmlNode;
+import lombok.extern.slf4j.Slf4j;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 /**
@@ -141,6 +142,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException
  * map generateMapFromMappings(StructureDefinition) - build a mapping from a structure definition with loigcal mappings
  *
  */
+@Slf4j
 public class StructureMapUtilities {
 
 	public static final String MAP_WHERE_CHECK = "map.where.check";
@@ -631,7 +633,7 @@ public class StructureMapUtilities {
 			else
 				b.append("'" + Utilities.escapeJava(rtp.getValueStringType().asStringValue()) + "'");
 		} catch (FHIRException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			b.append("error!");
 		}
 	}
