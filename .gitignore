@@ -13,3 +13,4 @@ bin/
 .factorypath
 .metadata
 tmp/
+/.apt_generated_tests/
