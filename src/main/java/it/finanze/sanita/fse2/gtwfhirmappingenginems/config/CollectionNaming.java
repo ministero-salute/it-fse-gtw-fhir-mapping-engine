@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
 
 /**
- *
  *	Collection naming.
  */
 @Configuration

@@ -33,9 +33,6 @@ public class DocumentReferenceDTO {
 	private String practiceSettingCode;
 
 	@Size(min = 0, max = 100)
-	private String patientID;
-
-	@Size(min = 0, max = 100)
 	private String tipoDocumentoLivAlto;
 
 	@Size(min = 0, max = 100)

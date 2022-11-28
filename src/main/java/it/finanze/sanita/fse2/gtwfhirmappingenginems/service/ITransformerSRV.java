@@ -5,7 +5,9 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
 import java.io.Serializable;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+
 public interface ITransformerSRV extends Serializable {
 
-	String transform(String cda,String objectId);
+	String transform(String cda, String rootMap,DocumentReferenceDTO documentReferenceDTO);
 }

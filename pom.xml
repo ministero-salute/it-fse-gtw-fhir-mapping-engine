@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -18,7 +19,7 @@
 
 	<properties>
 		<!-- Application -->
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
 		<start-class>it.finanze.sanita.fse2.gtwfhirmappingenginems.GtwFhirMappingEngineMsApplication</start-class>
 		<!-- Build -->
@@ -42,13 +43,7 @@
 			<scope>test</scope>
 		</dependency>
 
-
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-base</artifactId>
-			<version>5.4.0</version>
-
-		</dependency>
+ 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -57,38 +52,7 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>org.hl7.fhir.r4</artifactId>
-			<version>5.4.0</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-structures-r4 -->
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-structures-r4</artifactId>
-			<version>5.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-validation-resources-r4</artifactId>
-			<version>5.4.0</version>
-		</dependency>
-
-
-		<!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-validation -->
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-validation</artifactId>
-			<version>5.7.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>org.hl7.fhir.r5</artifactId>
-			<version>5.6.43</version>
-		</dependency>
+ 
 
 		<!-- MONGODB -->
 		<dependency>
@@ -157,6 +121,14 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.15.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sample</groupId>
+			<artifactId>sample</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/resources/matchbox-engine-cli.jar</systemPath>
 		</dependency>
 	</dependencies>
 
@@ -250,21 +222,27 @@
 						</goals>
 						<configuration>
 							<target>
-								<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+								<taskdef
+									resource="net/sf/antcontrib/antcontrib.properties" />
 								<if>
 									<available file="infrastructure" />
 									<then>
 										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output.runtime}" overwrite="true" failonerror="false">
+										<copy todir="${container.output.runtime}"
+											overwrite="true" failonerror="false">
 											<fileset dir="${config.infra}/runtime" includes="**" />
 										</copy>
 										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output}" overwrite="true" failonerror="false">
-											<fileset dir="${project.basedir}" includes="Dockerfile" />
+										<copy todir="${container.output}" overwrite="true"
+											failonerror="false">
+											<fileset dir="${project.basedir}"
+												includes="Dockerfile" />
 										</copy>
 										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output}" overwrite="true" failonerror="false">
-											<fileset dir="${project.basedir}/target" includes="${project.artifactId}.jar" />
+										<copy todir="${container.output}" overwrite="true"
+											failonerror="false">
+											<fileset dir="${project.basedir}/target"
+												includes="${project.artifactId}.jar" />
 										</copy>
 									</then>
 								</if>

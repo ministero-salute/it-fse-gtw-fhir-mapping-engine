@@ -19,8 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- *
- *
  *	Transformer controller.
  */
 @Slf4j
@@ -37,7 +35,7 @@ public class TransformerCTL implements ITransformerCTL {
 		if(fhirResourceDTO.getCda()!=null){
 			try {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
-				String cdaTrasformed = transformerSRV.transform(cdaString, fhirResourceDTO.getObjectId());
+				String cdaTrasformed = transformerSRV.transform(cdaString, fhirResourceDTO.getObjectId(),fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Exception ex) {

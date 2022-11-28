@@ -3,30 +3,22 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 
-import org.hl7.fhir.r5.model.StructureDefinition;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.DocumentReference;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ResourceType;
 import org.springframework.stereotype.Service;
 
-import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
-import ca.uhn.fhir.context.support.IValidationSupport;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureDefinitionDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.ConvertingWorkerContext;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.Trasformer;
+import ch.ahdis.matchbox.engine.CdaMappingEngine;
+import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.ContextHelper;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.FHIRHelper;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.StructureMapSingleton;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.singleton.ValueSetSingleton;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -38,47 +30,38 @@ public class TransformerSRV implements ITransformerSRV {
 	 */
 	private static final long serialVersionUID = 527508018653373276L;
 
-	@Autowired
-	private IStructuresRepo structuresRepo;
+	private CdaMappingEngine engine;
 
-
-	@PostConstruct
-	void postConstruct() {
-		ValueSetSingleton.initialize(structuresRepo);
-		StructureMapSingleton.initialize(structuresRepo);
-	}
-
+//	@PostConstruct
+//	void postConstruct() {
+//		try {
+//			engine = new CdaMappingEngineBuilder().getEngine("/cda-fhir-maps.tgz");
+//		} catch(Exception ex) {
+//			log.error("Error while perform builder in post construct : " , ex);
+//			throw new BusinessException("Error while perform builder in post construct : " , ex);
+//		}
+//	}
 
 	@Override
-	public String transform(final String cda, final String objectId) {
-		String bundle = "";
+	public String transform(final String cda, final String rootMap,final DocumentReferenceDTO documentReferenceDTO) {
+		String output = "";
 		try {
-			StructureMapDTO mapsDTO = structuresRepo.findMapsById(objectId);
-			if(mapsDTO!=null) {
-				StructureMapSingleton singleton = StructureMapSingleton.getAndUpdateInstance(mapsDTO,objectId);
-				
-				List<StructureDefinitionDTO> defsDTO = structuresRepo.findStuctureDefById(objectId); 
-				List<StructureDefinition> defs = new ArrayList<>();
-				if(defsDTO!=null) {
-					for(StructureDefinitionDTO def : defsDTO) {
-						StructureDefinition sd = FHIRHelper.deserializeResource(StructureDefinition.class, new String(def.getContentFile().getData()));
-						defs.add(sd);
-					}
-				}
-				
-				IValidationSupport validation = new DefaultProfileValidationSupport(ContextHelper.getFhirContextR4());
-				ContextHelper.getConv().put(objectId,new ConvertingWorkerContext(validation));
-				ContextHelper.getConv().get(objectId).getStructures().addAll(defs);
-				
-				bundle = Trasformer.transform(new ByteArrayInputStream(cda.getBytes(StandardCharsets.UTF_8)), singleton.getRootMap(), objectId);
-			} else { 
-				throw new BusinessException("Nessuna structured map trovata con object id : " + objectId);
+			Bundle bundle = engine.transformCdaToFhir(cda, rootMap);
+ 
+			for(BundleEntryComponent entry : bundle.getEntry()) {
+				Resource resource = entry.getResource();
+				if (ResourceType.DocumentReference.equals(resource.getResourceType())){
+					DocumentReference documentReference = (DocumentReference) resource;
+					DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
+					break;
+				} 
 			}
+			output = new JsonParser().composeString(bundle);
 		} catch(Exception ex) {
-			log.error("Error while perform transform of clinical document : " , ex);
-			throw new BusinessException("Error while perform transform of clinical document : " , ex);
+			log.error("Error while perform transform : " , ex);
+			throw new BusinessException("Error while perform transform : " , ex);
 		}
-		return bundle;
+		return output;
 	}
 
 }

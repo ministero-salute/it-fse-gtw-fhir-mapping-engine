@@ -20,15 +20,6 @@ public final class Constants {
 		 */
 		public static final String BASE = "it.finanze.sanita.fse2.gtwfhirmappingenginems";
 
-		/**
-		 * Controller path.
-		 */
-		public static final String CONTROLLER = "it.finanze.sanita.fse2.gtwfhirmappingenginems.controller";
-
-		/**
-		 * Service path.
-		 */
-		public static final String SERVICE = "it.finanze.sanita.fse2.gtwfhirmappingenginems.service";
 
 		/**
 		 * Configuration path.
@@ -85,7 +76,33 @@ public final class Constants {
 		}
 
 	}
+	
+	public static final class DocumentReference {
+		/**
+		 * Constant that defines bundle fhir language.
+		 */
+		public static final String BUNDLE_FHIR_LANGUAGE = "it-IT";
+
+		/**
+		 * Constant that defines bundle fhir type.
+		 */
+		public static final String BUNDLE_FHIR_MIME_TYPE = "application/pdf";
+
+		/**
+		 * Constant that defines bundle fhir document reference identifier.
+		 */
+		public static final String BUNDLE_FHIR_DOCUMENT_REFERENCE_ID = "Document00";
+		
+		/** 
+		 * Constructor.
+		 */
+		private DocumentReference() {
+			//This method is intentionally left blank.
+		}
+
+	}
   
+	
 	/**
 	 *	Constants.
 	 */
