@@ -3,28 +3,22 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.FindIterable;
-
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureDefinitionDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValuesetDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,11 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StructuresRepo implements IStructuresRepo {
 
-	private static final String COLLECTION_STRUCTURES = "transform";
-
 	@Autowired
 	private MongoTemplate mongoTemplate;
-
 	 
 	@Override
 	public StructureMapDTO findMapsById(final String objectId) {
@@ -45,7 +36,7 @@ public class StructuresRepo implements IStructuresRepo {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("_id").is(objectId));
 
-			Document document = mongoTemplate.findOne(query, Document.class, COLLECTION_STRUCTURES);
+			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(TransformETY.class));
 			if(document!=null && document.get("maps")!=null) {
 				out.setId(document.getObjectId("_id").toString());
 				String rootMapName = document.getString("root_map");
@@ -75,6 +66,5 @@ public class StructuresRepo implements IStructuresRepo {
 		}
 		return out;
 	}
-	
 	 
 }

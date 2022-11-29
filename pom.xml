@@ -124,8 +124,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.sample</groupId>
-			<artifactId>sample</artifactId>
+			<groupId>com.matchbox</groupId>
+			<artifactId>matchbox</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/src/main/resources/matchbox-engine-cli.jar</systemPath>

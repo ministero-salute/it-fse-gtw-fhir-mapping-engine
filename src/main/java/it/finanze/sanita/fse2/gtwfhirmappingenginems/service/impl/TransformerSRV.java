@@ -1,5 +1,5 @@
 /*
- * SPDX-License-Identifier: AGPL-3.0-or-later
+  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
@@ -29,6 +29,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.NotFoundException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
@@ -40,7 +41,6 @@ public class TransformerSRV implements ITransformerSRV {
  
 	@Autowired
 	private FhirTransformCFG transformCFG;
-	
 	
 	private CdaMappingEngine engine;
 	
@@ -131,7 +131,6 @@ public class TransformerSRV implements ITransformerSRV {
     	}  
     	return output;
     }
-
 	
 	@Override
 	public MapDTO findRootMap(final String objectId) {
@@ -139,7 +138,7 @@ public class TransformerSRV implements ITransformerSRV {
 		try {
 			StructureMapDTO structureMapDTO = structureRepo.findMapsById(objectId);
 			if(structureMapDTO==null || structureMapDTO.getRootMap()==null) {
-				//TODO - Eccezione custom not found
+				throw new NotFoundException("Structure map not found with object id :" + objectId);
 			}
 			output = structureMapDTO.getRootMap();
 		} catch(Exception ex) {
