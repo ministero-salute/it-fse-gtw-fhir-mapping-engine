@@ -9,5 +9,4 @@ public enum TransformALGEnum {
 	KEEP_LONGER,
 	KEEP_RICHER_UP,
 	KEEP_RICHER_DOWN,
-	KEEP_PRIOR;
 }
