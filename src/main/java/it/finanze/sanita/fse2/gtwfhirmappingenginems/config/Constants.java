@@ -45,11 +45,7 @@ public final class Constants {
 	
 	public static final class Collections {
 
-		public static final String STRUCTURE_DEFINITIONS = "structure_definition";
-		
-		public static final String STRUCTURE_MAP = "structure_map";
-		
-		public static final String VALUESET = "valueset";
+		public static final String TRANSFORM = "transform";
 
 		 
 		private Collections() {

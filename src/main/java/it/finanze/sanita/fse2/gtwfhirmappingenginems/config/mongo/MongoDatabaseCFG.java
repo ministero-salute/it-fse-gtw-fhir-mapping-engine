@@ -26,8 +26,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
  
 
 /**
- * 
- *
  *	Configuration for MongoDB.
  */
 @Configuration
@@ -55,12 +53,10 @@ public class MongoDatabaseCFG {
         final MongoMappingContext mongoMappingContext = new MongoMappingContext();
         mongoMappingContext.setApplicationContext(appContext);
 
-        MappingMongoConverter converter =
-                new MappingMongoConverter(new DefaultDbRefResolver(factory), mongoMappingContext);
+        MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory), mongoMappingContext);
 
         converter.setTypeMapper(new DefaultMongoTypeMapper(null));
         return new MongoTemplate(factory, converter);
     }
-  
  
 }

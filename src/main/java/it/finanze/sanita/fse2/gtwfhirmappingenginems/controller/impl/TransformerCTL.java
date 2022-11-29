@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,9 @@ public class TransformerCTL implements ITransformerCTL {
 		if(fhirResourceDTO.getCda()!=null){
 			try {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
-				String cdaTrasformed = transformerSRV.transform(cdaString, fhirResourceDTO.getObjectId(),fhirResourceDTO.getDocumentReferenceDTO());
+				
+				MapDTO map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
+				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Exception ex) {

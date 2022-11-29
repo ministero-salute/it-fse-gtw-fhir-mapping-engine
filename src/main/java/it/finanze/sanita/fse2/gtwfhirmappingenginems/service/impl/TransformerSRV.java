@@ -25,26 +25,27 @@ import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class TransformerSRV implements ITransformerSRV {
-
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = 527508018653373276L;
-
+ 
 	@Autowired
 	private FhirTransformCFG transformCFG;
 	
 	
 	private CdaMappingEngine engine;
+	
+	@Autowired
+	private IStructuresRepo structureRepo;
 
 	@PostConstruct
 	void postConstruct() {
@@ -131,4 +132,20 @@ public class TransformerSRV implements ITransformerSRV {
     	return output;
     }
 
+	
+	@Override
+	public MapDTO findRootMap(final String objectId) {
+		MapDTO output = null;
+		try {
+			StructureMapDTO structureMapDTO = structureRepo.findMapsById(objectId);
+			if(structureMapDTO==null || structureMapDTO.getRootMap()==null) {
+				//TODO - Eccezione custom not found
+			}
+			output = structureMapDTO.getRootMap();
+		} catch(Exception ex) {
+			log.error("Error while perform transform : " , ex);
+			throw new BusinessException("Error while perform transform : " , ex);
+		}
+		return output;
+	}
 }

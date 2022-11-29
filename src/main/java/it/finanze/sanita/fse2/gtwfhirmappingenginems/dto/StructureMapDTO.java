@@ -3,8 +3,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
-import java.util.List;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +18,4 @@ public class StructureMapDTO {
 	
 	private MapDTO rootMap;
 	
-	private List<MapDTO> childsMap;
-	 
 }
