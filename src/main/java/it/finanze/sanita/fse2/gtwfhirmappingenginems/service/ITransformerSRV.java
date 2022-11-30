@@ -11,4 +11,6 @@ public interface ITransformerSRV {
 	String transform(String cda, String rootMap,DocumentReferenceDTO documentReferenceDTO);
 	
 	MapDTO findRootMap(String objectId);
+
+	MapDTO findRootMapFromTemplateIdRoot(String templateIdRoot);
 }

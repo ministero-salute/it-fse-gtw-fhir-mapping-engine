@@ -8,5 +8,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 public interface IStructuresRepo {
 
 	StructureMapDTO findMapsById(String objectId);
+
+	StructureMapDTO findMapsByTemplateIdRoot(String templateIdRoot);
 	
 }

@@ -73,7 +73,9 @@ public class TransformerSRV implements ITransformerSRV {
 				Resource resource = entry.getResource();
 				if (ResourceType.DocumentReference.equals(resource.getResourceType())){
 					DocumentReference documentReference = (DocumentReference) resource;
-					DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
+					if (documentReferenceDTO != null) {
+						DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
+					}
 					break;
 				} 
 			}
@@ -147,4 +149,21 @@ public class TransformerSRV implements ITransformerSRV {
 		}
 		return output;
 	}
+
+	@Override
+	public MapDTO findRootMapFromTemplateIdRoot(String templateIdRoot) {
+		MapDTO output = null;
+		try {
+			StructureMapDTO structureMapDTO = structureRepo.findMapsByTemplateIdRoot(templateIdRoot);
+			if(structureMapDTO==null || structureMapDTO.getRootMap()==null) {
+				throw new NotFoundException("Structure map not found with templateIdRoot id :" + templateIdRoot);
+			}
+			output = structureMapDTO.getRootMap();
+		} catch(Exception ex) {
+			log.error("Error while perform transform : " , ex);
+			throw new BusinessException("Error while perform transform : " , ex);
+		}
+		return output;
+	}
+	
 }
