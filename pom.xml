@@ -43,7 +43,7 @@
 			<scope>test</scope>
 		</dependency>
 
- 
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -52,7 +52,7 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
- 
+
 
 		<!-- MONGODB -->
 		<dependency>
@@ -125,10 +125,17 @@
 
 		<dependency>
 			<groupId>com.matchbox</groupId>
-			<artifactId>matchbox</artifactId>
+			<artifactId>matchboxv1</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/matchbox-engine-cli.jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/matchbox-engine-cliv1.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.matchbox</groupId>
+			<artifactId>matchboxv2</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/resources/matchbox-engine-cliv2.jar</systemPath>
 		</dependency>
 	</dependencies>
 
@@ -143,12 +150,12 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
+ 
 	<build>
 		<finalName>${project.artifactId}</finalName>
 
 		<plugins>
-
+ 
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
