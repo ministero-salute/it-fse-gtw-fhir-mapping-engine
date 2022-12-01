@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:1.8
+FROM registry.access.redhat.com/paas-base-image/openjdk-11
 
 WORKDIR /workspace/app
 
