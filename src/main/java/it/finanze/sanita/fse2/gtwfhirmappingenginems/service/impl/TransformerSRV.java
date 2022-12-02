@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -17,6 +15,9 @@ import org.hl7.fhir.r4.model.DocumentReference;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -47,8 +48,9 @@ public class TransformerSRV implements ITransformerSRV {
 	@Autowired
 	private IStructuresRepo structureRepo;
 
-	@PostConstruct
-	void postConstruct() {
+	@Async
+	@EventListener(ApplicationStartedEvent.class)
+	void initialize() {
 		try {
 			engine = new CdaMappingEngineBuilder().getEngine("/cda-fhir-maps.tgz");
 		} catch(Exception ex) {
