@@ -20,6 +20,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ContextDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -93,13 +94,14 @@ public class DocumentReferenceHelper {
 	private static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {
 		Identifier mid = new Identifier();
 		
+		mid.setSystem("urn:uuid:"+ StringUtility.generateUUID());
 		if (masterIdentifier.contains("^")) {
 			String[] masterIdentifierSplit = masterIdentifier.split("\\^");
-			mid.setSystem(masterIdentifierSplit[0]);
 			mid.setValue(masterIdentifierSplit[1]);
 		} else {
 			mid.setValue(masterIdentifier);
 		}
+		
 		dr.setMasterIdentifier(mid);
 	}
 
