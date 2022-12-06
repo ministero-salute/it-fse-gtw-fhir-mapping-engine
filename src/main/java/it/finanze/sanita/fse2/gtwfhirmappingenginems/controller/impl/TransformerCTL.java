@@ -56,7 +56,7 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 	
 	@Override
-	public Document convertCDAToBundleStateless(String templateIdRoot, MultipartFile file, HttpServletRequest request) {
+	public TransformResDTO convertCDAToBundleStateless(String templateIdRoot, MultipartFile file, HttpServletRequest request) {
 		log.debug("Invoked transform controller");
 		TransformResDTO out = new TransformResDTO();
 		String cda = getCDA(file);
@@ -65,10 +65,11 @@ public class TransformerCTL implements ITransformerCTL {
 			String cdaTrasformed = transformerSRV.transform(cda, map.getNameStructureMap(), null);
 			Document doc = Document.parse(cdaTrasformed);
 			log.debug("Conversion of CDA completed");
-			return doc;
+			out.setJson(doc);
 		} catch(Exception ex) {
-			throw new BusinessException(ex.getMessage());
+			out.setErrorMessage(ex.getMessage());
 		}
+		return out;
 	}
 
 	protected String getCDA(final MultipartFile file) {
