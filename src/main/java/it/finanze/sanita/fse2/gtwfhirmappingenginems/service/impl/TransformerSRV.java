@@ -147,7 +147,7 @@ public class TransformerSRV implements ITransformerSRV {
 			output = structureMapDTO.getRootMap();
 		} catch(Exception ex) {
 			log.error("Error while perform transform : " , ex);
-			throw new BusinessException("Error while perform transform " , ex);
+			throw new BusinessException("Error while perform transform : " , ex);
 		}
 		return output;
 	}
@@ -163,7 +163,7 @@ public class TransformerSRV implements ITransformerSRV {
 			output = structureMapDTO.getRootMap();
 		} catch(Exception ex) {
 			log.error("Error while perform transform : " , ex);
-			throw new BusinessException("Error while perform transform " , ex);
+			throw new BusinessException("Error while perform transform : " , ex);
 		}
 		return output;
 	}

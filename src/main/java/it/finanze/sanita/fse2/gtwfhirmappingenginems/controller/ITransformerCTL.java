@@ -5,6 +5,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.bson.Document;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +49,7 @@ public interface ITransformerCTL {
 			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-	TransformResDTO convertCDAToBundleStateless(
+	Document convertCDAToBundleStateless(
 			@PathVariable("templateIdRoot") String templateIdRoot,
 			@RequestPart("file") MultipartFile file, 
 			HttpServletRequest request);
