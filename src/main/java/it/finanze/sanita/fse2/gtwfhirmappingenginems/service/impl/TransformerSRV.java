@@ -3,11 +3,13 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -60,33 +62,26 @@ public class TransformerSRV implements ITransformerSRV {
 	}
 
 	@Override
-	public String transform(final String cda, final String rootMap,final DocumentReferenceDTO documentReferenceDTO) {
-		String output = "";
-		try {
-			Bundle bundle = engine.transformCdaToFhir(cda, rootMap);
- 
-			 if(TransformALGEnum.KEEP_FIRST.equals(transformCFG.getAlgToRemoveDuplicate())) {
-             	bundle.getEntry().removeAll(chooseFirstBetweenDuplicate(bundle.getEntry()));
-             } else {
-             	bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
-             } 
-			 
-			for(BundleEntryComponent entry : bundle.getEntry()) {
-				Resource resource = entry.getResource();
-				if (ResourceType.DocumentReference.equals(resource.getResourceType())){
-					DocumentReference documentReference = (DocumentReference) resource;
-					if (documentReferenceDTO != null) {
-						DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
-					}
-					break;
-				} 
-			}
-			output = new JsonParser().composeString(bundle);
-		} catch(Exception ex) {
-			log.error("Error while perform transform : " , ex);
-			throw new BusinessException("Error while perform transform : " , ex);
+	public String transform(final String cda, final String rootMap,final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
+		Bundle bundle = engine.transformCdaToFhir(cda, rootMap);
+
+		if(TransformALGEnum.KEEP_FIRST.equals(transformCFG.getAlgToRemoveDuplicate())) {
+			bundle.getEntry().removeAll(chooseFirstBetweenDuplicate(bundle.getEntry()));
+		} else {
+			bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
+		} 
+
+		for(BundleEntryComponent entry : bundle.getEntry()) {
+			Resource resource = entry.getResource();
+			if (ResourceType.DocumentReference.equals(resource.getResourceType())){
+				DocumentReference documentReference = (DocumentReference) resource;
+				if (documentReferenceDTO != null) {
+					DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
+				}
+				break;
+			} 
 		}
-		return output;
+		return new JsonParser().composeString(bundle);
 	}
 	
 	private List<BundleEntryComponent> chooseFirstBetweenDuplicate(List<BundleEntryComponent> entryComponent){
