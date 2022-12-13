@@ -54,10 +54,11 @@ public class DocumentReferenceHelper {
 			drcc.setFacilityType(ccFacilityType);
 	
 			List<CodeableConcept> events = new ArrayList<>();
-			
-			for(String eventCode : contextDTO.getEventsCode()) {
-				CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:uuid" + StringUtility.generateUUID(), eventCode , null));
-				events.add(ccEvent);
+			if(contextDTO.getEventsCode()!=null) {
+				for(String eventCode : contextDTO.getEventsCode()) {
+					CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:uuid" + StringUtility.generateUUID(), eventCode , null));
+					events.add(ccEvent);
+				}
 			}
 			drcc.setEvent(events);
 			
