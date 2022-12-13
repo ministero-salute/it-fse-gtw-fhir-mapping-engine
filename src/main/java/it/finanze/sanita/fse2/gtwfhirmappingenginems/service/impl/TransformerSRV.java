@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
@@ -135,14 +136,21 @@ public class TransformerSRV implements ITransformerSRV {
 	public MapDTO findRootMap(final String objectId) {
 		MapDTO output = null;
 		try {
+			if(StringUtils.isBlank(objectId)) {
+				throw new NotFoundException("Structure Map not found");
+			}
 			StructureMapDTO structureMapDTO = structureRepo.findMapsById(objectId);
 			if(structureMapDTO==null || structureMapDTO.getRootMap()==null) {
-				throw new NotFoundException("Structure map not found with object id :" + objectId);
+				throw new NotFoundException("Structure Map not found with object id :" + objectId);
 			}
 			output = structureMapDTO.getRootMap();
+		}
+		catch(NotFoundException ex) {
+			log.error(ex.getMessage());
+			throw new BusinessException("Error retrieving data: " + ex.getMessage(), ex);
 		} catch(Exception ex) {
-			log.error("Error while perform transform : " , ex);
-			throw new BusinessException("Error while perform transform : " , ex);
+			log.error("Error while perform transform " , ex);
+			throw new BusinessException("Error while perform transform " , ex);
 		}
 		return output;
 	}
