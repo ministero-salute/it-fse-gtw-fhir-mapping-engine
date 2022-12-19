@@ -49,20 +49,20 @@ public class DocumentReferenceHelper {
 	private static void addContext(DocumentReference dr, ContextDTO contextDTO) {
 		try {
 			DocumentReferenceContextComponent drcc = dr.getContext();
-			Coding codeFT = new Coding("urn:uuid" + StringUtility.generateUUID(), contextDTO.getFacilityTypeCode(), null);
+			Coding codeFT = new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.1", contextDTO.getFacilityTypeCode(), null);
 			CodeableConcept ccFacilityType = new CodeableConcept(codeFT);
 			drcc.setFacilityType(ccFacilityType);
 	
 			List<CodeableConcept> events = new ArrayList<>();
 			if(contextDTO.getEventsCode()!=null) {
 				for(String eventCode : contextDTO.getEventsCode()) {
-					CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:uuid" + StringUtility.generateUUID(), eventCode , null));
+					CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.3", eventCode , null));
 					events.add(ccEvent);
 				}
 			}
 			drcc.setEvent(events);
 			
-			drcc.setPracticeSetting(new CodeableConcept(new Coding("urn:uuid" + StringUtility.generateUUID(), contextDTO.getPracticeSettingCode() , null)));
+			drcc.setPracticeSetting(new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.2", contextDTO.getPracticeSettingCode() , null)));
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 			Period period = new Period();
