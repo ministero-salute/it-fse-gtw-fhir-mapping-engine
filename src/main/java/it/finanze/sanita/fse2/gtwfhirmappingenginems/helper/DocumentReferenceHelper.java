@@ -42,7 +42,7 @@ public class DocumentReferenceHelper {
 	
 	private static void addCategory(DocumentReference dr, String tipoDocumentoLivAlto) {
 		if(dr.getCategory()!=null) {
-			dr.getCategory().add(new CodeableConcept(new Coding("http://terminology.hl7.org/CodeSystem/media-category", tipoDocumentoLivAlto , null)));
+			dr.getCategory().add(new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.5", tipoDocumentoLivAlto , null)));
 		}
 	}
 	 
