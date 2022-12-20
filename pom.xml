@@ -29,6 +29,7 @@
 		<!-- Sonar integration -->
 		<sonar.organization>ministero-salute</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<fhir.core.version>5.6.88</fhir.core.version>
 	</properties>
 
 	<dependencies>
@@ -123,20 +124,42 @@
 			<version>1.15.3</version>
 		</dependency>
 
+		<!-- MATCHBOX -->
 		<dependency>
 			<groupId>com.matchbox</groupId>
-			<artifactId>matchboxv1</artifactId>
+			<artifactId>matchbox</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/matchbox-engine-cliv1.jar</systemPath>
+			<systemPath>${project.basedir}/src/main/resources/matchbox-engine.jar</systemPath>
 		</dependency>
-		<dependency>
-			<groupId>com.matchbox</groupId>
-			<artifactId>matchboxv2</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/matchbox-engine-cliv2.jar</systemPath>
-		</dependency>
+		
+		<!-- FHIR -->
+	    <dependency>
+		      <groupId>ca.uhn.hapi.fhir</groupId>
+		      <artifactId>org.hl7.fhir.r4</artifactId>
+		      <version>${fhir.core.version}</version>
+	    </dependency>
+	    <dependency>
+		      <groupId>ca.uhn.hapi.fhir</groupId>
+		      <artifactId>org.hl7.fhir.r5</artifactId>
+		      <version>${fhir.core.version}</version>
+	    </dependency>
+	    <dependency>
+		      <groupId>ca.uhn.hapi.fhir</groupId>
+		      <artifactId>org.hl7.fhir.convertors</artifactId>
+		      <version>${fhir.core.version}</version>
+	    </dependency>
+	    <dependency>
+		      <groupId>ca.uhn.hapi.fhir</groupId>
+		      <artifactId>org.hl7.fhir.validation</artifactId>
+		      <version>${fhir.core.version}</version>
+	    </dependency>
+	    <dependency>
+		      <groupId>ca.uhn.hapi.fhir</groupId>
+		      <artifactId>org.hl7.fhir.utilities</artifactId>
+		      <version>${fhir.core.version}</version>
+	    </dependency>
+			
 	</dependencies>
 
 	<dependencyManagement>
