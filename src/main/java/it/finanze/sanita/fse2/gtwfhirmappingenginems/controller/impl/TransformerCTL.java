@@ -47,8 +47,8 @@ public class TransformerCTL implements ITransformerCTL {
 				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
-			} catch(Exception ex) {
-				out.setErrorMessage(ex.getMessage());
+			} catch(Throwable tr) {
+				out.setErrorMessage(tr.getMessage());
 			}
 		}
 		log.debug("Conversion of CDA completed");
