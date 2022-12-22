@@ -62,7 +62,7 @@ public class TransformerSRV implements ITransformerSRV {
 	@EventListener(ApplicationStartedEvent.class)
 	void initialize() {
 		try {
-			engine = new CdaMappingEngineBuilder().getEngine("/cda-fhir-maps.tgz");
+			engine = new CdaMappingEngineBuilder().getEngine("/package.tgz");
 		} catch(Exception ex) {
 			log.error("Error while perform builder in post construct : " , ex);
 			throw new BusinessException("Error while perform builder in post construct : " , ex);
