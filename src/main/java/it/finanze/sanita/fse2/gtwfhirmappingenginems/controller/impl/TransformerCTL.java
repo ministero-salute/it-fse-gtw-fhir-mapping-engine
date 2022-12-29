@@ -89,4 +89,24 @@ public class TransformerCTL implements ITransformerCTL {
 		}
 		
 	}
+	
+	@Override
+	public TransformResDTO convertCDAToBundleWithTemplateIdRoot(FhirResourceDTO fhirResourceDTO, HttpServletRequest request) {
+		log.debug("Invoked transform controller");
+		TransformResDTO out = new TransformResDTO();
+		if(fhirResourceDTO.getCda()!=null){
+			try {
+				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
+				
+				MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(fhirResourceDTO.getObjectId());
+				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
+				Document doc = Document.parse(cdaTrasformed);
+				out.setJson(doc);
+			} catch(Throwable tr) {
+				out.setErrorMessage(tr.getMessage());
+			}
+		}
+		log.debug("Conversion of CDA completed");
+		return out;
+	}
 }
