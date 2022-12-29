@@ -5,8 +5,10 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems;
 
 import java.io.File;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import org.bson.Document;
 import org.bson.types.Binary;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
@@ -25,6 +27,11 @@ public abstract class AbstractTest {
 	protected void dropCollections() {
 		mongoTemplate.dropCollection(StructuresRepo.class);
 	}
+
+    @BeforeEach
+    void init() {
+        mongoTemplate.dropCollection(TransformETY.class);
+    }
 
 	protected void saveStructureDefinition(final String completePath, final String rootDefinition) {
 		try {

@@ -11,9 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileUtility {
 
-	private FileUtility() {
-		
-	}
+	private FileUtility() {}
 
 	private static final int CHUNK_SIZE = 16384;
 	
@@ -33,7 +31,7 @@ public class FileUtility {
 		return b;
 	}
 	
-	private static byte[] getByteFromInputStream(final InputStream is) {
+	private static byte[] getByteFromInputStream(final InputStream is) throws RuntimeException {
 		byte[] b;
 		try {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -46,7 +44,7 @@ public class FileUtility {
 			buffer.flush();
 			b = buffer.toByteArray();
 		} catch (Exception e) {
-			System.out.println("Errore durante il trasform da InputStream a byte[]: ");
+			log.error("Errore durante il trasform da InputStream a byte[]: ");
 			throw new RuntimeException(e);
 		}
 		return b;

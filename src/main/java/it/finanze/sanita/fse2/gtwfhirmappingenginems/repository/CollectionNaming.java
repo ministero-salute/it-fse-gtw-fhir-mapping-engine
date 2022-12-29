@@ -1,8 +1,9 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.config;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

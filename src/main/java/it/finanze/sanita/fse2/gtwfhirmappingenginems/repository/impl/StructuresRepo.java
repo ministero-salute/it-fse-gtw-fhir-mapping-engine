@@ -6,6 +6,8 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl;
 import java.util.Date;
 import java.util.List;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +41,8 @@ public class StructuresRepo implements IStructuresRepo {
 			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(TransformETY.class));
 			out = getStructureMapDTO(document); 
 		} catch(Exception ex) {
-			log.error("Error while perform find map by template id root: ",ex);
-			throw new BusinessException("Error while perform find map by template id root: ",ex);
+			log.error(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
+			throw new BusinessException(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
 		}
 		return out;
 	}
@@ -55,8 +57,8 @@ public class StructuresRepo implements IStructuresRepo {
 			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(TransformETY.class));
 			out = getStructureMapDTO(document);
 		} catch(Exception ex) {
-			log.error("Error while perform find map by template id root: ",ex);
-			throw new BusinessException("Error while perform find map by template id root: ",ex);
+			log.error(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
+			throw new BusinessException(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
 		}
 		return out;
 	}
@@ -70,7 +72,7 @@ public class StructuresRepo implements IStructuresRepo {
 			String version = document.getString("version");
 			Date lastUpdateDate = document.getDate("last_update_date");
 
-			if(StringUtility.isNullOrEmpty(rootMapName)) {
+			if (StringUtils.isEmpty(rootMapName)) {
 				throw new BusinessException("Root map non trovata");
 			}
 

@@ -39,9 +39,7 @@ class TransformTest extends AbstractTest {
 	  
 	@Test
 	void testTransform() throws Exception {
-		DocumentReferenceDTO documentReferenceDTO = new DocumentReferenceDTO(
-				1000, UUID.randomUUID().toString(), "facilityTypeCode", new ArrayList<>(), "practiceSettingCode", "tipoDocumentoLivAlto", "repositoryUniqueID", null, null, "identificativoDoc");
-		
+		DocumentReferenceDTO documentReferenceDTO = TestUtility.createMockDocumentReference();
 		String rootMap = "RefertodilaboratorioFULLBODY";
 		byte[] cda = FileUtility.getFileFromInternalResources("Esempio CDA2_Referto Medicina di Laboratorio v10.xml");
 		String bundle = transform.transform(new String(cda,StandardCharsets.UTF_8), rootMap,documentReferenceDTO);
@@ -51,7 +49,7 @@ class TransformTest extends AbstractTest {
 	@Test
 	void testWithAddTransform() throws Exception {
 		String rootMap = "http://hl7.org/fhir/StructureMap/Pippo";
-		String cda = new String(FileUtility.getFileFromInternalResources("Esempio CDA2_Referto Medicina di Laboratorio v10.xml"));
+		String cda = TestUtility.createMockCda();
 
 		CdaMappingEngine engine = null;
 		try {
