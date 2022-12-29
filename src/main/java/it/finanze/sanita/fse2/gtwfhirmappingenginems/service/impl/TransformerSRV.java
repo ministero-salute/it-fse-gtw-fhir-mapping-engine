@@ -91,13 +91,13 @@ public class TransformerSRV implements ITransformerSRV {
 	
 	private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries,final TransformALGEnum transfAlg) {
 
-        Map<String, BundleEntryComponent> toKeep = new HashMap<>();;
+        Map<String, BundleEntryComponent> toKeep = new HashMap<>();
 
         for (BundleEntryComponent resourceEntry : entries) {
             if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
                 toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
             } else {
-            	System.out.println(resourceEntry.getResource().getId());
+            	log.info(resourceEntry.getResource().getId());
                 // Calculate weight and compare each other
                 final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
                 final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);

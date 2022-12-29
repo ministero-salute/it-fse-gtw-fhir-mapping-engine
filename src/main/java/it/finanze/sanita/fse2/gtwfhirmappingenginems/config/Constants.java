@@ -10,7 +10,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.config;
  */
 public final class Constants {
 
-	/**
+    /**
 	 *	Path scan.
 	 */
 	public static final class ComponentScan {
@@ -102,8 +102,11 @@ public final class Constants {
 	/**
 	 *	Constants.
 	 */
-	private Constants() {
+	private Constants() {}
 
+	public static final class Logs {
+		public static final String ERROR_FIND_BY_TEMPLATE_ID_ROOT = "Error while perform find map by template id root: ";
+
+		private Logs() {}
 	}
-
 }
