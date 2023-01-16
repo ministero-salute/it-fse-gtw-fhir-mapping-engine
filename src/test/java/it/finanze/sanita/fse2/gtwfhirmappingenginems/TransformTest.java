@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DocumentReference;
@@ -41,8 +42,12 @@ class TransformTest extends AbstractTest {
 	void testTransform() throws Exception {
 		DocumentReferenceDTO documentReferenceDTO = TestUtility.createMockDocumentReference();
 		String rootMap = "RefertodilaboratorioFULLBODY";
+		String versionMap = "1.0";
+		MapDTO map = new MapDTO();
+		map.setNameStructureMap(rootMap);
+		map.setVersion(versionMap);
 		byte[] cda = FileUtility.getFileFromInternalResources("Esempio CDA2_Referto Medicina di Laboratorio v10.xml");
-		String bundle = transform.transform(new String(cda,StandardCharsets.UTF_8), rootMap,documentReferenceDTO);
+		String bundle = transform.transform(new String(cda,StandardCharsets.UTF_8), map, documentReferenceDTO);
 		System.out.println(bundle);
 	}
 	

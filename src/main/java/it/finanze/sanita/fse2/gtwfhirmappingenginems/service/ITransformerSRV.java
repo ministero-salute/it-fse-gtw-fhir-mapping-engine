@@ -12,7 +12,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
 
 public interface ITransformerSRV {
 
-	String transform(String cda, String rootMap,DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException;
+	String transform(String cda, MapDTO dto,DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException;
 	
 	MapDTO findRootMap(String objectId);
 

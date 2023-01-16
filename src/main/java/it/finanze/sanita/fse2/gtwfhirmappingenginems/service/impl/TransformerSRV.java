@@ -12,15 +12,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
-import org.hl7.fhir.r4.model.Base;
-import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.DocumentReference;
-import org.hl7.fhir.r4.model.Meta;
-import org.hl7.fhir.r4.model.Property;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
@@ -70,12 +63,41 @@ public class TransformerSRV implements ITransformerSRV {
 	}
 
 	@Override
-	public String transform(final String cda, final String rootMap,final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
-		Bundle bundle = engine.transformCdaToFhir(cda, rootMap);
- 
+	public String transform(final String cda, final MapDTO root,final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
+
+		// Check existence
+		boolean exists = engine.getContext().hasResourceVersion(
+			org.hl7.fhir.r5.model.StructureMap.class,
+			root.getNameStructureMap(),
+			root.getVersion()
+		);
+
+		log.info("[root-map] name: {}, version: {}, exists: {}", root.getNameStructureMap(), root.getVersion(), exists);
+
+		log.info("{}", engine.getContext().listMapUrls());
+
+		if(!exists) {
+			// Retrieve data
+			String data = new String(root.getContentStructureMap().getData());
+			// Parse map
+			StructureMap map = engine.parseMap(data);
+			// Set version
+			map.setUrl(root.getNameStructureMap());
+			map.setVersion(root.getVersion());
+			// Add to engine
+			engine.addCanonicalResource(map);
+			// Confirm
+			log.info("[root-map][inserted] name: {}, version: {}", root.getNameStructureMap(), root.getVersion());
+
+		}
+
+		log.info("{}", engine.getContext().listMapUrls());
+
+		Bundle bundle = engine.transformCdaToFhir(cda, root.getNameStructureMap());
+
 		//Alg scoring
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
-				
+
 		for(BundleEntryComponent entry : bundle.getEntry()) {
 			Resource resource = entry.getResource();
 			if (ResourceType.DocumentReference.equals(resource.getResourceType())){
@@ -84,9 +106,11 @@ public class TransformerSRV implements ITransformerSRV {
 					DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
 				}
 				break;
-			} 
+			}
 		}
+
 		return new JsonParser().composeString(bundle);
+
 	}
 	
 	private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries,final TransformALGEnum transfAlg) {

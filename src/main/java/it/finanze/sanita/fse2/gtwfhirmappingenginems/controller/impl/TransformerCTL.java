@@ -44,7 +44,7 @@ public class TransformerCTL implements ITransformerCTL {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
 				
 				MapDTO map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
-				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
+				String cdaTrasformed = transformerSRV.transform(cdaString, map, fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
@@ -61,7 +61,7 @@ public class TransformerCTL implements ITransformerCTL {
 		String cda = getCDA(file);
 		try {
 			MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(templateIdRoot);
-			String cdaTrasformed = transformerSRV.transform(cda, map.getNameStructureMap(), null);
+			String cdaTrasformed = transformerSRV.transform(cda, map, null);
 			Document doc = Document.parse(cdaTrasformed);
 			log.debug("Conversion of CDA completed");
 			return doc;
@@ -99,7 +99,7 @@ public class TransformerCTL implements ITransformerCTL {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
 				
 				MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(fhirResourceDTO.getObjectId());
-				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
+				String cdaTrasformed = transformerSRV.transform(cdaString, map, fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
