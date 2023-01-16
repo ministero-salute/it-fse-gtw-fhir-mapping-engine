@@ -14,3 +14,4 @@ bin/
 .metadata
 tmp/
 /.apt_generated_tests/
+.idea
