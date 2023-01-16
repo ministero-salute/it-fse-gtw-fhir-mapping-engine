@@ -60,7 +60,7 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 	
 	@Override
-	public Document convertCDAToBundleStateless(String templateIdRoot, MultipartFile file, HttpServletRequest request) {
+	public Document convertCDAToBundleStateless(String templateIdRoot, MultipartFile file) {
 		log.debug("Invoked transform controller");
 		String cda = getCDA(file);
 		try {
