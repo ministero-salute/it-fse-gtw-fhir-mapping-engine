@@ -3,19 +3,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
@@ -23,6 +10,17 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -34,7 +32,7 @@ public class TransformerCTL implements ITransformerCTL {
 
 	@Autowired
 	private ITransformerSRV transformerSRV;
- 
+
 	@Override
 	public TransformResDTO convertCDAToBundle(FhirResourceDTO fhirResourceDTO, HttpServletRequest request) {
 		log.debug("Invoked transform controller");
@@ -42,17 +40,13 @@ public class TransformerCTL implements ITransformerCTL {
 		if(fhirResourceDTO.getCda()!=null){
 			try {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
-				MapDTO map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
-				log.info("START TRANSFORM");
-				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
-				log.info("END TRANSFORM");
 				
+				MapDTO map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
+				String cdaTrasformed = transformerSRV.transform(cdaString, map, fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
-				log.info("IS VALID JSON:" + String.valueOf(doc!=null));
 				out.setJson(doc);
 			} catch(Throwable tr) {
-				log.error("Error while perform transform cda to bundle:" , tr);
-				out.setErrorMessage("Error while perform transform cda to bundle:" + tr.getMessage());
+				out.setErrorMessage(tr.getMessage());
 			}
 		}
 		log.debug("Conversion of CDA completed");
@@ -65,7 +59,7 @@ public class TransformerCTL implements ITransformerCTL {
 		String cda = getCDA(file);
 		try {
 			MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(templateIdRoot);
-			String cdaTrasformed = transformerSRV.transform(cda, map.getNameStructureMap(), null);
+			String cdaTrasformed = transformerSRV.transform(cda, map, null);
 			Document doc = Document.parse(cdaTrasformed);
 			log.debug("Conversion of CDA completed");
 			return doc;
@@ -103,11 +97,10 @@ public class TransformerCTL implements ITransformerCTL {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
 				
 				MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(fhirResourceDTO.getObjectId());
-				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
+				String cdaTrasformed = transformerSRV.transform(cdaString, map, fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
-				log.error("Error while convert CDA To Bumdle with Template id root:", tr);
 				out.setErrorMessage(tr.getMessage());
 			}
 		}

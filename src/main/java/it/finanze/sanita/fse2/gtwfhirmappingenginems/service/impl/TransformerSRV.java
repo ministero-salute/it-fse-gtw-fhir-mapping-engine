@@ -3,34 +3,9 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.r4.formats.JsonParser;
-import org.hl7.fhir.r4.model.Base;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.DocumentReference;
-import org.hl7.fhir.r4.model.Meta;
-import org.hl7.fhir.r4.model.Property;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ResourceType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import com.google.gson.Gson;
-
 import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
+import com.google.gson.Gson;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
@@ -43,6 +18,22 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHel
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -70,14 +61,41 @@ public class TransformerSRV implements ITransformerSRV {
 	}
 
 	@Override
-	public String transform(final String cda, final String rootMap,final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
-		log.info("CALL CDA TO FHIR METHOD");
-		Bundle bundle = engine.transformCdaToFhir(cda, rootMap);
- 
-		log.info("START ALG SCORING");		
+	public String transform(final String cda, final MapDTO root,final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
+
+		// Check existence
+		boolean exists = engine.getContext().hasResourceVersion(
+			org.hl7.fhir.r5.model.StructureMap.class,
+			root.getNameStructureMap(),
+			root.getVersion()
+		);
+
+		log.info("[root-map] name: {}, version: {}, exists: {}", root.getNameStructureMap(), root.getVersion(), exists);
+
+		log.info("{}", engine.getContext().listMapUrls());
+
+		if(!exists) {
+			// Retrieve data
+			String data = new String(root.getContentStructureMap().getData());
+			// Parse map
+			StructureMap map = engine.parseMap(data);
+			// Set version
+			map.setUrl(root.getNameStructureMap());
+			map.setVersion(root.getVersion());
+			// Add to engine
+			engine.addCanonicalResource(map);
+			// Confirm
+			log.info("[root-map][inserted] name: {}, version: {}", root.getNameStructureMap(), root.getVersion());
+
+		}
+
+		log.info("{}", engine.getContext().listMapUrls());
+
+		Bundle bundle = engine.transformCdaToFhir(cda, root.getNameStructureMap());
+
+		//Alg scoring
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
-		
-		log.info("START CREATE DOCUMENT REFERENCE");
+
 		for(BundleEntryComponent entry : bundle.getEntry()) {
 			Resource resource = entry.getResource();
 			if (ResourceType.DocumentReference.equals(resource.getResourceType())){
@@ -86,9 +104,11 @@ public class TransformerSRV implements ITransformerSRV {
 					DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
 				}
 				break;
-			} 
+			}
 		}
+
 		return new JsonParser().composeString(bundle);
+
 	}
 	
 	private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries,final TransformALGEnum transfAlg) {
@@ -96,22 +116,20 @@ public class TransformerSRV implements ITransformerSRV {
         Map<String, BundleEntryComponent> toKeep = new HashMap<>();
 
         for (BundleEntryComponent resourceEntry : entries) {
-        	if(resourceEntry.getResource()!=null) {
-        		if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
-        			toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-        		} else {
-        			log.info(resourceEntry.getResource().getId());
-        			// Calculate weight and compare each other
-        			final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
-        			final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);
-        			
-        			if ((oldEntryWeight < newEntryWeight) || 
-        					(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
-        				// Must override entry with a richer one
-        				toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-        			}
-        		}
-        	}
+            if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
+                toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
+            } else {
+            	log.info(resourceEntry.getResource().getId());
+                // Calculate weight and compare each other
+                final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
+                final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);
+
+                if ((oldEntryWeight < newEntryWeight) || 
+                		(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
+                    // Must override entry with a richer one
+                    toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
+                }
+            }
         }
         
         return new ArrayList<>(toKeep.values());
