@@ -2,15 +2,12 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems;
 
 import com.mongodb.MongoException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.others.EmptyTransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import org.bson.Document;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 
@@ -48,7 +44,7 @@ class TransformerServiceTest extends AbstractTest {
         final String file = new String(FileUtility
                 .getFileFromInternalResources("Files" + File.separator + "transform.json"));
         Document document = Document.parse(file);
-        mongoTemplate.save(document, mongoTemplate.getCollectionName(TransformETY.class));
+        mongoTemplate.save(document, mongoTemplate.getCollectionName(EmptyTransformETY.class));
 
         Assertions.assertDoesNotThrow(() -> transformerSRV.findRootMap("635124168a46e52e4f145513"));
     }
@@ -58,9 +54,9 @@ class TransformerServiceTest extends AbstractTest {
         final String file = new String(FileUtility
                 .getFileFromInternalResources("Files" + File.separator + "transform.json"));
         Document document = Document.parse(file);
-        mongoTemplate.save(document, mongoTemplate.getCollectionName(TransformETY.class));
+        mongoTemplate.save(document, mongoTemplate.getCollectionName(EmptyTransformETY.class));
 
-        String collection = mongoTemplate.getCollectionName(TransformETY.class);
+        String collection = mongoTemplate.getCollectionName(EmptyTransformETY.class);
         Mockito.doThrow(MongoException.class).when(mongoTemplate).findOne(any(), eq(Document.class), eq(collection));
         Assertions.assertThrows(BusinessException.class, () -> transformerSRV.findRootMap("635124168a46e52e4f145513"));
     }
@@ -70,7 +66,7 @@ class TransformerServiceTest extends AbstractTest {
         final String file = new String(FileUtility
                 .getFileFromInternalResources("Files" + File.separator + "transform.json"));
         Document document = Document.parse(file);
-        mongoTemplate.save(document, mongoTemplate.getCollectionName(TransformETY.class));
+        mongoTemplate.save(document, mongoTemplate.getCollectionName(EmptyTransformETY.class));
 
         Assertions.assertDoesNotThrow(() -> transformerSRV.findRootMapFromTemplateIdRoot("2.16.840.1.113883.2.9.2.30.10.8"));
     }
@@ -80,9 +76,9 @@ class TransformerServiceTest extends AbstractTest {
         final String file = new String(FileUtility
                 .getFileFromInternalResources("Files" + File.separator + "transform.json"));
         Document document = Document.parse(file);
-        mongoTemplate.save(document, mongoTemplate.getCollectionName(TransformETY.class));
+        mongoTemplate.save(document, mongoTemplate.getCollectionName(EmptyTransformETY.class));
 
-        String collection = mongoTemplate.getCollectionName(TransformETY.class);
+        String collection = mongoTemplate.getCollectionName(EmptyTransformETY.class);
         Mockito.doThrow(MongoException.class).when(mongoTemplate).findOne(any(), eq(Document.class), eq(collection));
         Assertions.assertThrows(BusinessException.class, () -> transformerSRV.findRootMapFromTemplateIdRoot("2.16.840.1.113883.2.9.2.30.10.8"));
     }
