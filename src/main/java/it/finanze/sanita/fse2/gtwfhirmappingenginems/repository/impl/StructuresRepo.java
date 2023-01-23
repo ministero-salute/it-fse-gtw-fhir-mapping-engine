@@ -20,8 +20,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.others.EmptyTransformETY;
 import lombok.extern.slf4j.Slf4j;
 
 @Repository
@@ -38,7 +37,7 @@ public class StructuresRepo implements IStructuresRepo {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("_id").is(objectId));
 
-			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(TransformETY.class));
+			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(EmptyTransformETY.class));
 			out = getStructureMapDTO(document); 
 		} catch(Exception ex) {
 			log.error(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
@@ -54,7 +53,7 @@ public class StructuresRepo implements IStructuresRepo {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("template_id_root").is(templateIdRoot));
 
-			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(TransformETY.class));
+			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(EmptyTransformETY.class));
 			out = getStructureMapDTO(document);
 		} catch(Exception ex) {
 			log.error(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
