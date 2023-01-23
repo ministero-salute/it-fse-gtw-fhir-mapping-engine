@@ -46,12 +46,16 @@ public class TransformETY {
     private String version;
 
     @Field(FIELD_ROOT_MAP)
-    private String rootMap;
+    private String rootMapName;
 
     @Field(FIELD_DELETED)
     private boolean deleted;
 
     @Field(FIELD_LAST_UPDATE)
     private Date lastUpdate;
+
+    public MapETY getRootMap() {
+        return maps.get(0);
+    }
 
 }

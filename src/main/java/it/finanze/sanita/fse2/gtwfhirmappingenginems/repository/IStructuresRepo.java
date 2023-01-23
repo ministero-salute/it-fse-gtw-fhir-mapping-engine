@@ -3,12 +3,12 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 
 public interface IStructuresRepo {
 
-	StructureMapDTO findMapsById(String objectId);
+	TransformETY findTransformById(String objectId);
 
-	StructureMapDTO findMapsByTemplateIdRoot(String templateIdRoot);
+	TransformETY findTransformByTemplateIdRoot(String templateIdRoot);
 	
 }

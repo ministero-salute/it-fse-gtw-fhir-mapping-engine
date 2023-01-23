@@ -3,42 +3,34 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl;
 
-import java.util.Date;
-import java.util.List;
-
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
-import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.bson.types.Binary;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.others.EmptyTransformETY;
-import lombok.extern.slf4j.Slf4j;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Repository
 @Slf4j
 public class StructuresRepo implements IStructuresRepo {
 
 	@Autowired
-	private MongoTemplate mongoTemplate;
+	private MongoTemplate mongo;
 	 
 	@Override
-	public StructureMapDTO findMapsById(final String objectId) {
-		StructureMapDTO out = new StructureMapDTO();
-		try {
-			Query query = new Query();
-			query.addCriteria(Criteria.where("_id").is(objectId));
+	public TransformETY findTransformById(final String id) {
+		TransformETY out;
 
-			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(EmptyTransformETY.class));
-			out = getStructureMapDTO(document); 
+		Query query = new Query();
+		query.addCriteria(where(TransformETY.FIELD_ID).is(id));
+
+		try {
+			out = mongo.findOne(query, TransformETY.class);
 		} catch(Exception ex) {
 			log.error(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
 			throw new BusinessException(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
@@ -47,48 +39,19 @@ public class StructuresRepo implements IStructuresRepo {
 	}
 
 	@Override
-	public StructureMapDTO findMapsByTemplateIdRoot(String templateIdRoot) {
-		StructureMapDTO out = new StructureMapDTO();
-		try {
-			Query query = new Query();
-			query.addCriteria(Criteria.where("template_id_root").is(templateIdRoot));
+	public TransformETY findTransformByTemplateIdRoot(String templateIdRoot) {
+		TransformETY out;
 
-			Document document = mongoTemplate.findOne(query, Document.class, mongoTemplate.getCollectionName(EmptyTransformETY.class));
-			out = getStructureMapDTO(document);
+		Query query = new Query();
+		query.addCriteria(where(TransformETY.FIELD_TEMPLATE_ID_ROOT).is(templateIdRoot));
+
+		try {
+			out = mongo.findOne(query, TransformETY.class);
 		} catch(Exception ex) {
 			log.error(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
 			throw new BusinessException(Constants.Logs.ERROR_FIND_BY_TEMPLATE_ID_ROOT,ex);
 		}
+
 		return out;
 	}
-
-	private StructureMapDTO getStructureMapDTO(Document document) {
-		StructureMapDTO out = new StructureMapDTO();
-
-		if(document!=null && document.get("maps")!=null) {
-			out.setId(document.getObjectId("_id").toString());
-			String rootMapName = document.getString("root_map");
-			String version = document.getString("version");
-			Date lastUpdateDate = document.getDate("last_update_date");
-
-			if (StringUtils.isEmpty(rootMapName)) {
-				throw new BusinessException("Root map non trovata");
-			}
-
-			List<Document> map = document.getList("maps",Document.class);
-			for(Document m : map) {
-				if(rootMapName.equals(m.getString("name_map"))) {
-					MapDTO rootMap = new MapDTO();
-					rootMap.setContentStructureMap((Binary)m.get("content_map"));
-					rootMap.setLastUpdateDate(lastUpdateDate);
-					rootMap.setNameStructureMap(m.getString("name_map"));
-					rootMap.setVersion(version);
-					out.setRootMap(rootMap);
-					break;
-				}  
-			}
-		} 
-		return out;	
-	}
-	 
 }
