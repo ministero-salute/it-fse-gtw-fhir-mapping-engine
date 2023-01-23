@@ -40,6 +40,7 @@ public class EngineSRV implements IEngineSRV {
         insertMap(transform.getRootMap(), transform.getVersion());
         insertDefinitions(transform.getDefinitions(), transform.getVersion());
         insertValueset(transform.getValuesets(), transform.getVersion());
+        log.debug("{}", engine.getContext().listMapUrls());
     }
 
     @Override
