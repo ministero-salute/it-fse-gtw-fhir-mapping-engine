@@ -6,13 +6,14 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.Defi
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.MapETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.ValuesetETY;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IEngineSRV {
-    void insertTransform(TransformETY transform);
+    void insertTransform(TransformETY transform) throws IOException;
     void insertMap(MapETY root, String version);
-    void insertDefinitions(List<DefinitionETY> definitions, String version);
-    void insertValueset(List<ValuesetETY> valuesets, String version);
+    void insertDefinitions(List<DefinitionETY> definitions, String version) throws IOException;
+    void insertValueset(List<ValuesetETY> valuesets, String version) throws IOException;
     boolean doesRootMapExists(TransformETY transform);
     CdaMappingEngine getEngine();
 }
