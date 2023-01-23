@@ -1,7 +1,5 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
@@ -10,6 +8,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.MapE
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.ValuesetETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
 import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.StructureMap;
 import org.hl7.fhir.r4.model.ValueSet;
@@ -17,6 +16,7 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -36,7 +36,7 @@ public class EngineSRV implements IEngineSRV {
     }
 
     @Override
-    public void insertTransform(TransformETY transform) {
+    public void insertTransform(TransformETY transform) throws IOException {
         insertMap(transform.getRootMap(), transform.getVersion());
         insertDefinitions(transform.getDefinitions(), transform.getVersion());
         insertValueset(transform.getValuesets(), transform.getVersion());
@@ -56,16 +56,14 @@ public class EngineSRV implements IEngineSRV {
     }
 
     @Override
-    public void insertDefinitions(List<DefinitionETY> definitions, String version) {
-
-        FhirContext ctx = FhirContext.forR4();
-        IParser parser = ctx.newJsonParser();
+    public void insertDefinitions(List<DefinitionETY> definitions, String version) throws IOException {
+        JsonParser parser = new JsonParser();
 
         for (DefinitionETY d : definitions) {
             // Retrieve data
             String data = new String(d.getContent().getData());
             // Parse map
-            StructureDefinition definition = parser.parseResource(StructureDefinition.class, data);
+            StructureDefinition definition = (StructureDefinition) parser.parse(data);
             // Set version
             definition.setUrl(d.getName());
             definition.setVersion(version);
@@ -75,16 +73,15 @@ public class EngineSRV implements IEngineSRV {
     }
 
     @Override
-    public void insertValueset(List<ValuesetETY> valuesets, String version) {
+    public void insertValueset(List<ValuesetETY> valuesets, String version) throws IOException {
 
-        FhirContext ctx = FhirContext.forR4();
-        IParser parser = ctx.newJsonParser();
+        JsonParser parser = new JsonParser();
 
         for (ValuesetETY v : valuesets) {
             // Retrieve data
             String data = new String(v.getContent().getData());
-            // Parse map
-            ValueSet valueset = parser.parseResource(ValueSet.class, data);
+            // Parse valueset
+            ValueSet valueset = (ValueSet) parser.parse(data);
             // Set version
             valueset.setUrl(v.getName());
             valueset.setVersion(version);
