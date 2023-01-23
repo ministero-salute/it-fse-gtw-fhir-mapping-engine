@@ -5,9 +5,9 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -41,7 +41,7 @@ public class TransformerCTL implements ITransformerCTL {
 			try {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
 				
-				MapDTO map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
+				TransformETY map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
 				String cdaTrasformed = transformerSRV.transform(cdaString, map, fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
@@ -58,7 +58,7 @@ public class TransformerCTL implements ITransformerCTL {
 		log.debug("Invoked transform controller");
 		String cda = getCDA(file);
 		try {
-			MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(templateIdRoot);
+			TransformETY map = transformerSRV.findRootMapFromTemplateIdRoot(templateIdRoot);
 			String cdaTrasformed = transformerSRV.transform(cda, map, null);
 			Document doc = Document.parse(cdaTrasformed);
 			log.debug("Conversion of CDA completed");
@@ -95,8 +95,8 @@ public class TransformerCTL implements ITransformerCTL {
 		if(fhirResourceDTO.getCda()!=null){
 			try {
 				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
-				
-				MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(fhirResourceDTO.getObjectId());
+
+				TransformETY map = transformerSRV.findRootMapFromTemplateIdRoot(fhirResourceDTO.getObjectId());
 				String cdaTrasformed = transformerSRV.transform(cdaString, map, fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
