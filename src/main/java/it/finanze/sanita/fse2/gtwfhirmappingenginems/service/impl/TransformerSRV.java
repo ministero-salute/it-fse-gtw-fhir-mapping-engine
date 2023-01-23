@@ -3,8 +3,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import ch.ahdis.matchbox.engine.CdaMappingEngine;
-import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import com.google.gson.Gson;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
@@ -15,7 +13,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.NotFoundException
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.MapETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,9 +21,6 @@ import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -44,56 +38,25 @@ public class TransformerSRV implements ITransformerSRV {
 	@Autowired
 	private FhirTransformCFG transformCFG;
 	
-	private CdaMappingEngine engine;
-	
+	@Autowired
+	private EngineSRV engineSRV;
+
 	@Autowired
 	private IStructuresRepo structureRepo;
 
-	@Async
-	@EventListener(ApplicationStartedEvent.class)
-	void initialize() {
-		try {
-			engine = new CdaMappingEngineBuilder().getEngine("/package.tgz");
-		} catch(Exception ex) {
-			log.error("Error while perform builder in post construct : " , ex);
-			throw new BusinessException("Error while perform builder in post construct : " , ex);
-		}
-	}
+
 
 	@Override
 	public String transform(final String cda, final TransformETY transform, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
 
-		MapETY root = transform.getRootMap();
-
-		// Check existence
-		boolean exists = engine.getContext().hasResourceVersion(
-			org.hl7.fhir.r5.model.StructureMap.class,
-			transform.getRootMapName(),
-			transform.getVersion()
-		);
-
-		log.info("[root-map] name: {}, version: {}, exists: {}", transform.getRootMapName(), transform.getVersion(), exists);
-
-		log.info("{}", engine.getContext().listMapUrls());
-
-		if(!exists) {
-			// Retrieve data
-			String data = new String(root.getContent().getData());
-			// Parse map
-			StructureMap map = engine.parseMap(data);
-			// Set version
-			map.setUrl(root.getName());
-			map.setVersion(transform.getVersion());
-			// Add to engine
-			engine.addCanonicalResource(map);
-			// Confirm
-			log.info("[root-map][inserted] name: {}, version: {}", transform.getRootMapName(), transform.getVersion());
-
+		if(!engineSRV.doesRootMapExists(transform)) {
+			log.debug("Inserting map resource {}", transform.getRootMapId());
+			engineSRV.insertTransform(transform);
+			log.debug("Map resource {} has been inserted", transform.getRootMapId());
 		}
 
-		log.info("{}", engine.getContext().listMapUrls());
-
-		Bundle bundle = engine.transformCdaToFhir(cda, root.getName());
+		log.debug("Invoke transformCdaToFhir() with {}", transform.getRootMapId());
+		Bundle bundle = engineSRV.getEngine().transformCdaToFhir(cda, transform.getRootMapId());
 
 		//Alg scoring
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
@@ -198,5 +161,5 @@ public class TransformerSRV implements ITransformerSRV {
 		}
 		return output;
 	}
-	
+
 }
