@@ -54,8 +54,15 @@ public class TransformETY {
     @Field(FIELD_LAST_UPDATE)
     private Date lastUpdate;
 
+    @Field(FIELD_LAST_SYNC)
+    private Date lastSync;
+
     public MapETY getRootMap() {
         return maps.get(0);
+    }
+
+    public String getRootMapId() {
+        return getRootMapName() + "|" + getVersion();
     }
 
 }
