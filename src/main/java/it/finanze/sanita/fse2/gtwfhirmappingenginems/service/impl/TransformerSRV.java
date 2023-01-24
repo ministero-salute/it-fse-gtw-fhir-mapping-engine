@@ -71,11 +71,13 @@ public class TransformerSRV implements ITransformerSRV {
 
 	@Override
 	public String transform(final String cda, final String rootMap,final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
+		log.info("CALL CDA TO FHIR METHOD");
 		Bundle bundle = engine.transformCdaToFhir(cda, rootMap);
  
-		//Alg scoring
+		log.info("START ALG SCORING");		
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
-				
+		
+		log.info("START CREATE DOCUMENT REFERENCE");
 		for(BundleEntryComponent entry : bundle.getEntry()) {
 			Resource resource = entry.getResource();
 			if (ResourceType.DocumentReference.equals(resource.getResourceType())){
@@ -94,20 +96,22 @@ public class TransformerSRV implements ITransformerSRV {
         Map<String, BundleEntryComponent> toKeep = new HashMap<>();
 
         for (BundleEntryComponent resourceEntry : entries) {
-            if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
-                toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-            } else {
-            	log.info(resourceEntry.getResource().getId());
-                // Calculate weight and compare each other
-                final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
-                final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);
-
-                if ((oldEntryWeight < newEntryWeight) || 
-                		(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
-                    // Must override entry with a richer one
-                    toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-                }
-            }
+        	if(resourceEntry.getResource()!=null) {
+        		if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
+        			toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
+        		} else {
+        			log.info(resourceEntry.getResource().getId());
+        			// Calculate weight and compare each other
+        			final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
+        			final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);
+        			
+        			if ((oldEntryWeight < newEntryWeight) || 
+        					(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
+        				// Must override entry with a richer one
+        				toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
+        			}
+        		}
+        	}
         }
         
         return new ArrayList<>(toKeep.values());
