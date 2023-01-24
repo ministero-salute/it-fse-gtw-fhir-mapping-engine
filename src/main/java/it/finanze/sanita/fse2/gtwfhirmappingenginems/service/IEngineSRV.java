@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface IEngineSRV {
     void insertTransform(TransformETY transform) throws IOException;
-    void insertMap(MapETY root, String version);
+    void insertMap(List<MapETY> root, String version);
     void insertDefinitions(List<DefinitionETY> definitions, String version) throws IOException;
     void insertValueset(List<ValuesetETY> valuesets, String version) throws IOException;
     boolean doesRootMapExists(TransformETY transform);

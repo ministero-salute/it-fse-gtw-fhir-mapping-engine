@@ -37,27 +37,30 @@ public class EngineSRV implements IEngineSRV {
 
     @Override
     public void insertTransform(TransformETY transform) throws IOException {
-        insertMap(transform.getRootMap(), transform.getVersion());
+        insertMap(transform.getMaps(), transform.getVersion());
         insertDefinitions(transform.getDefinitions(), transform.getVersion());
         insertValueset(transform.getValuesets(), transform.getVersion());
         log.debug("{}", engine.getContext().listMapUrls());
     }
 
     @Override
-    public void insertMap(MapETY root, String version) {
-        // Retrieve data
-        String data = new String(root.getContent().getData());
-        // Parse map
-        StructureMap map = engine.parseMap(data);
-        // Set version
-        map.setUrl(root.getName());
-        map.setVersion(version);
-        // Add to engine
-        engine.addCanonicalResource(map);
+    public void insertMap(List<MapETY> maps, String version) {
+        for(MapETY m: maps) {
+            // Retrieve data
+            String data = new String(m.getContent().getData());
+            // Parse map
+            StructureMap map = engine.parseMap(data);
+            // Set version
+            map.setUrl(m.getName());
+            map.setVersion(version);
+            // Add to engine
+            engine.addCanonicalResource(map);
+        }
     }
 
     @Override
     public void insertDefinitions(List<DefinitionETY> definitions, String version) throws IOException {
+
         JsonParser parser = new JsonParser();
 
         for (DefinitionETY d : definitions) {
