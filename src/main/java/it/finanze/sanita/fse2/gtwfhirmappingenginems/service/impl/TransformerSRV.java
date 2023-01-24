@@ -81,20 +81,22 @@ public class TransformerSRV implements ITransformerSRV {
         Map<String, BundleEntryComponent> toKeep = new HashMap<>();
 
         for (BundleEntryComponent resourceEntry : entries) {
-            if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
-                toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-            } else {
-            	log.info(resourceEntry.getResource().getId());
-                // Calculate weight and compare each other
-                final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
-                final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);
-
-                if ((oldEntryWeight < newEntryWeight) || 
-                		(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
-                    // Must override entry with a richer one
-                    toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-                }
-            }
+        	if(resourceEntry.getResource()!=null) {
+        		if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
+        			toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
+        		} else {
+        			log.info(resourceEntry.getResource().getId());
+        			// Calculate weight and compare each other
+        			final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
+        			final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);
+        			
+        			if ((oldEntryWeight < newEntryWeight) || 
+        					(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
+        				// Must override entry with a richer one
+        				toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
+        			}
+        		}
+        	}
         }
         
         return new ArrayList<>(toKeep.values());

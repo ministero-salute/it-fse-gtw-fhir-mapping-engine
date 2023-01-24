@@ -32,7 +32,7 @@ public class TransformerCTL implements ITransformerCTL {
 
 	@Autowired
 	private ITransformerSRV transformerSRV;
-
+ 
 	@Override
 	public TransformResDTO convertCDAToBundle(FhirResourceDTO fhirResourceDTO, HttpServletRequest request) {
 		log.debug("Invoked transform controller");
@@ -44,9 +44,11 @@ public class TransformerCTL implements ITransformerCTL {
 				TransformETY map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
 				String cdaTrasformed = transformerSRV.transform(cdaString, map, fhirResourceDTO.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
+				log.info("IS VALID JSON:" + String.valueOf(doc!=null));
 				out.setJson(doc);
 			} catch(Throwable tr) {
-				out.setErrorMessage(tr.getMessage());
+				log.error("Error while perform transform cda to bundle:" , tr);
+				out.setErrorMessage("Error while perform transform cda to bundle:" + tr.getMessage());
 			}
 		}
 		log.debug("Conversion of CDA completed");
@@ -101,6 +103,7 @@ public class TransformerCTL implements ITransformerCTL {
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
+				log.error("Error while convert CDA To Bumdle with Template id root:", tr);
 				out.setErrorMessage(tr.getMessage());
 			}
 		}
