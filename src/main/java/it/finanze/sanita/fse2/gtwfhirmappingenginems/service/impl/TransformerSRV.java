@@ -49,6 +49,9 @@ public class TransformerSRV implements ITransformerSRV {
 	@Override
 	public String transform(final String cda, final TransformETY transform, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
 
+		log.debug("{}", engineSRV.getEngine().getContext().listMapUrls());
+		log.debug("{}: {}",transform.getRootMapId(), engineSRV.doesRootMapExists(transform));
+
 		if(!engineSRV.doesRootMapExists(transform)) {
 			log.debug("Inserting map resource {}", transform.getRootMapId());
 			engineSRV.insertTransform(transform);
