@@ -62,7 +62,8 @@ public class TransformETY {
     }
 
     public String getRootMapId() {
-        return getRootMapName() + "|" + getVersion();
+        String id = getRootMapName();
+        return version == null || version.isEmpty() ? id : id + "|" + getVersion();
     }
 
 }

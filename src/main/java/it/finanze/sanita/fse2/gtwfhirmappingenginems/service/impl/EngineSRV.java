@@ -93,11 +93,22 @@ public class EngineSRV implements IEngineSRV {
 
     @Override
     public boolean doesRootMapExists(TransformETY transform) {
-        return engine.getContext().hasResourceVersion(
-            org.hl7.fhir.r5.model.StructureMap.class,
-            transform.getRootMapName(),
-            transform.getVersion()
-        );
+        boolean value;
+        if(transform.getVersion() == null || transform.getVersion().isEmpty()) {
+            log.debug("doesRootMapExists() by resource with {}", transform.getRootMapName());
+            value = engine.getContext().hasResource(
+                org.hl7.fhir.r5.model.StructureMap.class,
+                transform.getRootMapName()
+            );
+        } else {
+            log.debug("doesRootMapExists() by resource version with {} / {}", transform.getRootMapName(), transform.getVersion());
+            value = engine.getContext().hasResourceVersion(
+                org.hl7.fhir.r5.model.StructureMap.class,
+                transform.getRootMapName(),
+                transform.getVersion()
+            );
+        }
+        return value;
     }
 
     @Override
