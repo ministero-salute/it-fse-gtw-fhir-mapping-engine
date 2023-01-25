@@ -38,18 +38,26 @@ public class EngineSRV implements IEngineSRV {
     @Override
     public void insertTransform(TransformETY transform) throws IOException {
         insertMap(transform.getMaps(), transform.getVersion());
-        insertDefinitions(transform.getDefinitions(), transform.getVersion());
-        insertValueset(transform.getValuesets(), transform.getVersion());
+        insertDefinitions(transform.getDefinitions());
+        insertValueset(transform.getValuesets());
         log.debug("{}", engine.getContext().listMapUrls());
     }
 
     @Override
-    public void insertMap(List<MapETY> maps, String version) {
+    public void insertMap(List<MapETY> maps, String version) throws IOException {
+
+        JsonParser parser = new JsonParser();
+
         for(MapETY m: maps) {
+            StructureMap map;
             // Retrieve data
             String data = new String(m.getContent().getData());
             // Parse map
-            StructureMap map = engine.parseMap(data);
+            if(m.getFilename().endsWith(".json")) {
+                map = (StructureMap) parser.parse(data);
+            } else {
+                map = engine.parseMap(data);
+            }
             // Set version
             map.setUrl(m.getName());
             map.setVersion(version);
@@ -59,7 +67,7 @@ public class EngineSRV implements IEngineSRV {
     }
 
     @Override
-    public void insertDefinitions(List<DefinitionETY> definitions, String version) throws IOException {
+    public void insertDefinitions(List<DefinitionETY> definitions) throws IOException {
 
         JsonParser parser = new JsonParser();
 
@@ -68,16 +76,13 @@ public class EngineSRV implements IEngineSRV {
             String data = new String(d.getContent().getData());
             // Parse map
             StructureDefinition definition = (StructureDefinition) parser.parse(data);
-            // Set version
-            definition.setUrl(d.getName());
-            definition.setVersion(version);
             // Add to engine
             engine.addCanonicalResource(definition);
         }
     }
 
     @Override
-    public void insertValueset(List<ValuesetETY> valuesets, String version) throws IOException {
+    public void insertValueset(List<ValuesetETY> valuesets) throws IOException {
 
         JsonParser parser = new JsonParser();
 
@@ -86,9 +91,6 @@ public class EngineSRV implements IEngineSRV {
             String data = new String(v.getContent().getData());
             // Parse valueset
             ValueSet valueset = (ValueSet) parser.parse(data);
-            // Set version
-            valueset.setUrl(v.getName());
-            valueset.setVersion(version);
             // Add to engine
             engine.addCanonicalResource(valueset);
         }
