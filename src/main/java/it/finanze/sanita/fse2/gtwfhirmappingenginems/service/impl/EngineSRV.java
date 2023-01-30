@@ -36,11 +36,15 @@ public class EngineSRV implements IEngineSRV {
     }
 
     @Override
-    public void insertTransform(TransformETY transform) throws IOException {
-        insertMap(transform.getMaps(), transform.getVersion());
-        insertDefinitions(transform.getDefinitions());
-        insertValueset(transform.getValuesets());
-        log.debug("{}", engine.getContext().listMapUrls());
+    public synchronized void insertTransform(TransformETY transform) throws IOException {
+        if(!doesRootMapExists(transform)) {
+            log.debug("Inserting map resource {}", transform.getRootMapId());
+            insertMap(transform.getMaps(), transform.getVersion());
+            insertDefinitions(transform.getDefinitions());
+            insertValueset(transform.getValuesets());
+            log.debug("Map resource {} has been inserted", transform.getRootMapId());
+            log.debug("{}", engine.getContext().listMapUrls());
+        }
     }
 
     @Override

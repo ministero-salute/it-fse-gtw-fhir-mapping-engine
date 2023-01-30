@@ -51,11 +51,7 @@ public class TransformerSRV implements ITransformerSRV {
 
 		log.debug("{}", engineSRV.getEngine().getContext().listMapUrls());
 
-		if(!engineSRV.doesRootMapExists(transform)) {
-			log.debug("Inserting map resource {}", transform.getRootMapId());
-			engineSRV.insertTransform(transform);
-			log.debug("Map resource {} has been inserted", transform.getRootMapId());
-		}
+		if(!engineSRV.doesRootMapExists(transform)) engineSRV.insertTransform(transform);
 
 		log.debug("Invoke transformCdaToFhir() with {}", transform.getRootMapId());
 		Bundle bundle = engineSRV.getEngine().transformCdaToFhir(cda, transform.getRootMapId());
