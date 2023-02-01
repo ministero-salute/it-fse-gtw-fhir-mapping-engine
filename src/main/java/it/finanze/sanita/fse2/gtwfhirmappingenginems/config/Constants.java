@@ -55,6 +55,7 @@ public final class Constants {
  
 	public static final class Profile {
 		public static final String TEST = "test";
+		public static final String TEST_ENGINE = "test-engine";
 
 		public static final String TEST_PREFIX = "test_";
 

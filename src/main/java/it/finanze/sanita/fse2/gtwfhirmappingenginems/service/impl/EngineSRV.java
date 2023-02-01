@@ -7,11 +7,13 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.Defi
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.MapETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.ValuesetETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.StructureMap;
 import org.hl7.fhir.r4.model.ValueSet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -23,15 +25,22 @@ import java.util.List;
 @Service
 public class EngineSRV implements IEngineSRV {
 
+    @Autowired
+    private ProfileUtility profile;
+
     private CdaMappingEngine engine;
 
     @EventListener(ApplicationStartedEvent.class)
     public void initialize() {
-        try {
-            engine = new CdaMappingEngine.CdaMappingEngineBuilder().getEngine("/package.tgz");
-        } catch(Exception ex) {
-            log.error("Error while perform builder in post construct : " , ex);
-            throw new BusinessException("Error while perform builder in post construct : " , ex);
+        if(!profile.isEngineTestProfile()) {
+            try {
+                engine = new CdaMappingEngine.CdaMappingEngineBuilder().getEngine("/package.tgz");
+            } catch (Exception ex) {
+                log.error("Error while perform builder in post construct : ", ex);
+                throw new BusinessException("Error while perform builder in post construct : ", ex);
+            }
+        } else {
+            log.info("Skipping engine initialisation, using test profile");
         }
     }
 
