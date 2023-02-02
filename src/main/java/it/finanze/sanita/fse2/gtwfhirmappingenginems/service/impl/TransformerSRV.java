@@ -21,6 +21,7 @@ import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Property;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.StructureMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
@@ -42,6 +43,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.NotFoundException
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -63,6 +65,10 @@ public class TransformerSRV implements ITransformerSRV {
 	void initialize() {
 		try {
 			engine = new CdaMappingEngineBuilder().getEngine("/package.tgz");
+			
+			String vpsMap = new String(FileUtility.getFileFromInternalResources("VPS_Completo_v1.3.map"));
+		    StructureMap map = engine.parseMap(vpsMap);
+			engine.addCanonicalResource(map);
 		} catch(Exception ex) {
 			log.error("Error while perform builder in post construct : " , ex);
 			throw new BusinessException("Error while perform builder in post construct : " , ex);
