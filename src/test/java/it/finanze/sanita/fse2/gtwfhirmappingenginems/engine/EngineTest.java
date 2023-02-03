@@ -2,6 +2,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
 import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.StructureDefinition;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 import static ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST_ENGINE;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -49,6 +51,25 @@ public class EngineTest extends AbstractEngineTest {
     }
 
     @Test
+    public void testFullBodyWithVersionedImport() throws IOException, URISyntaxException {
+        // Load engine
+        CdaMappingEngine engine = new CdaMappingEngineBuilder().getEngine();
+        log.info("{}", engine.getContext().listMapUrls());
+        // Run
+        setupFullBodyWithVersioning(engine, RES_CDA_TO_FHIR_DATATYPE_VERSIONED);
+    }
+
+    @Test
+    public void testFullBodyWithWrongVersionedImport() throws IOException, URISyntaxException {
+        // Load engine
+        CdaMappingEngine engine = new CdaMappingEngineBuilder().getEngine();
+        log.info("{}", engine.getContext().listMapUrls());
+        // This import is not registered with a version different from the source file
+        // If the engine truly search for that specific version, it should fail
+        assertThrows(FHIRException.class, () -> setupFullBodyWithVersioning(engine, "6.7.4"));
+    }
+
+    @Test
     public void testFullBodyMinimal() throws IOException, URISyntaxException {
         // Load engine
         CdaMappingEngine engine = new CdaMappingEngineBuilder().getEngine(ENGINE_MINIMAL);
@@ -62,12 +83,14 @@ public class EngineTest extends AbstractEngineTest {
         // Load engine
         CdaMappingEngine engine = new CdaMappingEngineBuilder().getEngine();
 
+        //noinspection Convert2MethodRef
         log.info("[DEFS] {}", engine.getContext().listStructures().stream().map(s -> s.getName()).collect(Collectors.toList()));
 
         StructureDefinition res0 = (StructureDefinition) parser.parse(new FileInputStream(DEPS_R4_SUBSTANCE_MODIFIED_JSON));
         // Add
         engine.addCanonicalResource(res0);
 
+        //noinspection Convert2MethodRef
         log.info("[DEFS] {}", engine.getContext().listStructures().stream().map(s -> s.getName()).collect(Collectors.toList()));
 
     }
@@ -125,6 +148,35 @@ public class EngineTest extends AbstractEngineTest {
         // Add resources
         engine.addCanonicalResource(res0);
         engine.addCanonicalResource(res1);
+        engine.addCanonicalResource(map);
+        // Log resources
+        // log.info("[MAPS] {}", engine.getContext().listMapUrls());
+        // log.info("[DEFS] {}", engine.getContext().listStructures());
+        // Load XML
+        p = Paths.get(INPUT_LAB_XML);
+        // Transform
+        Bundle b = engine.transformCdaToFhir(Files.readString(p), map.getUrl());
+        // Print
+        log.info("{}", parser.composeString(b));
+    }
+
+    private void setupFullBodyWithVersioning(CdaMappingEngine engine, String version) throws IOException {
+        // Log resources
+        // log.info("[MAPS] {}", engine.getContext().listMapUrls());
+        // log.info("[DEFS] {}", engine.getContext().listStructures());
+        // Load deps
+        StructureMap res0 = (StructureMap) parser.parse(new FileInputStream(RES_CDA_TO_FHIR_DATATYPE_JSON));
+        StructureMap res1 = (StructureMap) parser.parse(new FileInputStream(RES_FULL_HEADER_JSON));
+        StructureMap res3 = (StructureMap) parser.parse(new FileInputStream(RES_CDA_TO_FHIR_DATATYPE_JSON));
+        res3.setVersion(version);
+        // Load map
+        Path p = Paths.get(RES_FULL_BODY_VERSIONED_MAP);
+        StructureMap map = engine.parseMap(Files.readString(p));
+        log.info("Map: {} / {} / {}", map.getName(), map.getVersion(), map.getUrl());
+        // Add resources
+        engine.addCanonicalResource(res0);
+        engine.addCanonicalResource(res1);
+        engine.addCanonicalResource(res3);
         engine.addCanonicalResource(map);
         // Log resources
         // log.info("[MAPS] {}", engine.getContext().listMapUrls());
