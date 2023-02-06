@@ -44,16 +44,10 @@ public class TransformerSRV implements ITransformerSRV {
 	@Autowired
 	private IStructuresRepo structureRepo;
 
-
-
 	@Override
 	public String transform(final String cda, final TransformETY transform, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
 
-		log.debug("{}", engineSRV.getEngine().getContext().listMapUrls());
-
-		if(!engineSRV.doesRootMapExists(transform)) engineSRV.insertTransform(transform);
-
-		log.debug("Invoke transformCdaToFhir() with {}", transform.getRootMapId());
+		// Return always the latest engine
 		Bundle bundle = engineSRV.getEngine().transformCdaToFhir(cda, transform.getRootMapId());
 
 		//Alg scoring
