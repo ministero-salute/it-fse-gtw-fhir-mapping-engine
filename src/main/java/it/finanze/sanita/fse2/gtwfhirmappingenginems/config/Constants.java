@@ -90,6 +90,13 @@ public final class Constants {
 
 	public static final class Logs {
 
+		public static final String ERR_BLD_REGISTER_FHIR = "Impossibile registrare entità %s di tipo %s (builder)";
+		public static final String ERR_BLD_FIND_BY_ID_ENGINE = "Impossibile recupero entità engine per id (builder)";
+		public static final String ERR_BLD_FIND_BY_ID_FHIR = "Impossibile recupero entità fhir per id (builder)";
+		public static final String ERR_BLD_ROOT_UNAVAILALE = "La root map '%s' utilizza un object-id '%s' non presente tra i files (builder)";
+		public static final String ERR_BLD_ENGINE_UNAVAILALE = "Impossibile inizializzare engine (builder)";
+		public static final String ERR_BLD_UKNOWN_TYPE = "La risorsa '%s' utilizza un type sconosciuto '%s' (builder)";
+
 		public static final String ERR_REP_FIND_BY_ID_FHIR = "Impossibile recupero entità fhir per id";
 		public static final String ERR_REP_FIND_BY_ID_ENGINE = "Impossibile recupero entità engine per id";
 

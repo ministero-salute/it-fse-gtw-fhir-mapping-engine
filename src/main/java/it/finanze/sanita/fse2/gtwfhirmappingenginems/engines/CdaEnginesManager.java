@@ -1,7 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.EngineException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +31,5 @@ public class CdaEnginesManager {
         String uri = obj.getRoots().get(objectId);
         if (uri == null) throw new EngineException("Engine is available but root map was not found");
         return obj.getInstance().transformCdaToFhir(cda, uri);
-    }
-
-    public boolean ready() {
-        return ready;
     }
 }

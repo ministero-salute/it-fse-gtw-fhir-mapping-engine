@@ -1,4 +1,4 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.exception;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine;
 
 public class EngineException extends RuntimeException {
     /**
