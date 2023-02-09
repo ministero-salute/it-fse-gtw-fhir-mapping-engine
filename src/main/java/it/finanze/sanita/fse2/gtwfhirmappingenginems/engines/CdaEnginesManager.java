@@ -98,7 +98,11 @@ public class CdaEnginesManager {
                     // Update
                     engines.put(id, engine.get());
                     // Mark as available, if unsuccessful unload from memory
-                    if (!available(id)) engines.remove(id);
+                    if (!available(id)) {
+                        engines.remove(id);
+                    } else {
+                        log.debug("Removing engine {} because couldn't set as available", id);
+                    }
                 }
             } else {
                 log.debug("Skipping engine {} because it already exists in-memory", id);
