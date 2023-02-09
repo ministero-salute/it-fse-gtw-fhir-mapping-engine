@@ -58,7 +58,9 @@ public class EngineRepo implements IEngineRepo {
         }catch (MongoException e) {
             throw new OperationException(ERR_REP_SET_AVAILABLE_ENGINE, e);
         }
-        return res.getModifiedCount() == 1;
+        // Keep matchedCount() because if an erroneous shutdown occurs
+        // and enabled is still up this returns true anyway
+        return res.getMatchedCount() == 1;
     }
 
     @Override
