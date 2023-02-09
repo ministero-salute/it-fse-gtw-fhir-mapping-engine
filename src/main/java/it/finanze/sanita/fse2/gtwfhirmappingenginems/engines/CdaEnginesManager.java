@@ -3,10 +3,13 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineException;
 import org.hl7.fhir.r4.model.Bundle;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENGINE_EXECUTOR;
 
 @Component
 public class CdaEnginesManager {
@@ -19,6 +22,7 @@ public class CdaEnginesManager {
         this.ready = false;
     }
 
+    @Async(ENGINE_EXECUTOR)
     public void refresh() {
         // Set flag
         ready = true;
