@@ -32,6 +32,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Log
 @Component
 public class EngineBuilder {
 
+    private static final String TITLE = "ENGINE";
     private static final String JSON_EXT = ".json";
 
     @Autowired
@@ -41,18 +42,24 @@ public class EngineBuilder {
     private IEngineRepo engine;
 
     public Engine fromId(String id) throws OperationException, EngineBuilderException {
+        log.debug("[{}][{}] Spawning new engine", TITLE, id);
         // Retrieve entity
         EngineETY engine = this.engine.findById(id);
         // Check nullity
         if (engine == null) throw new EngineBuilderException(ERR_BLD_FIND_BY_ID_ENGINE);
+        log.debug("[{}][{}] Creating entities map", TITLE, id);
         // Create mapping for all available entities
         Map<String, TransformETY> entities = createEntitiesMap(engine);
+        log.debug("[{}][{}] Creating root mapping", TITLE, id);
         // Create root mapping
         Map<String, String> roots = createRootsMap(engine.getRoots(), entities);
+        log.debug("[{}][{}] Initializing engine", TITLE, id);
         // Create engine
         CdaMappingEngine instance = createEngine();
+        log.debug("[{}][{}] Registering resources", TITLE, id);
         // Register resources
-        registerItems(instance, entities);
+        registerItems(id, instance, entities);
+        log.debug("[{}][{}] Engine spawned", TITLE, id);
         // Return newly fresh engine
         return new Engine(id, roots, instance);
     }
@@ -101,12 +108,17 @@ public class EngineBuilder {
         return engine;
     }
 
-    private void registerItems(CdaMappingEngine engine, Map<String, TransformETY> entities) throws EngineBuilderException {
+    private void registerItems(String id, CdaMappingEngine engine, Map<String, TransformETY> entities) throws EngineBuilderException {
         for (Entry<String, TransformETY> i : entities.entrySet()) {
             // Retrieve instance
             TransformETY value = i.getValue();
             // Retrieve type
             FhirTypeEnum type = value.getType();
+            // Retrieve uri and version
+            String uri = value.getUri();
+            String version = value.getVersion();
+            // Log me
+            log.debug("[{}][{}] Registering '{}' as '{}' (v{})", TITLE, id, type, uri, version);
             // Register entity
             switch (type) {
                 case Map:
@@ -120,7 +132,7 @@ public class EngineBuilder {
                     break;
                 default:
                     throw new EngineBuilderException(
-                        String.format(ERR_BLD_UKNOWN_TYPE, value.getUri(), type)
+                        String.format(ERR_BLD_UKNOWN_TYPE, uri, type)
                     );
             }
         }
