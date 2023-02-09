@@ -16,26 +16,9 @@ public final class Constants {
 	public static final class ComponentScan {
 
 		/**
-		 * Base path.
-		 */
-		public static final String BASE = "it.finanze.sanita.fse2.gtwfhirmappingenginems";
-
-
-		/**
-		 * Configuration path.
-		 */
-		public static final String CONFIG = "it.finanze.sanita.fse2.gtwfhirmappingenginems.config";
-		
-		/**
 		 * Configuration mongo path.
 		 */
 		public static final String CONFIG_MONGO = "it.finanze.sanita.fse2.gtwfhirmappingenginems.config.mongo";
-		
-		/**
-		 * Configuration mongo repository path.
-		 */
-		public static final String REPOSITORY_MONGO = "it.finanze.sanita.fse2.gtwfhirmappingenginems.repository";
-
 		
 		private ComponentScan() {
 			//This method is intentionally left blank.
@@ -46,8 +29,8 @@ public final class Constants {
 	public static final class Collections {
 
 		public static final String TRANSFORM = "transform";
+		public static final String ENGINE = "engine";
 
-		 
 		private Collections() {
 
 		}
@@ -106,8 +89,6 @@ public final class Constants {
 	private Constants() {}
 
 	public static final class Logs {
-		public static final String ERROR_FIND_BY_TEMPLATE_ID_ROOT = "Error while perform find map by template id root: ";
-
 		private Logs() {}
 	}
 }
