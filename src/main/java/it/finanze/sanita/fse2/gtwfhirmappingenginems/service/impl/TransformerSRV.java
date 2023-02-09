@@ -8,14 +8,9 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.NotFoundException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.*;
@@ -41,14 +36,11 @@ public class TransformerSRV implements ITransformerSRV {
 	@Autowired
 	private EngineSRV engineSRV;
 
-	@Autowired
-	private IStructuresRepo structureRepo;
-
 	@Override
-	public String transform(final String cda, final TransformETY transform, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
+	public String transform(final String cda, final String engineId, final String objectId, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
 
 		// Return always the latest engine
-		Bundle bundle = engineSRV.getEngine().transformCdaToFhir(cda, transform.getRootMapId());
+		Bundle bundle = engineSRV.getEngine().transform(cda, engineId, objectId);
 
 		//Alg scoring
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
@@ -113,43 +105,6 @@ public class TransformerSRV implements ITransformerSRV {
 					}
 				}
 			}
-		}
-		return output;
-	}
-	
-	@Override
-	public TransformETY findRootMap(final String objectId) {
-		TransformETY output;
-		try {
-			if(StringUtils.isBlank(objectId)) {
-				throw new NotFoundException("Structure Map not found");
-			}
-			output = structureRepo.findTransformById(objectId);
-			if(output==null || output.getRootMap()==null) {
-				throw new NotFoundException("Structure Map not found with object id :" + objectId);
-			}
-		}
-		catch(NotFoundException ex) {
-			log.error(ex.getMessage());
-			throw new BusinessException("Error retrieving data: " + ex.getMessage(), ex);
-		} catch(Exception ex) {
-			log.error("Error while perform transform " , ex);
-			throw new BusinessException("Error while perform transform " , ex);
-		}
-		return output;
-	}
-
-	@Override
-	public TransformETY findRootMapFromTemplateIdRoot(String templateIdRoot) {
-		TransformETY output ;
-		try {
-			output = structureRepo.findTransformByTemplateIdRoot(templateIdRoot);
-			if(output==null || output.getRootMap()==null) {
-				throw new NotFoundException("Structure map not found with templateIdRoot id :" + templateIdRoot);
-			}
-		} catch(Exception ex) {
-			log.error("Error while perform transform : " , ex);
-			throw new BusinessException("Error while perform transform : " , ex);
 		}
 		return output;
 	}

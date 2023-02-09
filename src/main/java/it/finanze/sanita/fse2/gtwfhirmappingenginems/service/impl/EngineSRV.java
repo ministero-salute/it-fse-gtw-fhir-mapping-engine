@@ -1,6 +1,5 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.CdaEnginesManager;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
@@ -25,14 +24,14 @@ public class EngineSRV implements IEngineSRV {
         // Prevent loading engines while running tests
         if(!profile.isEngineTestProfile()) {
             // Create instances from database
-            engines.initialize();
+            engines.refresh();
         } else {
             log.info("Skipping engine initialisation, using test profile");
         }
     }
 
     @Override
-    public CdaMappingEngine getEngine() {
-        return engines.latest();
+    public CdaEnginesManager getEngine() {
+        return engines;
     }
 }

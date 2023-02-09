@@ -1,34 +1,36 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines;
 
-import ch.ahdis.matchbox.engine.CdaMappingEngine;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.ex.EngineInitializationException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.ex.EngineUnavailableException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.EngineException;
+import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class CdaEnginesManager {
 
-    private final ConcurrentHashMap<String, CdaMappingEngine> engines;
-    private volatile String latest;
+    private final ConcurrentHashMap<String, Engine> engines;
     private volatile boolean ready;
 
     public CdaEnginesManager() {
         this.engines = new ConcurrentHashMap<>();
+        this.ready = false;
     }
 
-    public void initialize() {
+    public void refresh() {
         // Set flag
         ready = true;
     }
 
-    public CdaMappingEngine latest() {
-        if(!ready) throw new EngineInitializationException("Engines initialization not finished yet");
-        if (latest == null) throw new EngineUnavailableException("No engine is currently available");
-        CdaMappingEngine obj = engines.get(latest);
-        if (obj == null) throw new EngineUnavailableException("Engine seems available but instance is null");
-        return obj;
+    public Bundle transform(String cda, String engineId, String objectId) throws IOException {
+        if(!ready) throw new EngineException("Engines initialization not finished yet");
+        Engine obj = engines.get(engineId);
+        if (obj == null) throw new EngineException("Engine instance is null");
+        String uri = obj.getRoots().get(objectId);
+        if (uri == null) throw new EngineException("Engine is available but root map was not found");
+        return obj.getInstance().transformCdaToFhir(cda, uri);
     }
 
     public boolean ready() {

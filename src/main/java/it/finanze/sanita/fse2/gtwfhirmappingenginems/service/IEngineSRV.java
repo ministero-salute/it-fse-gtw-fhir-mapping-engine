@@ -1,7 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
-import ch.ahdis.matchbox.engine.CdaMappingEngine;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.CdaEnginesManager;
 
 public interface IEngineSRV {
-    CdaMappingEngine getEngine();
+    CdaEnginesManager getEngine();
 }

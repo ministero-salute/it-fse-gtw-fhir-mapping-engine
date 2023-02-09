@@ -1,6 +1,6 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.ex;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.exception;
 
-public class EngineInitializationException extends RuntimeException {
+public class EngineException extends RuntimeException {
     /**
      * Constructs a new runtime exception with the specified detail message.
      * The cause is not initialized, and may subsequently be initialized by a
@@ -9,7 +9,7 @@ public class EngineInitializationException extends RuntimeException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public EngineInitializationException(String message) {
+    public EngineException(String message) {
         super(message);
     }
 }

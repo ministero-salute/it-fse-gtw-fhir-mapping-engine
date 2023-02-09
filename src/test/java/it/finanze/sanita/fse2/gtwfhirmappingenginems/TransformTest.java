@@ -46,16 +46,16 @@ class TransformTest extends AbstractTest {
 		ety.setMaps(maps);
 
 		byte[] cda = FileUtility.getFileFromInternalResources("Esempio CDA2_Referto Medicina di Laboratorio v10.xml");
-		String bundle = transform.transform(new String(cda,StandardCharsets.UTF_8), ety, documentReferenceDTO);
+		String bundle = transform.transform(new String(cda,StandardCharsets.UTF_8), "", "", documentReferenceDTO);
 		System.out.println(bundle);
 	}
 	
 	@Test
-	void testWithAddTransform() throws Exception {
+	void testWithAddTransform() {
 		String rootMap = "http://hl7.org/fhir/StructureMap/Pippo";
 		String cda = TestUtility.createMockCda();
 
-		CdaMappingEngine engine = null;
+		CdaMappingEngine engine;
 		try {
 			engine = new CdaMappingEngineBuilder().getEngine("/cda-fhir-maps.tgz");
 			StructureMap map2 = engine.parseMap(new String(FileUtility.getFileFromInternalResources("Referto_di_Laboratorio_SimpleBody_v1.1.map")));

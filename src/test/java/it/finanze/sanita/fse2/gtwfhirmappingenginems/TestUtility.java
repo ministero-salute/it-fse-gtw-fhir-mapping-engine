@@ -20,7 +20,7 @@ public class TestUtility {
     public static FhirResourceDTO createMockFhirResourceDTO() {
         FhirResourceDTO fhirResourceDTO = new FhirResourceDTO();
         fhirResourceDTO.setDocumentReferenceDTO(createMockDocumentReference());
-        fhirResourceDTO.setObjectId("635124168a46e52e4f145513");
+        fhirResourceDTO.setEngineId("635124168a46e52e4f145513");
         fhirResourceDTO.setCda(createMockCda());
         return fhirResourceDTO;
     }

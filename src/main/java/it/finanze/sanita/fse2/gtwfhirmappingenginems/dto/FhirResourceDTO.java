@@ -12,6 +12,8 @@ public class FhirResourceDTO {
 	
 	private String cda;
 
-	private String objectId;  
+	private String objectId;
+
+	private String engineId;
 
 }
