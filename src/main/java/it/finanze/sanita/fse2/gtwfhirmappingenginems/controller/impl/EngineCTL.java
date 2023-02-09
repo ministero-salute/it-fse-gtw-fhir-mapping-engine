@@ -20,11 +20,7 @@ public class EngineCTL implements IEngineCTL {
     @Override
     public EngStatusResDTO status() {
         List<EngineDTO> engines = new ArrayList<>();
-        srv.manager().engines().forEach((id, engine) -> {
-            engines.add(
-                new EngineDTO(id, engine.getRoots(), engine.getInsertion())
-            );
-        });
+        srv.manager().engines().forEach((id, engine) -> engines.add(new EngineDTO(engine)));
         return new EngStatusResDTO(engines);
     }
 
