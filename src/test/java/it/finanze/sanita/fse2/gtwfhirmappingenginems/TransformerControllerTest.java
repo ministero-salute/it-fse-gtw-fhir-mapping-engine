@@ -3,7 +3,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.others.EmptyTransformETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import org.bson.Document;
@@ -48,7 +48,7 @@ class TransformerControllerTest extends AbstractTest {
         final String file = new String(FileUtility
                 .getFileFromInternalResources("Files" + File.separator + "transform.json"));
         Document document = Document.parse(file);
-        mongoTemplate.save(document, mongoTemplate.getCollectionName(EmptyTransformETY.class));
+        mongoTemplate.save(document, mongoTemplate.getCollectionName(TransformETY.class));
 
         ResponseEntity<TransformResDTO> response = callTransformClient(TestUtility.createMockFhirResourceDTO());
         TransformResDTO resDTO = response.getBody();
@@ -62,7 +62,7 @@ class TransformerControllerTest extends AbstractTest {
         final String file = new String(FileUtility
                 .getFileFromInternalResources("Files" + File.separator + "transform.json"));
         Document document = Document.parse(file);
-        mongoTemplate.save(document, mongoTemplate.getCollectionName(EmptyTransformETY.class));
+        mongoTemplate.save(document, mongoTemplate.getCollectionName(TransformETY.class));
 
         String templateIdRoot = "2.16.840.1.113883.2.9.2.30.10.8";
         ResponseEntity<Document> response = callStatelessTransformClient(templateIdRoot);

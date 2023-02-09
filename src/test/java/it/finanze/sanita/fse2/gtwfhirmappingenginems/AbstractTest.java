@@ -3,7 +3,7 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.base.others.EmptyTransformETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,6 @@ public abstract class AbstractTest {
 
     @BeforeEach
     void init() {
-        mongo.dropCollection(EmptyTransformETY.class);
+        mongo.dropCollection(TransformETY.class);
     }
 }
