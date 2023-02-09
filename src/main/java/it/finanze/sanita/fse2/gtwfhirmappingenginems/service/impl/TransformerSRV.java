@@ -40,7 +40,7 @@ public class TransformerSRV implements ITransformerSRV {
 	public String transform(final String cda, final String engineId, final String objectId, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
 
 		// Return always the latest engine
-		Bundle bundle = engineSRV.getEngine().transform(cda, engineId, objectId);
+		Bundle bundle = engineSRV.manager().transform(cda, engineId, objectId);
 
 		//Alg scoring
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));

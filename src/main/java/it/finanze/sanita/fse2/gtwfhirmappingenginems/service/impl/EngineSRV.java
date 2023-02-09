@@ -31,7 +31,7 @@ public class EngineSRV implements IEngineSRV {
     }
 
     @Override
-    public CdaEnginesManager getEngine() {
+    public CdaEnginesManager manager() {
         return engines;
     }
 }

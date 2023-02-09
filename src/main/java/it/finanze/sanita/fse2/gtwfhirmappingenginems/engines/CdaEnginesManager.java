@@ -48,7 +48,7 @@ public class CdaEnginesManager {
         // Start process
         register(lists());
         // Set flag (start-up only)
-        ready = true;
+        if(!ready) ready = true;
         log.info("Finishing engine refreshing process");
     }
 
