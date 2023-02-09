@@ -89,6 +89,10 @@ public final class Constants {
 	private Constants() {}
 
 	public static final class Logs {
+
+		public static final String ERR_REP_FIND_BY_ID_FHIR = "Impossibile recupero entità fhir per id";
+		public static final String ERR_REP_FIND_BY_ID_ENGINE = "Impossibile recupero entità engine per id";
+
 		private Logs() {}
 	}
 }
