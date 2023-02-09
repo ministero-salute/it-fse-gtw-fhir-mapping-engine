@@ -103,6 +103,9 @@ public final class Constants {
 		// Repositories
 		public static final String ERR_REP_FIND_BY_ID_FHIR = "Impossibile recupero entità fhir per id";
 		public static final String ERR_REP_FIND_BY_ID_ENGINE = "Impossibile recupero entità engine per id";
+		public static final String ERR_REP_FIND_ALL_ENGINES = "Impossibile recupero di tutte le entità engine";
+		public static final String ERR_REP_SET_AVAILABLE_ENGINE = "Impossibile impostare engine come disponibile";
+		public static final String ERR_REP_SET_ALL_UNAVAILABLE_ENGINE = "Impossibile impostare tutti gli engine come non disponibili";
 
 		private Logs() {}
 	}
