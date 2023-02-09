@@ -29,7 +29,7 @@ public final class Constants {
 	public static final class Collections {
 
 		public static final String TRANSFORM = "transform";
-		public static final String ENGINE = "engine";
+		public static final String ENGINE = "engines";
 
 		private Collections() {
 
