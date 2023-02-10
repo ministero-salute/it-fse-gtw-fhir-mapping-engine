@@ -99,6 +99,7 @@ public final class Constants {
 		public static final String ERR_BLD_SIZE_FILE_LIST_FHIR = "Differenze tra file richiesti (%d) e file ottenuti (%d) (builder)";
 		public static final String ERR_BLD_DUPLICATED_ENTRY_FHIR = "Risorsa duplicata tra i file richiesti: %s (builder)";
 		public static final String ERR_BLD_EMPTY_FILE_LIST_FHIR = "Impossibile recupero entità fhir per id, lista files vuota (builder)";
+		public static final String ERR_BLD_EMPTY_MAP_LIST_FHIR = "Impossibile recupero entità fhir per uri, mappa files vuota (builder)";
 		public static final String ERR_BLD_ROOT_UNAVAILALE = "La root map '%s' utilizza un object-id '%s' non presente tra i files (builder)";
 		public static final String ERR_BLD_ENGINE_UNAVAILALE = "Impossibile inizializzare engine (builder)";
 		public static final String ERR_BLD_UKNOWN_TYPE = "La risorsa '%s' utilizza un type sconosciuto '%s' (builder)";

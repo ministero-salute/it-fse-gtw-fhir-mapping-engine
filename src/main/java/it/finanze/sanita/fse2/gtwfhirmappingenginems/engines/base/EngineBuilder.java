@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,21 +48,24 @@ public class EngineBuilder {
         EngineETY engine = this.engine.findById(id);
         // Check nullity
         if (engine == null) throw new EngineBuilderException(ERR_BLD_FIND_BY_ID_ENGINE);
-        log.debug("[{}][{}] Creating entities map", TITLE, id);
         // Create mapping for all available entities
+        log.debug("[{}][{}] Creating entities map", TITLE, id);
         Map<String, TransformETY> entities = createEntitiesMap(engine);
-        log.debug("[{}][{}] Creating root mapping", TITLE, id);
+        // Create files mapping
+        log.debug("[{}][{}] Creating files mapping", TITLE, id);
+        Map<String, String> files = createFilesMap(entities);
         // Create root mapping
+        log.debug("[{}][{}] Creating root mapping", TITLE, id);
         Map<String, String> roots = createRootsMap(engine.getRoots(), entities);
-        log.debug("[{}][{}] Initializing engine", TITLE, id);
         // Create engine
+        log.debug("[{}][{}] Initializing engine", TITLE, id);
         CdaMappingEngine instance = createEngine();
-        log.debug("[{}][{}] Registering resources", TITLE, id);
         // Register resources
+        log.debug("[{}][{}] Registering resources", TITLE, id);
         registerItems(id, instance, entities);
-        log.debug("[{}][{}] Engine spawned", TITLE, id);
         // Return newly fresh engine
-        return new Engine(id, roots, instance);
+        log.debug("[{}][{}] Engine spawned", TITLE, id);
+        return new Engine(id, roots, files, instance);
     }
 
     private Map<String, TransformETY> createEntitiesMap(EngineETY e) throws OperationException, EngineBuilderException {
@@ -90,13 +94,34 @@ public class EngineBuilder {
         return out;
     }
 
+    private Map<String, String> createFilesMap(Map<String, TransformETY> entities) throws EngineBuilderException {
+        // Working var
+        Map<String, String> out = new HashMap<>();
+        // Check emptiness
+        if(entities.isEmpty()) throw new EngineBuilderException(ERR_BLD_EMPTY_MAP_LIST_FHIR);
+        // Retrieve items
+        Collection<TransformETY> files = entities.values();
+        // Mapping resources
+        for (TransformETY f : files) {
+            // Consistency check (duplicates)
+            if(out.containsKey(f.getId())) {
+                throw new EngineBuilderException(
+                    format(ERR_BLD_DUPLICATED_ENTRY_FHIR, f.getId())
+                );
+            }
+            out.put(f.getId(), f.getFormattedUri());
+        }
+        return out;
+    }
+
+
     private Map<String, String> createRootsMap(List<EngineMap> e, Map<String, TransformETY> entities) throws EngineBuilderException {
         Map<String, String> roots = new HashMap<>();
         for (EngineMap map : e) {
             // Get object identifier
             String id = map.getOid().toHexString();
             // Save in map
-            roots.putIfAbsent(id, format("%s|%s", map.getUri(), map.getVersion()));
+            roots.putIfAbsent(id, map.getFormattedUri());
             // Consistency check
             if(!entities.containsKey(id)) {
                 throw new EngineBuilderException(

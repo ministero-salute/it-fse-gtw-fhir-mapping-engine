@@ -4,17 +4,21 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import lombok.Getter;
 
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Getter
 public class EngineDTO {
     private final String id;
-    private final Map<String, String> roots;
+    private final List<EngineFileDTO> roots;
+    private final List<EngineFileDTO> files;
     private final Date insertion;
 
     public EngineDTO(Engine engine) {
         this.id = engine.getId();
-        this.roots = engine.getRoots();
+        this.roots = engine.getRoots().entrySet().stream().map(EngineFileDTO::new).collect(Collectors.toList());
+        this.files = engine.getFiles().entrySet().stream().map(EngineFileDTO::new).collect(Collectors.toList());
         this.insertion = engine.getInsertion();
     }
 

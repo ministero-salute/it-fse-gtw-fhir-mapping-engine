@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
+import static java.lang.String.format;
+
 @Data
 @Document(collection = "#{@transformBean}")
 public class TransformETY {
@@ -53,5 +55,9 @@ public class TransformETY {
 
     @Field(FIELD_LAST_SYNC)
     private Date lastSync;
+
+    public String getFormattedUri() {
+        return format("%s|%s", uri, version);
+    }
 
 }

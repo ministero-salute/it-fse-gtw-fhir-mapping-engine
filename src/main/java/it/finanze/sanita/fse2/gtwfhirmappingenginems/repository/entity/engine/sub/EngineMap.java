@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import static java.lang.String.format;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,5 +30,9 @@ public class EngineMap {
 
     @Field(FIELD_VERSION)
     private String version;
+
+    public String getFormattedUri() {
+        return format("%s|%s", uri, version);
+    }
 
 }
