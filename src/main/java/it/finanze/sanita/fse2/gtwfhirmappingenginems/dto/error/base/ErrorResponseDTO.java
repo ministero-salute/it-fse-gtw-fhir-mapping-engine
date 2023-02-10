@@ -1,20 +1,21 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.AbstractDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.LogTraceInfoDTO;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 
 /**
  * The Class ErrorResponseDTO.
- *
  * 
  * 	Error response.
  */
