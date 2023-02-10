@@ -10,7 +10,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.Transform
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.sub.EngineMap;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.StructureMap;
@@ -27,6 +26,7 @@ import java.util.Map.Entry;
 
 import static ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.*;
+import static java.lang.String.format;
 
 @Slf4j
 @Component
@@ -65,17 +65,27 @@ public class EngineBuilder {
     }
 
     private Map<String, TransformETY> createEntitiesMap(EngineETY e) throws OperationException, EngineBuilderException {
+        // Working var
         HashMap<String, TransformETY> out = new HashMap<>();
-        // Iterate and populate
-        for (ObjectId id : e.getFiles()) {
-            // Get id
-            String hex = id.toHexString();
-            // Retrieve entity
-            TransformETY e0 = transform.findById(hex);
-            // Check nullity
-            if (e0 == null) throw new EngineBuilderException(ERR_BLD_FIND_BY_ID_FHIR);
-            // Store
-            out.putIfAbsent(hex, e0);
+        // Check emptiness
+        if(e.getFiles().isEmpty()) throw new EngineBuilderException(ERR_BLD_EMPTY_FILE_LIST_FHIR);
+        // Retrieve items
+        List<TransformETY> files = transform.findByIds(e.getFiles());
+        // Check for mismatch
+        if(files.size() != e.getFiles().size()) {
+            throw new EngineBuilderException(
+                format(ERR_BLD_SIZE_FILE_LIST_FHIR, e.getFiles().size(), files.size())
+            );
+        }
+        // Mapping resources
+        for (TransformETY f : files) {
+            // Consistency check (duplicates)
+            if(out.containsKey(f.getId())) {
+                throw new EngineBuilderException(
+                    format(ERR_BLD_DUPLICATED_ENTRY_FHIR, f.getId())
+                );
+            }
+            out.put(f.getId(), f);
         }
         return out;
     }
@@ -86,11 +96,11 @@ public class EngineBuilder {
             // Get object identifier
             String id = map.getOid().toHexString();
             // Save in map
-            roots.putIfAbsent(id, String.format("%s|%s", map.getUri(), map.getVersion()));
+            roots.putIfAbsent(id, format("%s|%s", map.getUri(), map.getVersion()));
             // Consistency check
             if(!entities.containsKey(id)) {
                 throw new EngineBuilderException(
-                    String.format(ERR_BLD_ROOT_UNAVAILALE, map.getUri(), id)
+                    format(ERR_BLD_ROOT_UNAVAILALE, map.getUri(), id)
                 );
             }
         }
@@ -132,7 +142,7 @@ public class EngineBuilder {
                     break;
                 default:
                     throw new EngineBuilderException(
-                        String.format(ERR_BLD_UKNOWN_TYPE, uri, type)
+                        format(ERR_BLD_UKNOWN_TYPE, uri, type)
                     );
             }
         }
@@ -157,7 +167,7 @@ public class EngineBuilder {
             engine.addCanonicalResource(map);
         } catch (Exception ex) {
             throw new EngineBuilderException(
-                String.format(ERR_BLD_REGISTER_FHIR, e.getUri(), FhirTypeEnum.Map.getName()),
+                format(ERR_BLD_REGISTER_FHIR, e.getUri(), FhirTypeEnum.Map.getName()),
                 ex
             );
         }
@@ -177,7 +187,7 @@ public class EngineBuilder {
             engine.addCanonicalResource(definition);
         } catch (Exception ex) {
             throw new EngineBuilderException(
-                String.format(ERR_BLD_REGISTER_FHIR, e.getUri(), FhirTypeEnum.Definition.getName()),
+                format(ERR_BLD_REGISTER_FHIR, e.getUri(), FhirTypeEnum.Definition.getName()),
                 ex
             );
         }
@@ -197,7 +207,7 @@ public class EngineBuilder {
             engine.addCanonicalResource(valueset);
         } catch (Exception ex) {
             throw new EngineBuilderException(
-                String.format(ERR_BLD_REGISTER_FHIR, e.getUri(), FhirTypeEnum.Valueset.getName()),
+                format(ERR_BLD_REGISTER_FHIR, e.getUri(), FhirTypeEnum.Valueset.getName()),
                 ex
             );
         }
