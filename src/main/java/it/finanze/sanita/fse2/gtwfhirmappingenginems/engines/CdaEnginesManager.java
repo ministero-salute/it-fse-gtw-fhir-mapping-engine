@@ -9,9 +9,11 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInit
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -42,6 +44,8 @@ public class CdaEnginesManager {
         this.ready = false;
     }
 
+    @Scheduled(cron = "${engine.scheduler.invoke}")
+    @SchedulerLock(name = "invokeGTWEngineScheduler")
     @Async(ENGINE_EXECUTOR)
     public void refresh() {
         log.info("Beginning engine refreshing process");
