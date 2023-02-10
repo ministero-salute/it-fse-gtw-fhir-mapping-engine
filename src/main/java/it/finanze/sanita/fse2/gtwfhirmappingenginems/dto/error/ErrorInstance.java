@@ -15,4 +15,9 @@ public final class ErrorInstance {
                 public static final String UNAVAILABLE = "/unavailable";
         }
 
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static final class IO {
+                public static final String QUEUE = "/queue";
+        }
+
 }

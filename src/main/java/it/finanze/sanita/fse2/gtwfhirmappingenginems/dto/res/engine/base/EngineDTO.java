@@ -1,4 +1,4 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res.base;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res.engine.base;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import lombok.Getter;

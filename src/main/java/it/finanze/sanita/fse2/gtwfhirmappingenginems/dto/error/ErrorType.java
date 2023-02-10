@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public enum ErrorType {
 
+    IO("/msg/io", "Errore IO"),
     SERVER("/msg/server", "Errore interno");
 
     private final String type;

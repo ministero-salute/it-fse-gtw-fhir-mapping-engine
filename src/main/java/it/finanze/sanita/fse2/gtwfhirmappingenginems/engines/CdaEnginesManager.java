@@ -33,6 +33,7 @@ public class CdaEnginesManager {
     private final EngineBuilder builder;
     private final ConcurrentHashMap<String, Engine> engines;
     private volatile boolean ready;
+    private volatile boolean running;
 
     public CdaEnginesManager(
         @Autowired IEngineRepo repository,
@@ -48,12 +49,16 @@ public class CdaEnginesManager {
     @SchedulerLock(name = "invokeGTWEngineScheduler")
     @Async(ENGINE_EXECUTOR)
     public void refresh() {
+        // Set running flag
+        running = true;
         log.info("Beginning engine refreshing process");
         // Start process
         register(lists());
         // Set flag (start-up only)
         if(!ready) ready = true;
         log.info("Finishing engine refreshing process");
+        // Reset running flag
+        running = false;
     }
 
     public Bundle transform(String cda, String engineId, String objectId) throws IOException {
@@ -120,5 +125,7 @@ public class CdaEnginesManager {
         }
         return b;
     }
-
+    public boolean isRunning() {
+        return running;
+    }
 }

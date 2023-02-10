@@ -4,8 +4,8 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.AbstractDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.LogTraceInfoDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.AbstractDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

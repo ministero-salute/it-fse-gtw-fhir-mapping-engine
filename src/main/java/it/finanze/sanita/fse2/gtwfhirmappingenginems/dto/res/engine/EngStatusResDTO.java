@@ -1,7 +1,7 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res.engine;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.AbstractDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res.base.EngineDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.AbstractDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res.engine.base.EngineDTO;
 import lombok.Getter;
 
 import java.util.List;

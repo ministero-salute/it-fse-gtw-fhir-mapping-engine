@@ -4,10 +4,11 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.handler;
 
 import brave.Tracer;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.LogTraceInfoDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineSchedulerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -68,6 +69,18 @@ public class ExceptionCTL extends ResponseEntityExceptionHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
 
+        return new ResponseEntity<>(out, headers, out.getStatus());
+    }
+
+    @ExceptionHandler(EngineSchedulerException.class)
+    protected ResponseEntity<ErrorResponseDTO> handleEngineSchedulerException(EngineSchedulerException ex) {
+        // Log me
+        log.error("HANDLER handleEngineSchedulerException()", ex);
+        // Create error DTO
+        ErrorResponseDTO out = createSchedulerRunningError(getLogTraceInfo(), ex);
+        // Set HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
         return new ResponseEntity<>(out, headers, out.getStatus());
     }
 
