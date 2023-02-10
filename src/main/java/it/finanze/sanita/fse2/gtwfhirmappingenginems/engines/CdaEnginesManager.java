@@ -18,9 +18,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.*;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENGINE_EXECUTOR;
@@ -52,8 +54,11 @@ public class CdaEnginesManager {
         // Set running flag
         running = true;
         log.info("Beginning engine refreshing process");
-        // Start process
-        register(lists());
+        List<EngineETY> lists = lists();
+        // Start un-registering process
+        unregister(lists);
+        // Start registering process
+        register(lists);
         // Set flag (start-up only)
         if(!ready) ready = true;
         log.info("Finishing engine refreshing process");
@@ -86,6 +91,7 @@ public class CdaEnginesManager {
     }
     private void register(List<EngineETY> list) {
         for (EngineETY e : list) {
+            // Retrieve engine id
             String id = e.getId();
             // Check if instance exists
             if(!engines.containsKey(id)) {
@@ -106,6 +112,22 @@ public class CdaEnginesManager {
             }
         }
     }
+
+    private void unregister(List<EngineETY> list) {
+        // Retrieve current engines id
+        // [B]
+        List<String> current = Collections.list(engines.keys());
+        // [A,C,D]
+        List<String> queue = list.stream().map(EngineETY::getId).collect(Collectors.toList());
+        // We are <keeping> all missing engines from the collection
+        current.removeAll(queue);
+        // Unload engines
+        for (String id : current) {
+            log.debug("Removing engine {}", id);
+            engines.remove(id);
+        }
+    }
+
     private Optional<Engine> create(String id) {
         Engine e = null;
         try {
