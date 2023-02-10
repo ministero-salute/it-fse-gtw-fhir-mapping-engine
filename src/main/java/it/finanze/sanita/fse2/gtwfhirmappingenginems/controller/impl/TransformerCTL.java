@@ -7,6 +7,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -65,6 +66,10 @@ public class TransformerCTL implements ITransformerCTL {
 			Document doc = Document.parse(cdaTrasformed);
 			log.debug("Conversion of CDA completed");
 			return doc;
+		}
+		catch (EngineInitException e) {
+			// Let it re-throw
+			throw e;
 		} catch(Exception ex) {
 			throw new BusinessException(ex.getMessage());
 		}
