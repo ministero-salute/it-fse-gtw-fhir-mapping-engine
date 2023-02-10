@@ -9,5 +9,4 @@ public interface IEngineRepo {
     List<EngineETY> find() throws OperationException;
     EngineETY findById(String id) throws OperationException;
     boolean enable(String id) throws OperationException;
-    void disableAll() throws OperationException;
 }

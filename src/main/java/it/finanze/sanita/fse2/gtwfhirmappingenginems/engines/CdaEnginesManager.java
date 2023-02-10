@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,16 +63,6 @@ public class CdaEnginesManager {
 
     public ConcurrentHashMap<String, Engine> engines() {
         return engines;
-    }
-
-    @PreDestroy
-    private void teardown() {
-        log.info("Shutting down engine manager");
-        try {
-            repository.disableAll();
-        } catch (OperationException e) {
-            log.error("Unable to disable all engines", e);
-        }
     }
 
     private List<EngineETY> lists() {

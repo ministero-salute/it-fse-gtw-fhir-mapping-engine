@@ -62,15 +62,4 @@ public class EngineRepo implements IEngineRepo {
         // and enabled is still up this returns true anyway
         return res.getMatchedCount() == 1;
     }
-
-    @Override
-    public void disableAll() throws OperationException {
-        Update u = new Update();
-        u.set(FIELD_AVAILABLE, false);
-        try {
-            mongo.updateMulti(new Query(), u, EngineETY.class);
-        }catch (MongoException e) {
-            throw new OperationException(ERR_REP_SET_ALL_UNAVAILABLE_ENGINE, e);
-        }
-    }
 }
