@@ -16,14 +16,14 @@ public interface IEngineCTL {
         value = ENGINE_STATUS_API,
         produces = { MediaType.APPLICATION_JSON_VALUE }
     )
-    @Operation(description = "Restituisce lo stato corrente degli engine disponibili")
+    @Operation(summary = "Restituisce lo stato corrente degli engine disponibili")
     EngStatusResDTO status();
 
     @GetMapping(
         value = ENGINE_REFRESH_API,
         produces = { MediaType.APPLICATION_JSON_VALUE }
     )
-    @Operation(description = "Forza il refresh degli engine")
+    @Operation(summary = "Forza il refresh degli engine")
     EngRefreshResDTO run();
 
 }

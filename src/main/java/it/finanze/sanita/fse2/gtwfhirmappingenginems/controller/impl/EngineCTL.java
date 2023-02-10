@@ -1,5 +1,6 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.IEngineCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res.engine.EngRefreshResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.res.engine.EngStatusResDTO;
@@ -14,7 +15,9 @@ import java.util.List;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.DTO_RUN_TASK_QUEUED;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_SCH_RUNNING;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.ENGINE_TAG;
 
+@Tag(name = ENGINE_TAG)
 @RestController
 public class EngineCTL extends AbstractCTL implements IEngineCTL {
 

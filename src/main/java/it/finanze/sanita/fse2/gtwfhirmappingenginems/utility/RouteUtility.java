@@ -6,6 +6,7 @@ public final class RouteUtility {
     public static final String API_ENGINE = "engine";
     public static final String ENGINE_MAPPER = "/" + API_VERSION + "/" + API_ENGINE;
 
+    public static final String ENGINE_TAG = "Servizio gestione engines";
     public static final String ENGINE_STATUS_API = "/status";
     public static final String ENGINE_REFRESH_API = "/refresh";
 
