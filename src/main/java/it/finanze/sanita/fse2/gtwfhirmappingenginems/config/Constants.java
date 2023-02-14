@@ -92,7 +92,8 @@ public final class Constants {
 		// Engine
 		public static final String ERR_ENG_UNAVAILABLE = "Inizializzazione engines in corso";
 		public static final String ERR_ENG_NULL = "L'istanza engine richiesta è nulla";
-		public static final String ERR_ENG_ROOT_MAP = "Root map inesistente per l'engine in uso ";
+		public static final String ERR_ENG_ROOT_MAP = "Root map inesistente per engine in uso";
+		public static final String ERR_ENG_ROOT_URI = "La root map richiesta esiste ma URI è nullo";
 		// EngineBuilder
 		public static final String ERR_BLD_REGISTER_FHIR = "Impossibile registrare entità %s di tipo %s (builder)";
 		public static final String ERR_BLD_FIND_BY_ID_ENGINE = "Impossibile recupero entità engine per id (builder)";

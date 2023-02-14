@@ -2,6 +2,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.EngineBuilder;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineBuilderException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineException;
@@ -70,8 +71,10 @@ public class CdaEnginesManager {
         if(!ready) throw new EngineInitException(ERR_ENG_UNAVAILABLE);
         Engine obj = engines.get(engineId);
         if (obj == null) throw new EngineException(ERR_ENG_NULL);
-        String uri = obj.getRoots().get(objectId).getUri();
-        if (uri == null) throw new EngineException(ERR_ENG_ROOT_MAP);
+        RootData root = obj.getRoots().get(objectId);
+        if (root == null) throw new EngineException(ERR_ENG_ROOT_MAP);
+        String uri = root.getUri();
+        if (uri == null) throw new EngineException(ERR_ENG_ROOT_URI);
         return obj.getInstance().transformCdaToFhir(cda, uri);
     }
 
