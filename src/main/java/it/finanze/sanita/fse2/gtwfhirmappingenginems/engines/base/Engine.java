@@ -1,6 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base;
 
 import ch.ahdis.matchbox.engine.CdaMappingEngine;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
 import lombok.Getter;
 
 import java.util.Date;
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Engine {
 
     private final String id;
-    private final ConcurrentHashMap<String, String> roots;
+    private final ConcurrentHashMap<String, RootData> roots;
     private final ConcurrentHashMap<String, String> files;
 
     private final CdaMappingEngine instance;
@@ -19,7 +20,7 @@ public final class Engine {
 
     public Engine(
         String id,
-        Map<String, String> roots,
+        Map<String, RootData> roots,
         Map<String, String> files,
         CdaMappingEngine instance
     ) {

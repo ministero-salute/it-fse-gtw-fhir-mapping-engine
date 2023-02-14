@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 @Getter
 public class EngineDTO {
     private final String id;
-    private final List<EngineFileDTO> roots;
+    private final List<EngineRootDTO> roots;
     private final List<EngineFileDTO> files;
     private final Date insertion;
 
     public EngineDTO(Engine engine) {
         this.id = engine.getId();
-        this.roots = engine.getRoots().entrySet().stream().map(EngineFileDTO::new).collect(Collectors.toList());
+        this.roots = engine.getRoots().entrySet().stream().map(EngineRootDTO::new).collect(Collectors.toList());
         this.files = engine.getFiles().entrySet().stream().map(EngineFileDTO::new).collect(Collectors.toList());
         this.insertion = engine.getInsertion();
     }

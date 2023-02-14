@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 @Getter
 @AllArgsConstructor
 public class EngineFileDTO {
-    private String id;
-    private String uri;
+    private final String id;
+    private final String uri;
 
     public EngineFileDTO(Entry<String, String> pair) {
         this.id = pair.getKey();

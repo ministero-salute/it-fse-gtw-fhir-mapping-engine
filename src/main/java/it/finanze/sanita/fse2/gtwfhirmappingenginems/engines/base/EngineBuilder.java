@@ -1,6 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base;
 
 import ch.ahdis.matchbox.engine.CdaMappingEngine;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.FhirTypeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineBuilderException;
@@ -56,7 +57,7 @@ public class EngineBuilder {
         Map<String, String> files = createFilesMap(entities);
         // Create root mapping
         log.debug("[{}][{}] Creating root mapping", TITLE, id);
-        Map<String, String> roots = createRootsMap(engine.getRoots(), entities);
+        Map<String, RootData> roots = createRootsMap(engine.getRoots(), entities);
         // Create engine
         log.debug("[{}][{}] Initializing engine", TITLE, id);
         CdaMappingEngine instance = createEngine();
@@ -115,13 +116,13 @@ public class EngineBuilder {
     }
 
 
-    private Map<String, String> createRootsMap(List<EngineMap> e, Map<String, TransformETY> entities) throws EngineBuilderException {
-        Map<String, String> roots = new HashMap<>();
+    private Map<String, RootData> createRootsMap(List<EngineMap> e, Map<String, TransformETY> entities) throws EngineBuilderException {
+        Map<String, RootData> roots = new HashMap<>();
         for (EngineMap map : e) {
             // Get object identifier
             String id = map.getOid().toHexString();
             // Save in map
-            roots.putIfAbsent(id, map.getFormattedUri());
+            roots.putIfAbsent(id, new RootData(map.getFormattedUri(), map.getRoot()));
             // Consistency check
             if(!entities.containsKey(id)) {
                 throw new EngineBuilderException(

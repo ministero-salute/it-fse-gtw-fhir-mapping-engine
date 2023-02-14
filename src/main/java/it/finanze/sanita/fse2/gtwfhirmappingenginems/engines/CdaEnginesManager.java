@@ -70,7 +70,7 @@ public class CdaEnginesManager {
         if(!ready) throw new EngineInitException(ERR_ENG_UNAVAILABLE);
         Engine obj = engines.get(engineId);
         if (obj == null) throw new EngineException(ERR_ENG_NULL);
-        String uri = obj.getRoots().get(objectId);
+        String uri = obj.getRoots().get(objectId).getUri();
         if (uri == null) throw new EngineException(ERR_ENG_ROOT_MAP);
         return obj.getInstance().transformCdaToFhir(cda, uri);
     }
