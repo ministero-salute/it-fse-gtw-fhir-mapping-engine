@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -36,7 +37,7 @@ public class TransformETY {
     private String version;
 
     @Field(FIELD_TEMPLATE_ID_ROOT)
-    private String templateIdRoot;
+    private List<String> templateIdRoot;
 
     @Field(FIELD_FILENAME)
     private String filename;
