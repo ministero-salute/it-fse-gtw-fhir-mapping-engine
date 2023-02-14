@@ -24,6 +24,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.Base;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.DocumentReference;
+import org.hl7.fhir.r4.model.Meta;
+import org.hl7.fhir.r4.model.Property;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.StructureMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+
+import ch.ahdis.matchbox.engine.CdaMappingEngine;
+import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.NotFoundException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Slf4j
 public class TransformerSRV implements ITransformerSRV {
@@ -63,24 +100,23 @@ public class TransformerSRV implements ITransformerSRV {
 	private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries,final TransformALGEnum transfAlg) {
 
         Map<String, BundleEntryComponent> toKeep = new HashMap<>();
-
         for (BundleEntryComponent resourceEntry : entries) {
-            if (!toKeep.containsKey(resourceEntry.getResource().getId())) {
-                toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-            } else {
-            	log.info(resourceEntry.getResource().getId());
-                // Calculate weight and compare each other
-                final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
-                final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getId()),transfAlg);
-
-                if ((oldEntryWeight < newEntryWeight) || 
-                		(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
-                    // Must override entry with a richer one
-                    toKeep.put(resourceEntry.getResource().getId(), resourceEntry);
-                }
-            }
+        	if(resourceEntry.getResource()!=null) {
+        		if (!toKeep.containsKey(resourceEntry.getResource().getResourceType().toString() + "_" + resourceEntry.getResource().getId())) {
+        			toKeep.put(resourceEntry.getResource().getResourceType().toString() + "_" + resourceEntry.getResource().getId(), resourceEntry);
+        		} else {
+        			// Calculate weight and compare each other
+        			final float newEntryWeight = calculateWeight(resourceEntry,transfAlg);
+        			final float oldEntryWeight = calculateWeight(toKeep.get(resourceEntry.getResource().getResourceType().toString() + "_" + resourceEntry.getResource().getId()),transfAlg);
+        			
+        			if ((oldEntryWeight < newEntryWeight) || 
+        					(oldEntryWeight == newEntryWeight  && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
+        				// Must override entry with a richer one
+        				toKeep.put(resourceEntry.getResource().getResourceType().toString() + "_" + resourceEntry.getResource().getId(), resourceEntry);
+        			}
+        		}
+        	}
         }
-        
         return new ArrayList<>(toKeep.values());
     }
 	
