@@ -66,7 +66,7 @@ public class TransformerSRV implements ITransformerSRV {
 		try {
 			engine = new CdaMappingEngineBuilder().getEngine("/package.tgz");
 			
-			String vpsMap = new String(FileUtility.getFileFromInternalResources("VPS_Completo_v1.3.map"));
+			String vpsMap = new String(FileUtility.getFileFromInternalResources("VPS_Completo_v1.9.map"));
 		    StructureMap map = engine.parseMap(vpsMap);
 			engine.addCanonicalResource(map);
 		} catch(Exception ex) {
