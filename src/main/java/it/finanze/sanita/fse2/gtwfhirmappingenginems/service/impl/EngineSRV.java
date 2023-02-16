@@ -22,7 +22,7 @@ public class EngineSRV implements IEngineSRV {
     @EventListener(ApplicationStartedEvent.class)
     public void initialize() {
         // Prevent loading engines while running tests
-        if(!profile.isEngineTestProfile()) {
+        if(!profile.isTestProfile()) {
             // Create instances from database
             engines.refresh();
         } else {
