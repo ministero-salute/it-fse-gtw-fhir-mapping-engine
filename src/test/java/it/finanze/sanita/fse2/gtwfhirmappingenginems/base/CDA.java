@@ -10,7 +10,7 @@ import static java.nio.file.Paths.get;
 
 public enum CDA {
     BASE_PATH(get("src", "test", "resources", "cda"), null, null),
-    LAB(get(BASE_PATH.toString(), "lab.xml"), "63ee30fa3a73a20a61e848bb", "63eb627bfe71ae4bb1ee814a");
+    LAB(get(BASE_PATH.toString(), "LAB.xml"), "63ee30fa3a73a20a61e848bb", "63eb627bfe71ae4bb1ee814a");
 
     private final Path path;
     private final String engineId;
