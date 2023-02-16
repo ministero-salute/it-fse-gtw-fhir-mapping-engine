@@ -22,8 +22,12 @@ public enum CDA {
         return path.toFile();
     }
 
+    public byte[] bytes() throws IOException {
+        return Files.readAllBytes(path);
+    }
+
     public String read() throws IOException {
-        return new String(Files.readAllBytes(path), UTF_8);
+        return new String(bytes(), UTF_8);
     }
 
     @Override

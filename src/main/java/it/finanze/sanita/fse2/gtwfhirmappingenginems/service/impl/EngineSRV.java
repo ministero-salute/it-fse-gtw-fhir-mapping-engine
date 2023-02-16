@@ -17,14 +17,14 @@ public class EngineSRV implements IEngineSRV {
     private ProfileUtility profile;
 
     @Autowired
-    private CdaEnginesManager engines;
+    private CdaEnginesManager manager;
 
     @EventListener(ApplicationStartedEvent.class)
     public void initialize() {
         // Prevent loading engines while running tests
         if(!profile.isTestProfile()) {
             // Create instances from database
-            engines.refresh();
+            manager.refresh();
         } else {
             log.info("Skipping engine initialisation, using test profile");
         }
@@ -32,6 +32,19 @@ public class EngineSRV implements IEngineSRV {
 
     @Override
     public CdaEnginesManager manager() {
-        return engines;
+        return manager;
     }
+
+    /**
+     * <p><b>DO NOT USE</b> this method for any other purpose than testing.</p>
+     * Use the asynchronous version of this method for production
+     * @see CdaEnginesManager#refresh()
+     */
+    @Override
+    public void restart() {
+        log.debug("Emulating engine restart conditions");
+        manager.reset();
+        manager.refresh();
+    }
+
 }

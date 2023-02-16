@@ -170,6 +170,13 @@
 			<artifactId>shedlock-provider-mongo</artifactId>
 			<version>4.42.0</version>
 		</dependency>
+		<!-- TEST -->
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<version>4.2.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>

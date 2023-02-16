@@ -21,6 +21,9 @@ public final class RouteUtility {
     public static final String API_TRANSFORM_BY_OBJ = "/" + API_TRANSFORM;
     public static final String API_TRANSFORM_STATELESS_BY_OBJ = API_TRANSFORM_BY_OBJ + "/" + API_STATELESS + "/" + API_ENGINE_ID_PATH_VAR + "/" + API_OBJECT_ID_PATH_VAR;
 
+    public static final String API_TRANSFORM_STATELESS_BY_OBJ_FULL = DOCUMENTS_MAPPER + API_TRANSFORM_STATELESS_BY_OBJ;
+    public static final String API_TRANSFORM_BY_OBJ_FULL = DOCUMENTS_MAPPER + "/" + API_TRANSFORM;
+
     public static final String ENGINE_TAG = "Servizio gestione engines";
     public static final String ENGINE_STATUS_API = "/status";
     public static final String ENGINE_REFRESH_API = "/refresh";

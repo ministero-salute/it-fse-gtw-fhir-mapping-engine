@@ -64,6 +64,16 @@ public class CdaEnginesManager {
         update();
     }
 
+    /**
+     * <p><b>DO NOT USE</b> this method for any other purpose than testing.</p>
+     * Use the asynchronous version of this method for production
+     * @see CdaEnginesManager#refresh()
+     */
+    public void reset() {
+        this.ready = false;
+        engines.clear();
+    }
+
     private void update() {
         // Set running flag
         running = true;

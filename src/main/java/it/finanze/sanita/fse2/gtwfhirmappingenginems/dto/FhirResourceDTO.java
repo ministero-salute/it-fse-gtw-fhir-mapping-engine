@@ -3,9 +3,11 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class FhirResourceDTO {
 
 	private DocumentReferenceDTO documentReferenceDTO;

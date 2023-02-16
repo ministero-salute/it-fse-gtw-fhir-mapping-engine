@@ -11,18 +11,18 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.REMOVABLE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY.FIELD_ID;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@Component
 public abstract class AbstractEngineTest {
 
     @Autowired
@@ -41,6 +41,11 @@ public abstract class AbstractEngineTest {
     protected void initEngine() {
         engines.manager().refreshSync();
     }
+
+    protected void awaitUntilEnginesSpawned() {
+        await().atMost(5, TimeUnit.MINUTES).until(() -> !engines.manager().isRunning());
+    }
+
     protected void dropUselessEngine() {
         EngineETY e = mongo.findAndRemove(new Query(where(FIELD_ID).is(REMOVABLE.engineId())), EngineETY.class);
         if(e == null) throw new IllegalStateException("Useless engine already removed");
@@ -48,6 +53,11 @@ public abstract class AbstractEngineTest {
     protected void resetDb() {
         mongo.dropCollection(TransformETY.class);
         mongo.dropCollection(EngineETY.class);
+    }
+
+    protected void emulateStartUpMsEnginesAsync() {
+        // Emulate the microservice restart
+        engines.restart();
     }
 
     private void insert(List<Document> documents, Class<?> clazz) {
