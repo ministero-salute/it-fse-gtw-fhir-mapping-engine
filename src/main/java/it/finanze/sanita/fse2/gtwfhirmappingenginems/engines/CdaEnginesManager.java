@@ -52,6 +52,19 @@ public class CdaEnginesManager {
     @SchedulerLock(name = "invokeGTWEngineScheduler")
     @Async(ENGINE_EXECUTOR)
     public void refresh() {
+        update();
+    }
+
+    /**
+     * <p><b>DO NOT USE</b> this method for any other purpose than testing.</p>
+     * Use the asynchronous version of this method for production
+     * @see CdaEnginesManager#refresh()
+     */
+    public void refreshSync() {
+        update();
+    }
+
+    private void update() {
         // Set running flag
         running = true;
         log.info("Beginning engine refreshing process");
@@ -66,6 +79,7 @@ public class CdaEnginesManager {
         // Reset running flag
         running = false;
     }
+
 
     public Bundle transform(String cda, String engineId, String objectId) throws IOException {
         if(!ready) throw new EngineInitException(ERR_ENG_UNAVAILABLE);
