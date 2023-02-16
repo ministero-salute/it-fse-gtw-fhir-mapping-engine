@@ -10,11 +10,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.REMOVABLE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY.FIELD_ID;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 @Component
@@ -36,7 +41,10 @@ public abstract class AbstractEngineTest {
     protected void initEngine() {
         engines.manager().refreshSync();
     }
-
+    protected void dropUselessEngine() {
+        EngineETY e = mongo.findAndRemove(new Query(where(FIELD_ID).is(REMOVABLE.engineId())), EngineETY.class);
+        if(e == null) throw new IllegalStateException("Useless engine already removed");
+    }
     protected void resetDb() {
         mongo.dropCollection(TransformETY.class);
         mongo.dropCollection(EngineETY.class);

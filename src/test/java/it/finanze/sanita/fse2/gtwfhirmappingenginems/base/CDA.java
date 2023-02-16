@@ -9,17 +9,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Paths.get;
 
 public enum CDA {
-    BASE_PATH(get("src", "test", "resources", "cda"), null, null),
-    LAB(get(BASE_PATH.toString(), "LAB.xml"), "63ee30fa3a73a20a61e848bb", "63eb627bfe71ae4bb1ee814a");
+    BASE_PATH(get("src", "test", "resources", "cda")),
+    LAB(get(BASE_PATH.toString(), "LAB.xml"));
 
     private final Path path;
-    private final String engineId;
-    private final String transformId;
 
-    CDA(Path path, String engineId, String transformId) {
+    CDA(Path path) {
         this.path = path;
-        this.engineId = engineId;
-        this.transformId = transformId;
     }
 
     public File file() {
@@ -28,14 +24,6 @@ public enum CDA {
 
     public String read() throws IOException {
         return new String(Files.readAllBytes(path), UTF_8);
-    }
-
-    public String engineId() {
-        return engineId;
-    }
-
-    public String transformId() {
-        return transformId;
     }
 
     @Override
