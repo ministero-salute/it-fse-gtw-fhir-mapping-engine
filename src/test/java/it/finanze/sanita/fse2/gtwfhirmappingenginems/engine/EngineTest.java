@@ -70,7 +70,9 @@ public class EngineTest extends AbstractEngineTest {
     @Test
     void removeEngineFromMemoryIfDropped() {
         assertEquals(Engine.size(), engines.manager().engines().size());
+        // Emulate gtw-garbage behaviour
         dropUselessEngine();
+        // Emulate auto-refresh scheduler
         engines.manager().refreshSync();
         assertEquals(Engine.size() - 1, engines.manager().engines().size());
     }
