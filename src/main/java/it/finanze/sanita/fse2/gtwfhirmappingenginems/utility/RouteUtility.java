@@ -2,6 +2,8 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.utility;
 
 public final class RouteUtility {
 
+    private RouteUtility() {}
+
     public static final String API_VERSION = "v1";
     public static final String API_ENGINE = "engine";
     public static final String API_DOCUMENTS = "documents";
@@ -27,5 +29,8 @@ public final class RouteUtility {
     public static final String ENGINE_TAG = "Servizio gestione engines";
     public static final String ENGINE_STATUS_API = "/status";
     public static final String ENGINE_REFRESH_API = "/refresh";
+
+    public static final String API_ENGINE_STATUS_FULL = ENGINE_MAPPER + ENGINE_STATUS_API;
+    public static final String API_ENGINE_REFRESH_FULL = ENGINE_MAPPER + ENGINE_REFRESH_API;
 
 }

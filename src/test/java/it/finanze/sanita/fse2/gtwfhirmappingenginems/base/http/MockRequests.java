@@ -12,8 +12,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.io.IOException;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 public final class MockRequests {
 
@@ -27,6 +26,14 @@ public final class MockRequests {
         return multipart(API_TRANSFORM_STATELESS_BY_OBJ_FULL, engine.engineId(), engine.transformId()).
             file(new MockMultipartFile(API_FILE_VAR, cda.bytes())).
             contentType(MediaType.MULTIPART_FORM_DATA);
+    }
+
+    public static MockHttpServletRequestBuilder refresh() {
+        return get(API_ENGINE_REFRESH_FULL).contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder engines() {
+        return get(API_ENGINE_STATUS_FULL).contentType(MediaType.APPLICATION_JSON);
     }
 
 }
