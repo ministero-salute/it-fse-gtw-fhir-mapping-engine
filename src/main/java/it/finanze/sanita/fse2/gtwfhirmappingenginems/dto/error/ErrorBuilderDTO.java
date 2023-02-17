@@ -5,7 +5,6 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineSchedulerException;
 
@@ -25,17 +24,6 @@ public final class ErrorBuilderDTO {
     private ErrorBuilderDTO() {}
 
     public static ErrorResponseDTO createGenericError(LogTraceInfoDTO trace, Exception ex) {
-        return new ErrorResponseDTO(
-            trace,
-            ErrorType.SERVER.getType(),
-            ErrorType.SERVER.getTitle(),
-            ex.getMessage(),
-            SC_INTERNAL_SERVER_ERROR,
-            ErrorType.SERVER.toInstance(INTERNAL)
-        );
-    }
-
-    public static ErrorResponseDTO createOperationError(LogTraceInfoDTO trace, OperationException ex) {
         return new ErrorResponseDTO(
             trace,
             ErrorType.SERVER.getType(),
