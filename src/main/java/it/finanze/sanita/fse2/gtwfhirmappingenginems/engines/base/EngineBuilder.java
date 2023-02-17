@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import static ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.*;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 @Component
@@ -178,7 +179,7 @@ public class EngineBuilder {
         try {
             JsonParser parser = new JsonParser();
             // Retrieve data
-            String data = new String(e.getContent().getData());
+            String data = new String(e.getContent().getData(), UTF_8);
             // Parse map
             StructureMap map;
             if(e.getFilename().endsWith(JSON_EXT)) {
@@ -203,7 +204,7 @@ public class EngineBuilder {
         try {
             JsonParser parser = new JsonParser();
             // Retrieve data
-            String data = new String(e.getContent().getData());
+            String data = new String(e.getContent().getData(), UTF_8);
             // Parse map
             StructureDefinition definition = (StructureDefinition) parser.parse(data);
             // Set URI and version
@@ -223,7 +224,7 @@ public class EngineBuilder {
         try {
             JsonParser parser = new JsonParser();
             // Retrieve data
-            String data = new String(e.getContent().getData());
+            String data = new String(e.getContent().getData(), UTF_8);
             // Parse map
             ValueSet valueset = (ValueSet) parser.parse(data);
             // Set URI and version
