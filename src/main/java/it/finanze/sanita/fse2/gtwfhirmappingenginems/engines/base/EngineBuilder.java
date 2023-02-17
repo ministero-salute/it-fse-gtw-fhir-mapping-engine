@@ -42,12 +42,12 @@ public class EngineBuilder {
     private ITransformRepo transform;
 
     @Autowired
-    private IEngineRepo engine;
+    private IEngineRepo repository;
 
     public Engine fromId(String id) throws OperationException, EngineBuilderException {
         log.debug("[{}][{}] Spawning new engine", TITLE, id);
         // Retrieve entity
-        EngineETY engine = this.engine.findById(id);
+        EngineETY engine = repository.findById(id);
         // Check nullity
         if (engine == null) throw new EngineBuilderException(ERR_BLD_FIND_BY_ID_ENGINE);
         // Create mapping for all available entities
