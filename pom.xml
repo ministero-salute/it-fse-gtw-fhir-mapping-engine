@@ -30,6 +30,9 @@
 		<sonar.organization>ministero-salute</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<fhir.core.version>5.6.88</fhir.core.version>
+		<sonar.exclusions>
+			src/main/java/it/finanze/sanita/fse2/ms/gtwfhirmappingenginems/config/**/*.*
+		</sonar.exclusions>
 	</properties>
 
 	<dependencies>
