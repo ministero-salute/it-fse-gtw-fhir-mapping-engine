@@ -66,8 +66,7 @@ public class CdaEnginesManager {
 
     /**
      * <p><b>DO NOT USE</b> this method for any other purpose than testing.</p>
-     * Use the asynchronous version of this method for production
-     * @see CdaEnginesManager#refresh()
+     * This method clear the engines memory and reset the ready flag
      */
     public void reset() {
         this.ready = false;

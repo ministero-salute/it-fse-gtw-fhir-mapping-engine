@@ -4,5 +4,4 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.CdaEnginesManager;
 
 public interface IEngineSRV {
     CdaEnginesManager manager();
-    void restart();
 }

@@ -5,7 +5,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineExce
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +19,8 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGI
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Slf4j
@@ -27,9 +29,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @TestInstance(PER_CLASS)
 public class EngineTest extends AbstractEngineTest {
 
-    @BeforeAll
-    void setup() throws IOException {
+    @BeforeEach
+    void onEachSetup() throws IOException {
+        // Restore database
         initDb();
+        // Reload engines (if required)
         initEngine();
     }
 
@@ -75,6 +79,18 @@ public class EngineTest extends AbstractEngineTest {
         // Emulate auto-refresh scheduler
         engines.manager().refreshSync();
         assertEquals(Engine.size() - 1, engines.manager().engines().size());
+    }
+
+    @Test
+    void removeEngineFromMemoryIfUnavailable() {
+        assertDoesNotThrow(()-> {
+            // Mock an error on MongoDB (just one time)
+            when(repository.enable(anyString())).thenThrow(TEST_OP_EX).thenCallRealMethod();
+            // Unload engines from memory, reset start flag and refresh (sync)
+            emulateStartUpMsEnginesSync();
+            // Verify we got N-1 engines
+            assertEquals(Engine.size() - 1, engines.manager().engines().size());
+        });
     }
 
     @AfterAll

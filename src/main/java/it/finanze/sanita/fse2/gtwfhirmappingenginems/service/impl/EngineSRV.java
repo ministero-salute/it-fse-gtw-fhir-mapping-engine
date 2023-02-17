@@ -34,17 +34,4 @@ public class EngineSRV implements IEngineSRV {
     public CdaEnginesManager manager() {
         return manager;
     }
-
-    /**
-     * <p><b>DO NOT USE</b> this method for any other purpose than testing.</p>
-     * Use the asynchronous version of this method for production
-     * @see CdaEnginesManager#refresh()
-     */
-    @Override
-    public void restart() {
-        log.debug("Emulating engine restart conditions");
-        manager.reset();
-        manager.refresh();
-    }
-
 }
