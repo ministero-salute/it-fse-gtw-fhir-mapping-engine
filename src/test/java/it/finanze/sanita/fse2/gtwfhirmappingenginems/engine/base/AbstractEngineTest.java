@@ -34,13 +34,17 @@ public abstract class AbstractEngineTest {
         new MongoException("Test error")
     );
 
+    protected static final RuntimeException TEST_RN_EX = new RuntimeException(
+        "Test error"
+    );
+
     @Autowired
     protected MongoTemplate mongo;
 
     @SpyBean
     protected IEngineRepo repository;
 
-    @Autowired
+    @SpyBean
     protected IEngineSRV engines;
 
     protected void initDb() throws IOException {

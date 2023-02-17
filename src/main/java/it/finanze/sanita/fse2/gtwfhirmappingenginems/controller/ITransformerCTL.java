@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.*;
 
@@ -53,6 +54,6 @@ public interface ITransformerCTL {
 			String objectId,
 			@RequestPart(API_FILE_VAR)
 			MultipartFile file
-	);
+	) throws IOException;
 
 }

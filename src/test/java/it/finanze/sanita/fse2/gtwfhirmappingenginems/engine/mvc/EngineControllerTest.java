@@ -2,7 +2,6 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.mvc;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,7 +16,9 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGI
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockRequests.transform;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockRequests.transformStateless;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
+import static org.apache.http.HttpStatus.SC_SERVICE_UNAVAILABLE;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,13 +82,19 @@ public class EngineControllerTest extends AbstractEngineTest {
         // Expect service unavailable while starting up
         mvc.perform(
             transformStateless(LAB_ENGINE, LAB)
-        ).andExpect(status().is(HttpStatus.SC_SERVICE_UNAVAILABLE));
+        ).andExpect(status().is(SC_SERVICE_UNAVAILABLE));
         // We wait until the updating process has not finished.
         awaitUntilEnginesSpawned();
         // Now we should be able to process the request
         mvc.perform(
             transformStateless(LAB_ENGINE, LAB)
         ).andExpect(status().is2xxSuccessful());
+        // Mock an error
+        doThrow(TEST_RN_EX).when(engines).manager();
+        // Now we should expect an error
+        mvc.perform(
+            transformStateless(LAB_ENGINE, LAB)
+        ).andExpect(status().is5xxServerError());
     }
 
     @AfterAll

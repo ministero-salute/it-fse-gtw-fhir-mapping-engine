@@ -7,7 +7,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -19,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 public class TransformerCTL implements ITransformerCTL {
 
 	@Autowired
-	private ITransformerSRV transformerSRV;
+	private ITransformerSRV service;
 
 	@Override
 	public TransformResDTO convertCDAToBundle(FhirResourceDTO dto, HttpServletRequest request) {
@@ -41,7 +41,7 @@ public class TransformerCTL implements ITransformerCTL {
 			try {
 				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
 				
-				String cdaTrasformed = transformerSRV.transform(
+				String cdaTrasformed = service.transform(
 					cdaString,
 					dto.getEngineId(),
 					dto.getObjectId(),
@@ -58,21 +58,12 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 	
 	@Override
-	public Document convertCDAToBundleStateless(String engineId, String objectId, MultipartFile file) {
+	public Document convertCDAToBundleStateless(String engineId, String objectId, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
-		String cda = getCDA(file);
-		try {
-			String cdaTrasformed = transformerSRV.transform(cda, engineId, objectId, null);
-			Document doc = Document.parse(cdaTrasformed);
-			log.debug("Conversion of CDA completed");
-			return doc;
-		}
-		catch (EngineInitException e) {
-			// Let it re-throw
-			throw e;
-		} catch(Exception ex) {
-			throw new BusinessException(ex.getMessage());
-		}
+		String bundle = service.transform(getCDA(file), engineId, objectId, null);
+		Document doc = Document.parse(bundle);
+		log.debug("Conversion of CDA completed");
+		return doc;
 	}
 
 	protected String getCDA(final MultipartFile file) {
