@@ -1,7 +1,9 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.base;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;

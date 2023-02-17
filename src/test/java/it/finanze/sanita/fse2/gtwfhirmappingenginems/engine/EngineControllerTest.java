@@ -1,6 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,8 @@ import java.io.IOException;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.MockRequests.transform;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.MockRequests.transformStateless;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockRequests.transform;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockRequests.transformStateless;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;

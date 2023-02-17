@@ -1,9 +1,9 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Fixtures;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw.Fixtures;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;

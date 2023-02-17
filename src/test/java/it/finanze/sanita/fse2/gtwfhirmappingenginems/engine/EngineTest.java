@@ -1,6 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineException;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Bundle;

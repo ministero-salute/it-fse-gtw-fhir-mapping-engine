@@ -1,4 +1,4 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.base;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw;
 
 import java.io.File;
 import java.nio.file.Path;
