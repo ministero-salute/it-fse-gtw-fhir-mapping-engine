@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles(TEST)
 @TestInstance(PER_CLASS)
-public class EngineControllerTest extends AbstractEngineTest {
+public class TransformControllerTest extends AbstractEngineTest {
 
     @Autowired
     private MockMvc mvc;
