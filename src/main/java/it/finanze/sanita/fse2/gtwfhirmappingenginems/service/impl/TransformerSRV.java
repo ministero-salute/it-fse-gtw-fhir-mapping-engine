@@ -3,28 +3,7 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.r4.formats.JsonParser;
-import org.hl7.fhir.r4.model.Base;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.DocumentReference;
-import org.hl7.fhir.r4.model.Meta;
-import org.hl7.fhir.r4.model.Property;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ResourceType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.google.gson.Gson;
-
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
@@ -32,6 +11,18 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -64,9 +55,17 @@ public class TransformerSRV implements ITransformerSRV {
 				break;
 			}
 		}
+		// Remove scoring signature
+		removeSignatureIfExists(bundle);
 
 		return new JsonParser().composeString(bundle);
 
+	}
+
+	private void removeSignatureIfExists(Bundle bundle) {
+		for (BundleEntryComponent entry : bundle.getEntry()) {
+			entry.getResource().getMeta().getTag().removeIf(c -> c.getSystem().equalsIgnoreCase(SYSTEM_SCORING));
+		}
 	}
 	
 	private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries,final TransformALGEnum transfAlg) {
