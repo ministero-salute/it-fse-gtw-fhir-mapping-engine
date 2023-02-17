@@ -1,4 +1,4 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.mvc;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
