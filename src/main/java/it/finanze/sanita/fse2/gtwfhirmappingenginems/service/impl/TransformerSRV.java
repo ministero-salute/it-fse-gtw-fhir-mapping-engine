@@ -3,6 +3,21 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
+import com.google.gson.Gson;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,14 +48,11 @@ import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.StructureMapDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.NotFoundException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IStructuresRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,31 +65,18 @@ public class TransformerSRV implements ITransformerSRV {
 	@Autowired
 	private FhirTransformCFG transformCFG;
 	
-	private CdaMappingEngine engine;
-	
 	@Autowired
-	private IStructuresRepo structureRepo;
-
-	@Async
-	@EventListener(ApplicationStartedEvent.class)
-	void initialize() {
-		try {
-			engine = new CdaMappingEngineBuilder().getEngine("/package.tgz");
-		} catch(Exception ex) {
-			log.error("Error while perform builder in post construct : " , ex);
-			throw new BusinessException("Error while perform builder in post construct : " , ex);
-		}
-	}
+	private EngineSRV engineSRV;
 
 	@Override
-	public String transform(final String cda, final String rootMap,final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
-		log.info("CALL CDA TO FHIR METHOD");
-		Bundle bundle = engine.transformCdaToFhir(cda, rootMap);
- 
-		log.info("START ALG SCORING");		
+	public String transform(final String cda, final String engineId, final String objectId, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
+
+		// Return always the latest engine
+		Bundle bundle = engineSRV.manager().transform(cda, engineId, objectId);
+
+		//Alg scoring
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
-		
-		log.info("START CREATE DOCUMENT REFERENCE");
+
 		for(BundleEntryComponent entry : bundle.getEntry()) {
 			Resource resource = entry.getResource();
 			if (ResourceType.DocumentReference.equals(resource.getResourceType())){
@@ -86,9 +85,19 @@ public class TransformerSRV implements ITransformerSRV {
 					DocumentReferenceHelper.createDocumentReference(documentReferenceDTO, documentReference);
 				}
 				break;
-			} 
+			}
 		}
+		// Remove scoring signature
+		removeSignatureIfExists(bundle);
+
 		return new JsonParser().composeString(bundle);
+
+	}
+
+	private void removeSignatureIfExists(Bundle bundle) {
+		for (BundleEntryComponent entry : bundle.getEntry()) {
+			entry.getResource().getMeta().getTag().removeIf(c -> c.getSystem().equalsIgnoreCase(SYSTEM_SCORING));
+		}
 	}
 	
 	private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries,final TransformALGEnum transfAlg) {
@@ -138,44 +147,5 @@ public class TransformerSRV implements ITransformerSRV {
 		}
 		return output;
 	}
-	
-	@Override
-	public MapDTO findRootMap(final String objectId) {
-		MapDTO output = null;
-		try {
-			if(StringUtils.isBlank(objectId)) {
-				throw new NotFoundException("Structure Map not found");
-			}
-			StructureMapDTO structureMapDTO = structureRepo.findMapsById(objectId);
-			if(structureMapDTO==null || structureMapDTO.getRootMap()==null) {
-				throw new NotFoundException("Structure Map not found with object id :" + objectId);
-			}
-			output = structureMapDTO.getRootMap();
-		}
-		catch(NotFoundException ex) {
-			log.error(ex.getMessage());
-			throw new BusinessException("Error retrieving data: " + ex.getMessage(), ex);
-		} catch(Exception ex) {
-			log.error("Error while perform transform " , ex);
-			throw new BusinessException("Error while perform transform " , ex);
-		}
-		return output;
-	}
 
-	@Override
-	public MapDTO findRootMapFromTemplateIdRoot(String templateIdRoot) {
-		MapDTO output = null;
-		try {
-			StructureMapDTO structureMapDTO = structureRepo.findMapsByTemplateIdRoot(templateIdRoot);
-			if(structureMapDTO==null || structureMapDTO.getRootMap()==null) {
-				throw new NotFoundException("Structure map not found with templateIdRoot id :" + templateIdRoot);
-			}
-			output = structureMapDTO.getRootMap();
-		} catch(Exception ex) {
-			log.error("Error while perform transform : " , ex);
-			throw new BusinessException("Error while perform transform : " , ex);
-		}
-		return output;
-	}
-	
 }

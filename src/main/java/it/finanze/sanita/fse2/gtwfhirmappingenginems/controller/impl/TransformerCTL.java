@@ -3,26 +3,24 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -33,26 +31,26 @@ import lombok.extern.slf4j.Slf4j;
 public class TransformerCTL implements ITransformerCTL {
 
 	@Autowired
-	private ITransformerSRV transformerSRV;
- 
+	private ITransformerSRV service;
+
 	@Override
-	public TransformResDTO convertCDAToBundle(FhirResourceDTO fhirResourceDTO, HttpServletRequest request) {
+	public TransformResDTO convertCDAToBundle(FhirResourceDTO dto, HttpServletRequest request) {
 		log.debug("Invoked transform controller");
 		TransformResDTO out = new TransformResDTO();
-		if(fhirResourceDTO.getCda()!=null){
+		if(dto.getCda()!=null){
 			try {
-				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
-				MapDTO map = transformerSRV.findRootMap(fhirResourceDTO.getObjectId());
-				log.info("START TRANSFORM");
-				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
-				log.info("END TRANSFORM");
+				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
 				
+				String cdaTrasformed = service.transform(
+					cdaString,
+					dto.getEngineId(),
+					dto.getObjectId(),
+					dto.getDocumentReferenceDTO()
+				);
 				Document doc = Document.parse(cdaTrasformed);
-				log.info("IS VALID JSON:" + String.valueOf(doc!=null));
 				out.setJson(doc);
 			} catch(Throwable tr) {
-				log.error("Error while perform transform cda to bundle:" , tr);
-				out.setErrorMessage("Error while perform transform cda to bundle:" + tr.getMessage());
+				out.setErrorMessage(tr.getMessage());
 			}
 		}
 		log.debug("Conversion of CDA completed");
@@ -60,18 +58,12 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 	
 	@Override
-	public Document convertCDAToBundleStateless(String templateIdRoot, MultipartFile file, HttpServletRequest request) {
+	public Document convertCDAToBundleStateless(String engineId, String objectId, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
-		String cda = getCDA(file);
-		try {
-			MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(templateIdRoot);
-			String cdaTrasformed = transformerSRV.transform(cda, map.getNameStructureMap(), null);
-			Document doc = Document.parse(cdaTrasformed);
-			log.debug("Conversion of CDA completed");
-			return doc;
-		} catch(Exception ex) {
-			throw new BusinessException(ex.getMessage());
-		}
+		String bundle = service.transform(getCDA(file), engineId, objectId, null);
+		Document doc = Document.parse(bundle);
+		log.debug("Conversion of CDA completed");
+		return doc;
 	}
 
 	protected String getCDA(final MultipartFile file) {
@@ -87,31 +79,10 @@ public class TransformerCTL implements ITransformerCTL {
 			detectedCharset = Charset.forName(fileEncoding);
 			return new String(bytes, detectedCharset);
 		} catch (Exception ex) {
-			String message = String.format("Error while extracting CDA");
+			String message = "Error while extracting CDA";
 			log.error(message, ex);
 			throw new BusinessException(message, ex);
 		}
 		
-	}
-	
-	@Override
-	public TransformResDTO convertCDAToBundleWithTemplateIdRoot(FhirResourceDTO fhirResourceDTO, HttpServletRequest request) {
-		log.debug("Invoked transform controller");
-		TransformResDTO out = new TransformResDTO();
-		if(fhirResourceDTO.getCda()!=null){
-			try {
-				String cdaString = new String(fhirResourceDTO.getCda().getBytes(),StandardCharsets.UTF_8);
-				
-				MapDTO map = transformerSRV.findRootMapFromTemplateIdRoot(fhirResourceDTO.getObjectId());
-				String cdaTrasformed = transformerSRV.transform(cdaString, map.getNameStructureMap() ,fhirResourceDTO.getDocumentReferenceDTO());
-				Document doc = Document.parse(cdaTrasformed);
-				out.setJson(doc);
-			} catch(Throwable tr) {
-				log.error("Error while convert CDA To Bumdle with Template id root:", tr);
-				out.setErrorMessage(tr.getMessage());
-			}
-		}
-		log.debug("Conversion of CDA completed");
-		return out;
 	}
 }
