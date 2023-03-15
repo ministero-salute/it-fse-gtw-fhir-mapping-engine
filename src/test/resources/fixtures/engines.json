@@ -1,0 +1,79 @@
+[{
+  "_id": {
+    "$oid": "63ef61eea5ed7e31188b7406"
+  },
+  "roots": [
+    {
+      "oid": {
+        "$oid": "63eb627bfe71ae4bb1ee814a"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.1"
+      ],
+      "uri": "http://www.ey.com/italy/ig/cda-fhir-maps/StructureMap/RefertodilaboratorioFULLBODY",
+      "version": "0.1"
+    }
+  ],
+  "files": [
+    {
+      "$oid": "63eb6180fe71ae4bb1ee8144"
+    },
+    {
+      "$oid": "63eb61a9fe71ae4bb1ee8145"
+    },
+    {
+      "$oid": "63eb627bfe71ae4bb1ee814a"
+    },
+    {
+      "$oid": "63ef61494861274eb815a368"
+    },
+    {
+      "$oid": "63ef61844861274eb815a369"
+    }
+  ],
+  "last_sync": {
+    "$date": {
+      "$numberLong": "1676632557375"
+    }
+  },
+  "available": false
+},{
+  "_id": {
+    "$oid": "63ef627214f30c0cc5926a09"
+  },
+  "roots": [
+    {
+      "oid": {
+        "$oid": "63eb627bfe71ae4bb1ee814a"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.1"
+      ],
+      "uri": "http://www.ey.com/italy/ig/cda-fhir-maps/StructureMap/RefertodilaboratorioFULLBODY",
+      "version": "0.1"
+    }
+  ],
+  "files": [
+    {
+      "$oid": "63eb6180fe71ae4bb1ee8144"
+    },
+    {
+      "$oid": "63eb61a9fe71ae4bb1ee8145"
+    },
+    {
+      "$oid": "63eb627bfe71ae4bb1ee814a"
+    },
+    {
+      "$oid": "63ef61494861274eb815a368"
+    },
+    {
+      "$oid": "63ef61844861274eb815a369"
+    }
+  ],
+  "last_sync": {
+    "$date": {
+      "$numberLong": "1676632557375"
+    }
+  },
+  "available": false
+}]

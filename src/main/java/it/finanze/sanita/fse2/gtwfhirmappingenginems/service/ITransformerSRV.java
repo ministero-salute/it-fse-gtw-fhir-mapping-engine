@@ -3,18 +3,13 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
-import java.io.IOException;
-
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import org.hl7.fhir.exceptions.FHIRException;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.MapDTO;
+import java.io.IOException;
 
 public interface ITransformerSRV {
 
-	String transform(String cda, String rootMap,DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException;
-	
-	MapDTO findRootMap(String objectId);
+	String transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref) throws FHIRException, IOException;
 
-	MapDTO findRootMapFromTemplateIdRoot(String templateIdRoot);
 }
