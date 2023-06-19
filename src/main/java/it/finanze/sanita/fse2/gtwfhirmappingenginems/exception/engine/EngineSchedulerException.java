@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine;
 
 public class EngineSchedulerException extends RuntimeException {
