@@ -29,7 +29,6 @@
 		<!-- Sonar integration -->
 		<sonar.organization>ministero-salute</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<fhir.core.version>5.6.88</fhir.core.version>
 		<sonar.exclusions>
 			src/main/java/it/finanze/sanita/fse2/ms/gtwfhirmappingenginems/config/**/*.*
 		</sonar.exclusions>
@@ -150,29 +149,10 @@
 		<!-- FHIR -->
 	    <dependency>
 		      <groupId>ca.uhn.hapi.fhir</groupId>
-		      <artifactId>org.hl7.fhir.r4</artifactId>
-		      <version>${fhir.core.version}</version>
-	    </dependency>
-	    <dependency>
-		      <groupId>ca.uhn.hapi.fhir</groupId>
-		      <artifactId>org.hl7.fhir.r5</artifactId>
-		      <version>${fhir.core.version}</version>
-	    </dependency>
-	    <dependency>
-		      <groupId>ca.uhn.hapi.fhir</groupId>
-		      <artifactId>org.hl7.fhir.convertors</artifactId>
-		      <version>${fhir.core.version}</version>
-	    </dependency>
-	    <dependency>
-		      <groupId>ca.uhn.hapi.fhir</groupId>
 		      <artifactId>org.hl7.fhir.validation</artifactId>
-		      <version>${fhir.core.version}</version>
+		      <version>5.6.88</version>
 	    </dependency>
-	    <dependency>
-		      <groupId>ca.uhn.hapi.fhir</groupId>
-		      <artifactId>org.hl7.fhir.utilities</artifactId>
-		      <version>${fhir.core.version}</version>
-	    </dependency>
+		
 		<!-- SHEDLOCK -->
 		<dependency>
 			<groupId>net.javacrumbs.shedlock</groupId>
