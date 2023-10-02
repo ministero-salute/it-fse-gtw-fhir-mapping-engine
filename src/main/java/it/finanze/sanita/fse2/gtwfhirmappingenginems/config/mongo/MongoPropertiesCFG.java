@@ -17,8 +17,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.config.mongo;
 
-import java.io.Serializable;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,13 +31,12 @@ import lombok.EqualsAndHashCode;
 @Data
 @Component
 @EqualsAndHashCode(callSuper = false)  
-public class MongoPropertiesCFG implements Serializable {
+public class MongoPropertiesCFG {
   
-	/**
-	 *  Serial version uid
-	 */
-	private static final long serialVersionUID = -7936473659737067416L;
- 
 	@Value("${data.mongodb.uri}")
 	private String uri;
+	
+
+	@Value("${data.mongodb.schema-name}")
+	private String schemaName;
 }
