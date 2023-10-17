@@ -17,6 +17,7 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.client.IConfigClient;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.EngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
@@ -35,10 +36,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -49,6 +47,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENG
 @Component
 public class CdaEnginesManager {
 
+    private final IConfigClient client;
     private final IEngineRepo repository;
     private final EngineBuilder builder;
     private final ConcurrentHashMap<String, Engine> engines;
@@ -56,9 +55,11 @@ public class CdaEnginesManager {
     private volatile boolean running;
 
     public CdaEnginesManager(
+        @Autowired IConfigClient client,
         @Autowired IEngineRepo repository,
         @Autowired EngineBuilder builder
     ) {
+        this.client = client;
         this.repository = repository;
         this.builder = builder;
         this.engines = new ConcurrentHashMap<>();
@@ -94,13 +95,19 @@ public class CdaEnginesManager {
         // Set running flag
         running = true;
         log.info("Beginning engine refreshing process");
-        List<EngineETY> lists = lists();
-        // Start un-registering process
-        unregister(lists);
-        // Start registering process
-        register(lists);
-        // Set flag (start-up only)
-        if(!ready) ready = true;
+        // Remove obsolete engines
+        if(cleanup()) {
+            // Retrieve available one
+            List<EngineETY> lists = lists();
+            // Start un-registering process
+            unregister(lists);
+            // Start registering process
+            register(lists);
+            // Set flag (start-up only)
+            if(!ready) ready = true;
+        } else {
+            log.error("Aborting engine refreshing process");
+        }
         log.info("Finishing engine refreshing process");
         // Reset running flag
         running = false;
@@ -118,8 +125,30 @@ public class CdaEnginesManager {
         return obj.getInstance().transformCdaToFhir(cda, uri);
     }
 
+    public boolean cleanup() {
+        boolean out = false;
+        try {
+            log.info("Reaching gtw-config to retrieve data retention");
+            int days = client.getDataRetention();
+            log.info("Removing engines obsoletes more than {} days", days);
+            int cleanup = repository.cleanup(removeAt(-days));
+            log.info("Removed {} engines", cleanup);
+            out = true;
+        } catch (Exception e) {
+            log.error("Unable to perform clean-up engine operation", e);
+        }
+        return out;
+    }
+
     public ConcurrentHashMap<String, Engine> engines() {
         return engines;
+    }
+
+    private Date removeAt(int nDays) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DATE, nDays);
+        return c.getTime();
     }
 
     private List<EngineETY> lists() {

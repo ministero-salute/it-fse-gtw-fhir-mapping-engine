@@ -122,6 +122,8 @@ public final class Constants {
 		public static final String ERR_REP_FIND_BY_ID_ENGINE = "Impossibile recupero entità engine per id";
 		public static final String ERR_REP_FIND_ALL_ENGINES = "Impossibile recupero di tutte le entità engine";
 		public static final String ERR_REP_SET_AVAILABLE_ENGINE = "Impossibile impostare engine come disponibile";
+		public static final String ERR_REP_CLEANUP_ENGINE = "Impossibile rimuovere gli engine obsoleti";
+
 		// Scheduler
 		public static final String ERR_SCH_RUNNING = "Il processo di aggiornamento risulta già avviato";
 		public static final String DTO_RUN_TASK_QUEUED = "Processo avviato, verifica i logs";

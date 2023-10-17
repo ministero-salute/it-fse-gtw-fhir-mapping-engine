@@ -33,6 +33,8 @@ import java.util.List;
 @NoArgsConstructor
 public class EngineETY {
 
+    public static final int MIN_ENGINE_AVAILABLE = 1;
+
     public static final String FIELD_ID = "_id";
     public static final String FIELD_ROOTS = "roots";
     public static final String FIELD_FILES = "files";
