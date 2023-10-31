@@ -22,7 +22,7 @@
             {
               "system": "http://loinc.org",
               "code": "89261-2",
-              "display": "Decorso Clinico"
+              "display": "Clinical course"
             }
           ]
         },
@@ -84,7 +84,7 @@
             {
               "system": "http://loinc.org",
               "code": "89261-2",
-              "display": "Decorso Clinico"
+              "display": "Clinical Course"
             }
           ]
         },
@@ -186,7 +186,7 @@
                 {
                   "system": "http://terminology.hl7.org/CodeSystem/v3-RouteOfAdministration",
                   "code": "PO",
-                  "display": "Swallow,oral"
+                  "display": "Swallow, oral"
                 }
               ]
             }
@@ -298,7 +298,7 @@
             {
               "system": "http://loinc.org",
               "code": "11329-0",
-              "display": "Anamnesi Generale"
+              "display": "History general Narrative - Reported"
             }
           ]
         },
@@ -507,7 +507,7 @@
             {
               "system": "http://loinc.org",
               "code": "29545-1",
-              "display": "Esame Obiettivo"
+              "display": "Phys find"
             }
           ]
         },
@@ -539,7 +539,7 @@
             {
               "system": "http://loinc.org",
               "code": "47039-3",
-              "display": "Ricovero Ospedaliero, anamnesi ed esame obiettivo"
+              "display": "Hospital Admission history and physical note"
             }
           ]
         },
@@ -571,7 +571,7 @@
             {
               "system": "http://loinc.org",
               "code": "42346-7",
-              "display": "Terapia Farmacologica all'ingresso"
+              "display": "Medications on admission (narrative)"
             }
           ]
         },
@@ -642,7 +642,7 @@
             {
               "system": "http://loinc.org",
               "code": "34105-7",
-              "display": "Lettera di dimissione ospedaliera"
+              "display": "Hospital Discharge summary"
             }
           ]
         },
@@ -689,7 +689,7 @@
                 {
                   "system": "http://loinc.org",
                   "code": "46241-6",
-                  "display": "Diagnosi di accettazione"
+                  "display": "Hospital admission Dx Reported"
                 }
               ]
             },
@@ -710,7 +710,7 @@
                 {
                   "system": "http://loinc.org",
                   "code": "47039-3",
-                  "display": "Ricovero Ospedaliero, anamnesi ed esame obiettivo"
+                  "display": "Hospital Admission history and physical note"
                 }
               ]
             },
@@ -731,7 +731,7 @@
                     {
                       "system": "http://loinc.org",
                       "code": "11329-0",
-                      "display": "Anamnesi Generale"
+                      "display": "History general Narrative - Reported"
                     }
                   ]
                 },
@@ -754,7 +754,7 @@
                     {
                       "system": "http://loinc.org",
                       "code": "29545-1",
-                      "display": "Esame Obiettivo"
+                      "display": "Phys find"
                     }
                   ]
                 },
@@ -778,7 +778,7 @@
                     {
                       "system": "http://loinc.org",
                       "code": "42346-7",
-                      "display": "Terapia Farmacologica all'ingresso"
+                      "display": "Medications on admission (narrative)"
                     }
                   ]
                 },
@@ -800,7 +800,7 @@
                 {
                   "system": "http://loinc.org",
                   "code": "8648-8",
-                  "display": "Decorso_Ospedaliero"
+                  "display": "Hospital course"
                 }
               ]
             },
@@ -842,7 +842,7 @@
                 {
                   "system": "http://loinc.org",
                   "code": "11535-2",
-                  "display": "Diagnosi di Dimissione"
+                  "display": "Hospital discharge Dx Narrative"
                 }
               ]
             },
@@ -863,7 +863,7 @@
                 {
                   "system": "http://loinc.org",
                   "code": "10183-2",
-                  "display": "Terapia Farmacologica alla dimissione"
+                  "display": "Hospital discharge medications"
                 }
               ]
             },
@@ -884,7 +884,7 @@
                 {
                   "system": "http://loinc.org",
                   "code": "18776-5",
-                  "display": "Piano di cura"
+                  "display": "Plan of care note"
                 }
               ]
             },
@@ -944,7 +944,7 @@
             {
               "system": "http://www.whocc.no/atc",
               "code": "C08CA01",
-              "display": "AMLODIPINA"
+              "display": "amlodipine"
             }
           ],
           "text": "#[REF_FARMACO]"
@@ -978,7 +978,7 @@
                 {
                   "system": "http://www.whocc.no/atc",
                   "code": "C08CA01",
-                  "display": "AMLODIPINA"
+                  "display": "amlodipine"
                 }
               ],
               "text": "#[REF_FARMACO]"
@@ -1010,7 +1010,7 @@
             {
               "system": "http://loinc.org",
               "code": "8646-2",
-              "display": "Diagnosi di Accettazione Ospedaliera"
+              "display": "Hospital admission diagnosis"
             }
           ]
         },
@@ -1254,7 +1254,7 @@
             {
               "system": "http://loinc.org",
               "code": "8651-2",
-              "display": "Diagnosi di Dimissione Ospedaliera"
+              "display": "Hospital discharge Dx"
             }
           ]
         },
@@ -1274,7 +1274,7 @@
             {
               "system": "http://loinc.org",
               "code": "67502-5",
-              "display": "Cardiac arrest"
+              "display": "Cardiac arrest NEMSIS"
             }
           ]
         }
@@ -1362,7 +1362,7 @@
             {
               "system": "http://loinc.org",
               "code": "29545-1",
-              "display": "Esame Obiettivo"
+              "display": "Phys find"
             }
           ]
         },
@@ -1394,7 +1394,7 @@
             {
               "system": "http://loinc.org",
               "code": "8648-8",
-              "display": "Decorso_Ospedaliero"
+              "display": "Hospital course"
             }
           ]
         },
