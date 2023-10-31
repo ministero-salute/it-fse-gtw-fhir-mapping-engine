@@ -1,40 +1,39 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.utility;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.DocumentReference.DocumentReferenceRelatesToComponent;
+import org.hl7.fhir.r4.model.DocumentReference.DocumentRelationshipType;
+
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Bundle.BundleType;
-import org.hl7.fhir.r4.model.DocumentReference;
-import org.hl7.fhir.r4.model.DocumentReference.DocumentReferenceRelatesToComponent;
-import org.hl7.fhir.r4.model.DocumentReference.DocumentRelationshipType;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ResourceType;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
+import static org.hl7.fhir.r4.model.Bundle.BundleType.DOCUMENT;
+import static org.hl7.fhir.r4.model.Bundle.BundleType.MESSAGE;
+import static org.hl7.fhir.r4.model.MessageHeader.MessageSourceComponent;
 
 public class TransformUtility {
 
 	private static FhirContext context;
 
-	public static void main(String[] args) {
-		context = FhirContext.forR4();
-		String bundleTransaction = new String(FileUtility.getFileFromInternalResources("bundle.json"), StandardCharsets.UTF_8);
-		String bundleDocumentCreate = transformToBundleDocument(bundleTransaction,"create");
-		System.out.println(bundleDocumentCreate);
-		String bundleDocumentReplace = transformToBundleDocument(bundleTransaction,"replace");
-		System.out.println(bundleDocumentReplace);
-	}
+//	public static void main(String[] args) {
+//		context = FhirContext.forR4();
+//		String bundleTransaction = new String(FileUtility.getFileFromInternalResources("bundle.json"), StandardCharsets.UTF_8);
+//		String bundleDocumentCreate = transformToBundleDocument(bundleTransaction,"create");
+//		System.out.println(bundleDocumentCreate);
+//		String bundleDocumentReplace = transformToBundleDocument(bundleTransaction,"replace");
+//		System.out.println(bundleDocumentReplace);
+//	}
 
 
 	private static String transformToBundleDocument(String bundleTransaction, String operation) {
 		Bundle newBundleDocument = FHIRR4Helper.deserializeResource(Bundle.class, bundleTransaction, true);
-		newBundleDocument.setType(BundleType.DOCUMENT);
+		newBundleDocument.setType(DOCUMENT);
 
 		BundleEntryComponent compositionEntry = null;
 
@@ -89,75 +88,69 @@ public class TransformUtility {
 	//		System.out.println(FHIRR4Helper.serializeResource(message,true,false,false));
 	//	}
 
-	//	public static void main(String[] args) {
-	//		MessageHeader mh = createMessageHeader("event", "source", "ep", "fullUrl");
-	//		Bundle bundle = transformBundleToMessage(mh);
-	//		System.out.println(FHIRR4Helper.serializeResource(bundle,true,false,false));
-	//	}
+		public static void main(String[] args) {
+			String tx = new String(FileUtility.getFileFromInternalResources("bundle.json"), StandardCharsets.UTF_8);
+			Bundle bundle = fromTransactionToMessage(tx,
+				createMessageHeader(
+					null,
+					"MyAppSource",
+					"ep",
+					"http://hl7.org/fhir/message-events",
+					"fullUrl",
+					"Observation/6bcfd973-8bca-43a0-a306-76f8b600d5cf"
+				)
+			);
+			System.out.println(FHIRR4Helper.serializeResource(bundle,true,false,false));
+		}
 
-	//	public static Bundle transformBundleToMessage(MessageHeader header) {
-	//	    // Crea un nuovo Bundle di tipo MESSAGE
-	//	    Bundle messageBundle = new Bundle();
-	//	    messageBundle.setType(BundleType.MESSAGE);
-	//	    
-	//	    // Aggiungi l'header al Bundle di tipo messaggio
-	//	    BundleEntryComponent headerEntry = new BundleEntryComponent();
-	//	    headerEntry.setResource(header);
-	//	    messageBundle.addEntry(headerEntry);
-	//	    DocumentReference d = new DocumentReference();
-	//	    d.setDate(new Date());
-	//	    messageBundle.getEntry().add
-	//
-	//	    
-	////	    // Per ogni voce (entry) nel Bundle di tipo documento, crea una voce nel Bundle di tipo messaggio
-	////	    for (BundleEntryComponent documentEntry : documentBundle.getEntry()) {
-	////	        // Crea una nuova voce nel Bundle di tipo messaggio
-	////	        BundleEntryComponent messageEntry = new BundleEntryComponent();
-	////	        messageEntry.setResource(documentEntry.getResource()); // Copia il riferimento alla risorsa
-	////	        
-	////	        // Aggiungi questa nuova voce al Bundle di tipo messaggio
-	////	        messageBundle.addEntry(messageEntry);
-	////	    }
-	//
-	//	    // Ora hai un Bundle di tipo messaggio con l'header e le voci dal Bundle di tipo documento
-	//	    return messageBundle;
-	//	}
+		public static Bundle fromTransactionToMessage(String json, BundleEntryComponent header) {
+			// 1. Decode transaction as Bundle
+			Bundle tx = FHIRR4Helper.deserializeResource(Bundle.class, json, true);
+			// 2. Create new Bundle type as MESSAGE
+		    Bundle msg = new Bundle();
+			msg.setType(MESSAGE);
+			// 3. First element is always the message header
+		    msg.addEntry(header);
+		    // 4. Iterate on each transaction entry
+		    for (BundleEntryComponent entry : tx.getEntry()) {
+		        // 5. For each transaction entries, we omit the request entry and leave everything else as it is
+		        BundleEntryComponent current = new BundleEntryComponent();
+				current.setFullUrl(entry.getFullUrl());
+				current.setResource(entry.getResource());
+				// 6. Add to the message
+		        msg.addEntry(current);
+		    }
+		    return msg;
+		}
 
-	//	public static MessageHeader createMessageHeader(String eventCode, String sourceName, String sourceEndpoint) {
-	//	    MessageHeader messageHeader = new MessageHeader();
-	//	    
-	//	    Coding eventCoding = new Coding();
-	//	    eventCoding.setSystem("http://example.org/fhir/message-events");
-	//	    eventCoding.setCode(eventCode);
-	//	    messageHeader.setEvent(eventCoding);
-	//	    
-	//	    MessageSourceComponent source = new MessageSourceComponent();
-	//	    source.setName(sourceName);
-	//	    source.setEndpoint(sourceEndpoint); 
-	//	    messageHeader.setSource(source);
-	//	    
-	//	    return messageHeader;
-	//	}
+		public static BundleEntryComponent createMessageHeader(
+			String code,
+			String name,
+			String endpoint,
+			String system,
+			String fullUrl,
+			String ref
+		) {
+		    MessageHeader header = new MessageHeader();
+			// 1. Create message event
+		    Coding event = new Coding();
+			event.setSystem(system);
+			// Sometimes, it can be omitted
+			if(!StringUtils.isBlank(code)) event.setCode(code);
+			// 2. Create message source
+		    MessageSourceComponent source = new MessageSourceComponent();
+		    source.setName(name);
+		    source.setEndpoint(endpoint);
+			// 3. Create message required tags
+			header.setSource(source);
+			header.setEvent(event);
+			header.addFocus(new Reference(ref));
+			// 4. Set full-url
+			BundleEntryComponent entry = new BundleEntryComponent();
+			entry.setFullUrl(fullUrl);
+			entry.setResource(header);
 
-	//	public static MessageHeader createMessageHeader(String eventCode, String sourceName, String sourceEndpoint, String fullUrl) {
-	//	    MessageHeader messageHeader = new MessageHeader();
-	//	    
-	//	    Coding eventCoding = new Coding();
-	//	    eventCoding.setSystem("http://example.org/fhir/message-events");
-	//	    eventCoding.setCode(eventCode);
-	//	    messageHeader.setEvent(eventCoding);
-	//	    
-	//	    MessageSourceComponent source = new MessageSourceComponent();
-	//	    source.setName(sourceName);
-	//	    source.setEndpoint(sourceEndpoint);
-	//	    messageHeader.setSource(source);
-	//	    
-	//	    Reference ref = new Reference();
-	//	    ref.setReference("DocumentReference?masterIdentifier");
-	//	    messageHeader.setFocus(Arrays.asList(ref));
-	//	    
-	//	    
-	//	    return messageHeader;
-	//	}
+		    return entry;
+		}
 
 }
