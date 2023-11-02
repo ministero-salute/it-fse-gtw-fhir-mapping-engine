@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
 import org.bson.Document;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +67,8 @@ public interface ITransformerCTL {
 			String engineId,
 			@PathVariable(API_OBJECT_ID_VAR)
 			String objectId,
+			@RequestParam(value = API_QP_BUNDLE_TYPE, required = false)
+			BundleTypeEnum type,
 			@RequestPart(API_FILE_VAR)
 			MultipartFile file
 	) throws IOException;
