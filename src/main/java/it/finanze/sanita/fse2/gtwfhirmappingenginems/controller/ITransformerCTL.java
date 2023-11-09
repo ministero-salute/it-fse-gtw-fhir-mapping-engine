@@ -27,6 +27,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
 import org.bson.Document;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -69,6 +70,8 @@ public interface ITransformerCTL {
 			String objectId,
 			@RequestParam(value = API_QP_BUNDLE_TYPE, required = false)
 			BundleTypeEnum type,
+			@RequestParam(value = API_QP_OP_TYPE)
+			GtwOperationEnum op,
 			@RequestPart(API_FILE_VAR)
 			MultipartFile file
 	) throws IOException;

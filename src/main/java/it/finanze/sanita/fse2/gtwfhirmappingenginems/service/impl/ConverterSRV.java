@@ -1,6 +1,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -15,10 +16,12 @@ import static org.hl7.fhir.r4.model.Bundle.BundleType.MESSAGE;
 public class ConverterSRV implements IConverterSRV {
 
     @Override
-    public Document convert(BundleTypeEnum type, String transaction) {
+    public Document convert(BundleTypeEnum type, GtwOperationEnum op, String transaction) {
         String bundle = transaction;
         switch (type) {
             case DOCUMENT:
+                bundle = toDocument(transaction, op);
+                break;
             case MESSAGE:
                 bundle = toMessage(transaction);
                 break;
@@ -53,7 +56,7 @@ public class ConverterSRV implements IConverterSRV {
     }
 
     @Override
-    public String toDocument(String transaction) {
+    public String toDocument(String transaction, GtwOperationEnum op) {
         return null;
     }
 
