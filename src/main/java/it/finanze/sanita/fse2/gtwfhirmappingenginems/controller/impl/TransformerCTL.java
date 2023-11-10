@@ -22,6 +22,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwPostOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.IConverterSRV;
@@ -56,7 +57,7 @@ public class TransformerCTL implements ITransformerCTL {
 	private IConverterSRV converter;
 
 	@Override
-	public TransformResDTO convertCDAToBundle(FhirResourceDTO dto, HttpServletRequest request) {
+	public TransformResDTO createOrReplaceBundle(FhirResourceDTO dto, BundleTypeEnum type, GtwPostOperationEnum op, HttpServletRequest request) {
 		log.debug("Invoked transform controller");
 		TransformResDTO out = new TransformResDTO();
 		if(dto.getCda()!=null){
@@ -69,7 +70,7 @@ public class TransformerCTL implements ITransformerCTL {
 					dto.getObjectId(),
 					dto.getDocumentReferenceDTO()
 				);
-				Document doc = Document.parse(cdaTrasformed);
+				Document doc = converter.convert(type, op.toGeneric(), cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
 				out.setErrorMessage(tr.getMessage());
@@ -96,11 +97,11 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 
 	@Override
-	public Document convertCDAToBundleStateless(String engineId, String objectId, BundleTypeEnum type, MultipartFile file) throws IOException {
+	public Document convertCDAToBundleStateless(String engineId, String objectId, GtwPostOperationEnum op, BundleTypeEnum type, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
 		if(type == null) type = TRANSACTION;
 		String transaction = service.transform(getCDA(file), engineId, objectId, null);
-		Document doc = converter.convert(type, GtwOperationEnum.CREATE, transaction);
+		Document doc = converter.convert(type, op.toGeneric(), transaction);
 		log.debug("Conversion of CDA completed");
 		return doc;
 	}
