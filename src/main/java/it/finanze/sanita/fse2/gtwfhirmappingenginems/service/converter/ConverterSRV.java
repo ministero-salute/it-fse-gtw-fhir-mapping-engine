@@ -4,6 +4,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl.DocumentConverter;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl.MessageConverter;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl.TransactionConverter;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,7 @@ public class ConverterSRV implements IConverterSRV {
                 bundle = new MessageConverter(data, op).convert();
                 break;
             case TRANSACTION:
-                // If it's already transaction, just parse it
-                bundle = (String) data;
+                bundle = new TransactionConverter(data, op).convert();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown bundle type: " + type.name());
