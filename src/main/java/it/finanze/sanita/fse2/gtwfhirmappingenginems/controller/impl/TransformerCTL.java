@@ -23,8 +23,8 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.IConverterSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,13 +78,29 @@ public class TransformerCTL implements ITransformerCTL {
 		log.debug("Conversion of CDA completed");
 		return out;
 	}
-	
+
 	@Override
-	public Document convertCDAToBundleStateless(String engineId, String objectId, BundleTypeEnum type, GtwOperationEnum op, MultipartFile file) throws IOException {
+	public TransformResDTO deleteBundle(String id, BundleTypeEnum type) {
+		log.debug("Invoke conversion bundle");
+		TransformResDTO out = new TransformResDTO();
+		if (type == null) type = TRANSACTION;
+
+		try{
+			Document doc = converter.convert(type, GtwOperationEnum.DELETE, id);
+			out.setJson(doc);
+			log.debug("Conversion completed");
+		}catch (Throwable tr){
+			out.setErrorMessage(tr.getMessage());
+		}
+		return out;
+	}
+
+	@Override
+	public Document convertCDAToBundleStateless(String engineId, String objectId, BundleTypeEnum type, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
 		if(type == null) type = TRANSACTION;
 		String transaction = service.transform(getCDA(file), engineId, objectId, null);
-		Document doc = converter.convert(type, op, transaction);
+		Document doc = converter.convert(type, GtwOperationEnum.CREATE, transaction);
 		log.debug("Conversion of CDA completed");
 		return doc;
 	}

@@ -27,7 +27,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
 import org.bson.Document;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +54,20 @@ public interface ITransformerCTL {
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
 	TransformResDTO convertCDAToBundle(@RequestBody FhirResourceDTO fhirResourceDTO,HttpServletRequest request);
+
+	@DeleteMapping(API_TRANSFORM_BY_OBJ)
+	@Operation(summary = "Transformazione bundle per la delete tramite FHIR Mapping Engine", description = "Cancellazione bundle tramite FHIR Mapping Engine")
+	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+	TransformResDTO deleteBundle(
+			@RequestParam(API_QP_ID)
+			String id,
+			@RequestParam(API_QP_BUNDLE_TYPE)
+			BundleTypeEnum type
+	);
 	
 	@PostMapping(value = API_TRANSFORM_STATELESS_BY_OBJ, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
@@ -70,8 +83,6 @@ public interface ITransformerCTL {
 			String objectId,
 			@RequestParam(value = API_QP_BUNDLE_TYPE, required = false)
 			BundleTypeEnum type,
-			@RequestParam(value = API_QP_OP_TYPE)
-			GtwOperationEnum op,
 			@RequestPart(API_FILE_VAR)
 			MultipartFile file
 	) throws IOException;

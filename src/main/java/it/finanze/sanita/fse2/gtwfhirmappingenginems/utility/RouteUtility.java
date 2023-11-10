@@ -30,7 +30,7 @@ public final class RouteUtility {
     public static final String API_FILE_VAR = "file";
     public static final String API_ENGINE_ID_VAR = "engineId";
     public static final String API_QP_BUNDLE_TYPE = "type";
-    public static final String API_QP_OP_TYPE = "op";
+    public static final String API_QP_ID = "id";
     public static final String API_ENGINE_ID_PATH_VAR = "{" + API_ENGINE_ID_VAR + "}" ;
     public static final String API_OBJECT_ID_VAR = "objectId";
     public static final String API_OBJECT_ID_PATH_VAR = "{" + API_OBJECT_ID_VAR + "}" ;
