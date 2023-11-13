@@ -57,9 +57,9 @@ public interface ITransformerCTL {
 	TransformResDTO createOrReplaceBundle(
 			@RequestBody
 			FhirResourceDTO fhirResourceDTO,
-			@RequestParam(API_QP_BUNDLE_TYPE)
+			@RequestParam(API_BUNDLE_TYPE_VAR)
 			BundleTypeEnum type,
-			@RequestParam(API_QP_OPERATION)
+			@RequestParam(API_OPERATION_VAR)
 			GtwPostOperationEnum op,
 			HttpServletRequest request
 	);
@@ -74,7 +74,7 @@ public interface ITransformerCTL {
 	TransformResDTO deleteBundle(
 			@RequestParam(API_QP_ID)
 			String id,
-			@RequestParam(API_QP_BUNDLE_TYPE)
+			@RequestParam(API_BUNDLE_TYPE_VAR)
 			BundleTypeEnum type
 	);
 	
@@ -85,14 +85,14 @@ public interface ITransformerCTL {
 		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
 	})
-	Document convertCDAToBundleStateless(
-			@PathVariable(API_ENGINE_ID_VAR)
+	Document createOrReplaceBundleStateless(
+			@RequestPart(API_ENGINE_ID_VAR)
 			String engineId,
-			@PathVariable(API_OBJECT_ID_VAR)
+			@RequestPart(API_OBJECT_ID_VAR)
 			String objectId,
-			@RequestParam(API_QP_OPERATION)
+			@RequestPart(API_OPERATION_VAR)
 			GtwPostOperationEnum op,
-			@RequestParam(value = API_QP_BUNDLE_TYPE, required = false)
+			@RequestPart(value = API_BUNDLE_TYPE_VAR, required = false)
 			BundleTypeEnum type,
 			@RequestPart(API_FILE_VAR)
 			MultipartFile file

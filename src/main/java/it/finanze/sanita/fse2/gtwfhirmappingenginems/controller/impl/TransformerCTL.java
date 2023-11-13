@@ -97,7 +97,7 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 
 	@Override
-	public Document convertCDAToBundleStateless(String engineId, String objectId, GtwPostOperationEnum op, BundleTypeEnum type, MultipartFile file) throws IOException {
+	public Document createOrReplaceBundleStateless(String engineId, String objectId, GtwPostOperationEnum op, BundleTypeEnum type, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
 		if(type == null) type = TRANSACTION;
 		String transaction = service.transform(getCDA(file), engineId, objectId, null);
