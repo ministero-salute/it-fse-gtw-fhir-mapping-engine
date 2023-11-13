@@ -64,7 +64,7 @@ public interface ITransformerCTL {
 			HttpServletRequest request
 	);
 
-	@DeleteMapping(API_TRANSFORM_BY_OBJ)
+	@DeleteMapping(API_TRANSFORM_STATELESS_BY_OBJ)
 	@Operation(summary = "Transformazione bundle per la delete tramite FHIR Mapping Engine", description = "Cancellazione bundle tramite FHIR Mapping Engine")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
