@@ -49,7 +49,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility
 public interface ITransformerCTL {
   
 	@PostMapping(API_TRANSFORM_BY_OBJ)
-	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
+	@Operation(summary = "Generazione bundle/evento per creazione/sostituzione risorsa FHIR", description = "Generazione bundle tramite FHIR Mapping Engine.")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
@@ -66,7 +66,7 @@ public interface ITransformerCTL {
 	);
 
 	@DeleteMapping(API_TRANSFORM_STATELESS_BY_OBJ)
-	@Operation(summary = "Transformazione bundle per la delete tramite FHIR Mapping Engine", description = "Cancellazione bundle tramite FHIR Mapping Engine")
+	@Operation(summary = "Generazione evento per cancellazione risorsa FHIR", description = "Cancellazione bundle tramite FHIR Mapping Engine")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
@@ -80,7 +80,7 @@ public interface ITransformerCTL {
 	);
 	
 	@PostMapping(value = API_TRANSFORM_STATELESS_BY_OBJ, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
+	@Operation(summary = "Generazione bundle/evento per creazione/sostituzione risorsa FHIR", description = "Generazione bundle tramite FHIR Mapping Engine.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
