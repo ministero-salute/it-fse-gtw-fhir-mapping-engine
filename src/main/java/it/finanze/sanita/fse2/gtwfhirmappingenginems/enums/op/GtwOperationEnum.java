@@ -1,4 +1,4 @@
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.enums;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op;
 
 public enum GtwOperationEnum {
     CREATE,

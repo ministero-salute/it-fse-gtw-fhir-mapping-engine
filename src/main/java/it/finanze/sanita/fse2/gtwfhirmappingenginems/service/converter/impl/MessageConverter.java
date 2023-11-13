@@ -1,6 +1,6 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
@@ -57,12 +57,10 @@ public class MessageConverter {
     }
 
     private String toMessageDelete(String id) {
-        // 1. Create bundle
-        Bundle tx = new Bundle();
-        // 2. Create new Bundle type as MESSAGE
+        // 1. Create new Bundle type as MESSAGE
         Bundle msg = new Bundle();
         msg.setType(MESSAGE);
-        // 3. First element is always the message header
+        // 2. First element is always the message header
         msg.addEntry(createMessageHeader(id));
 
         return serializeResource(msg, true, false, false);

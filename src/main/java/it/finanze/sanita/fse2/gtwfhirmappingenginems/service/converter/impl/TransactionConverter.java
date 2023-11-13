@@ -1,6 +1,6 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 
 public class TransactionConverter {
 

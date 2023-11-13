@@ -26,8 +26,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwPostOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.DeleteBundleTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwPostOperationEnum;
 import org.bson.Document;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -75,7 +76,7 @@ public interface ITransformerCTL {
 			@RequestParam(API_QP_ID)
 			String id,
 			@RequestParam(API_BUNDLE_TYPE_VAR)
-			BundleTypeEnum type
+			DeleteBundleTypeEnum type
 	);
 	
 	@PostMapping(value = API_TRANSFORM_STATELESS_BY_OBJ, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })

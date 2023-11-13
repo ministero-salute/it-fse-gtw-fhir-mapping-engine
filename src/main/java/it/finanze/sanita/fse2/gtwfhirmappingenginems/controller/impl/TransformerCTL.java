@@ -20,9 +20,10 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwPostOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.DeleteBundleTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwPostOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.IConverterSRV;
@@ -40,7 +41,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.BundleTypeEnum.TRANSACTION;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum.TRANSACTION;
 
 
 /**
@@ -81,13 +82,13 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 
 	@Override
-	public TransformResDTO deleteBundle(String id, BundleTypeEnum type) {
+	public TransformResDTO deleteBundle(String id, DeleteBundleTypeEnum type) {
 		log.debug("Invoke conversion bundle");
 		TransformResDTO out = new TransformResDTO();
-		if (type == null) type = TRANSACTION;
+		if (type == null) type = DeleteBundleTypeEnum.MESSAGE;
 
 		try{
-			Document doc = converter.convert(type, GtwOperationEnum.DELETE, id);
+			Document doc = converter.convert(type.toGeneric(), GtwOperationEnum.DELETE, id);
 			out.setJson(doc);
 			log.debug("Conversion completed");
 		}catch (Throwable tr){
@@ -110,7 +111,7 @@ public class TransformerCTL implements ITransformerCTL {
 		try {
 			if (file == null || file.getBytes().length == 0) return null;
 			byte[] bytes = file.getBytes();
-			Charset detectedCharset = StandardCharsets.UTF_8;
+			Charset detectedCharset;
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
 			factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);

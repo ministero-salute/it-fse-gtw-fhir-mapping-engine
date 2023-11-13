@@ -1,6 +1,6 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DocumentReference;
 import org.hl7.fhir.r4.model.ResourceType;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.GtwOperationEnum.REPLACE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.REPLACE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
 import static org.hl7.fhir.r4.model.Bundle.BundleType.DOCUMENT;
