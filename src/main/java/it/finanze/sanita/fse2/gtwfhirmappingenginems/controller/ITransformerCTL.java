@@ -65,7 +65,7 @@ public interface ITransformerCTL {
 			HttpServletRequest request
 	);
 
-	@DeleteMapping(API_TRANSFORM_STATELESS_BY_OBJ)
+	@DeleteMapping(API_TRANSFORM_BY_OBJ)
 	@Operation(summary = "Generazione evento per cancellazione risorsa FHIR", description = "Cancellazione bundle tramite FHIR Mapping Engine")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
@@ -87,13 +87,13 @@ public interface ITransformerCTL {
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
 	})
 	Document createOrReplaceBundleStateless(
-			@RequestPart(API_ENGINE_ID_VAR)
+			@RequestParam(API_ENGINE_ID_VAR)
 			String engineId,
-			@RequestPart(API_OBJECT_ID_VAR)
+			@RequestParam(API_OBJECT_ID_VAR)
 			String objectId,
-			@RequestPart(API_OPERATION_VAR)
+			@RequestParam(API_OPERATION_VAR)
 			GtwPostOperationEnum op,
-			@RequestPart(value = API_BUNDLE_TYPE_VAR, required = false)
+			@RequestParam(API_BUNDLE_TYPE_VAR)
 			BundleTypeEnum type,
 			@RequestPart(API_FILE_VAR)
 			MultipartFile file
