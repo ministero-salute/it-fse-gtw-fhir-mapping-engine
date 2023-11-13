@@ -17,25 +17,19 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.helper;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.hl7.fhir.r4.model.Attachment;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.DocumentReference;
-import org.hl7.fhir.r4.model.DocumentReference.DocumentReferenceContextComponent;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Period;
-
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ContextDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.DocumentReference.DocumentReferenceContextComponent;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Slf4j
 public class DocumentReferenceHelper {
@@ -106,7 +100,7 @@ public class DocumentReferenceHelper {
 		dr.getContent().get(0).setAttachment(attachment);
 	}
 
-	private static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {
+	public static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {
 		Identifier mid = new Identifier();
 		
 		mid.setSystem("urn:uuid:"+ StringUtility.generateUUID());

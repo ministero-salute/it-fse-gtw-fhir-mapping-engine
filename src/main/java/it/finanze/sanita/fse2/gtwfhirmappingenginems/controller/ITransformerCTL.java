@@ -27,7 +27,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.DeleteBundleTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.PutOrDeleteBundleEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwPostOperationEnum;
 import org.bson.Document;
 import org.springframework.http.MediaType;
@@ -76,7 +76,21 @@ public interface ITransformerCTL {
 			@RequestParam(API_QP_ID)
 			String id,
 			@RequestParam(API_BUNDLE_TYPE_VAR)
-			DeleteBundleTypeEnum type
+			PutOrDeleteBundleEnum type
+	);
+
+	@PutMapping(API_TRANSFORM_BY_OBJ)
+	@Operation(summary = "Generazione evento per aggiornamento metadati risorsa FHIR", description = "Aggiornamento metadati tramite FHIR Mapping Engine")
+	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+	TransformResDTO updateMetadata(
+			@RequestParam(API_QP_ID)
+			String id,
+			@RequestParam(API_BUNDLE_TYPE_VAR)
+			PutOrDeleteBundleEnum type
 	);
 	
 	@PostMapping(value = API_TRANSFORM_STATELESS_BY_OBJ, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
