@@ -22,7 +22,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.PutOrDeleteBundleEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwPostOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
@@ -42,6 +41,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum.TRANSACTION;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.DELETE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.UPDATE;
 
 
 /**
@@ -88,7 +89,7 @@ public class TransformerCTL implements ITransformerCTL {
 		if (type == null) type = PutOrDeleteBundleEnum.MESSAGE;
 
 		try{
-			Document doc = converter.convert(type.toGeneric(), GtwOperationEnum.DELETE, id);
+			Document doc = converter.convert(type.toGeneric(), DELETE, id);
 			out.setJson(doc);
 			log.debug("Conversion completed");
 		}catch (Throwable tr){
@@ -104,7 +105,7 @@ public class TransformerCTL implements ITransformerCTL {
 		if (type == null) type = PutOrDeleteBundleEnum.MESSAGE;
 
 		try{
-			Document doc = converter.convert(type.toGeneric(), GtwOperationEnum.UPDATE, id);
+			Document doc = converter.convert(type.toGeneric(), UPDATE, id);
 			out.setJson(doc);
 			log.debug("Conversion completed");
 		}catch (Throwable tr){
