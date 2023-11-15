@@ -18,6 +18,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum;
@@ -99,13 +100,13 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 
 	@Override
-	public TransformResDTO updateMetadata(String id, PutOrDeleteBundleEnum type) {
+	public TransformResDTO updateMetadata(DocumentReferenceDTO ref, PutOrDeleteBundleEnum type) {
 		log.debug("Invoke conversion Bundle");
 		TransformResDTO out = new TransformResDTO();
 		if (type == null) type = PutOrDeleteBundleEnum.MESSAGE;
 
 		try{
-			Document doc = converter.convert(type.toGeneric(), UPDATE, id);
+			Document doc = converter.convert(type.toGeneric(), UPDATE, ref);
 			out.setJson(doc);
 			log.debug("Conversion completed");
 		}catch (Throwable tr){

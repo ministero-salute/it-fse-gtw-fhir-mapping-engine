@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.hl7.fhir.r4.model.DocumentReference.DocumentReferenceContentComponent;
+
 @Slf4j
 public class DocumentReferenceHelper {
 
@@ -97,10 +99,11 @@ public class DocumentReferenceHelper {
 		attachment.setHash(hash.getBytes());
 		attachment.setSize(size);
 		attachment.setLanguage(languageCode);
+		if(dr.getContent().isEmpty()) dr.getContent().add(new DocumentReferenceContentComponent());
 		dr.getContent().get(0).setAttachment(attachment);
 	}
 
-	public static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {
+	private static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {
 		Identifier mid = new Identifier();
 		
 		mid.setSystem("urn:uuid:"+ StringUtility.generateUUID());

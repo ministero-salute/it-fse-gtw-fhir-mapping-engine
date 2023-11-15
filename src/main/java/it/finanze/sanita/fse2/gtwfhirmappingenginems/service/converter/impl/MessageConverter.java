@@ -1,10 +1,11 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper.addMasterIdentifier;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper.createDocumentReference;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
 import static org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -30,23 +31,23 @@ public class MessageConverter {
                 out = toMessageDelete((String) data);
                 break;
             case UPDATE:
-                out = toMessageUpdate((String) data);
+                out = toMessageUpdate((DocumentReferenceDTO) data);
         }
         return out;
     }
 
-    private String toMessageUpdate(String id) {
+    private String toMessageUpdate(DocumentReferenceDTO ref) {
         // 1. Create new Bundle type as MESSAGE
         Bundle msg = new Bundle();
         msg.setType(MESSAGE);
         // 2. First element is always the message header
-        msg.addEntry(createMessageHeader(id));
+        msg.addEntry(createMessageHeader());
         // 3. Create document reference
-        DocumentReference ref = new DocumentReference();
+        DocumentReference out = new DocumentReference();
         BundleEntryComponent component = new BundleEntryComponent();
-        component.setResource(ref);
+        component.setResource(out);
         // 4. Add reference
-        addMasterIdentifier(ref, id);
+        createDocumentReference(ref, out);
         // 5. Set
         msg.addEntry(component);
         return serializeResource(msg, true, false, false);
