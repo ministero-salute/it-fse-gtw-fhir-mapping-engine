@@ -1,17 +1,16 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.DocumentReference;
 import org.hl7.fhir.r4.model.ResourceType;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.REPLACE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility.addRelatesTo;
 import static org.hl7.fhir.r4.model.Bundle.BundleType.DOCUMENT;
 
 public class DocumentConverter {
@@ -28,9 +27,11 @@ public class DocumentConverter {
         String out = null;
         switch (op) {
             case CREATE:
-                out = toDocument((String) data, op);
+                out = toDocumentCreate((String) data, op);
                 break;
             case REPLACE:
+                out = toDocumentReplace((Pair<?, ?>) data, op);
+                break;
             case UPDATE:
             case DELETE:
                 throw new IllegalArgumentException("Unsupported operation for type document " + op.name());
@@ -38,7 +39,15 @@ public class DocumentConverter {
         return out;
     }
 
-    public String toDocument(String transaction, GtwOperationEnum op) {
+    private String toDocumentReplace(Pair<?, ?> data, GtwOperationEnum op) {
+        return toDocument((String) data.getLeft(), op, (String) data.getRight());
+    }
+
+    public String toDocumentCreate(String transaction, GtwOperationEnum op) {
+        return toDocument(transaction, op, null);
+    }
+
+    private static String toDocument(String transaction, GtwOperationEnum op, String id) {
         // Decode transaction as Bundle
         Bundle doc = deserializeResource(Bundle.class, transaction, true);
 
@@ -60,17 +69,13 @@ public class DocumentConverter {
         doc.getEntry().remove(composition.get());
         doc.getEntry().add(0, composition.get());
 
-        // Relates the resources
         for (Bundle.BundleEntryComponent entry : doc.getEntry()) {
-            if(ResourceType.DocumentReference.equals(entry.getResource().getResourceType()) && op.equals(REPLACE)) {
-                DocumentReference docRef = (DocumentReference)entry.getResource();
-                DocumentReference.DocumentReferenceRelatesToComponent relatesTo = new DocumentReference.DocumentReferenceRelatesToComponent();
-                relatesTo.setId(UUID.randomUUID().toString());
-                docRef.setRelatesTo(List.of(relatesTo));
-            }
             // Remove request from Document type
             entry.setRequest(null);
         }
+
+        // Apply relatesTo
+        if(op == REPLACE) addRelatesTo(doc, id);
 
         return serializeResource(doc, true, false, false);
     }

@@ -1,6 +1,12 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hl7.fhir.r4.model.Bundle;
+
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
 
 public class TransactionConverter {
 
@@ -16,8 +22,10 @@ public class TransactionConverter {
         String out = null;
         switch (op) {
             case CREATE:
-            case REPLACE:
                 out = toTransaction((String) data);
+                break;
+            case REPLACE:
+                out = toTransaction((Pair<?, ?>) data);
                 break;
             case UPDATE:
             case DELETE:
@@ -29,4 +37,14 @@ public class TransactionConverter {
     public String toTransaction(String transaction) {
         return transaction;
     }
+
+    public String toTransaction(Pair<?, ?> data) {
+        // Get bundle
+        Bundle bundle = deserializeResource(Bundle.class, (String) data.getKey(), true);
+        // Add related document
+        TransformUtility.addRelatesTo(bundle, (String) data.getValue());
+        // Return data
+        return serializeResource(bundle, true, true, false);
+    }
+
 }

@@ -35,7 +35,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.*;
@@ -50,20 +49,33 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility
 public interface ITransformerCTL {
   
 	@PostMapping(API_TRANSFORM_BY_OBJ)
-	@Operation(summary = "Generazione bundle/evento per creazione/sostituzione risorsa FHIR", description = "Generazione bundle tramite FHIR Mapping Engine.")
+	@Operation(summary = "Generazione bundle/evento per creazione risorsa FHIR", description = "Generazione bundle/evento tramite FHIR Mapping Engine.")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-	TransformResDTO createOrReplaceBundle(
+	TransformResDTO createBundle(
+			@RequestBody
+			FhirResourceDTO fhirResourceDTO,
+			@RequestParam(API_BUNDLE_TYPE_VAR)
+			BundleTypeEnum type
+	);
+
+	@PostMapping(API_TRANSFORM_META_BY_OBJ)
+	@Operation(summary = "Generazione bundle/evento per sostituzione risorsa FHIR", description = "Generazione bundle/evento tramite FHIR Mapping Engine.")
+	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+	TransformResDTO replaceBundle(
 			@RequestBody
 			FhirResourceDTO fhirResourceDTO,
 			@RequestParam(API_BUNDLE_TYPE_VAR)
 			BundleTypeEnum type,
-			@RequestParam(API_OPERATION_VAR)
-			GtwPostOperationEnum op,
-			HttpServletRequest request
+			@PathVariable
+			String id
 	);
 
 	@DeleteMapping(API_TRANSFORM_BY_OBJ)

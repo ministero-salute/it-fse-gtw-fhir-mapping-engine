@@ -23,27 +23,28 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.PutOrDeleteBundleEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwPostOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.IConverterSRV;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.bundle.BundleTypeEnum.TRANSACTION;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.DELETE;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.UPDATE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.*;
 
 
 /**
@@ -60,27 +61,13 @@ public class TransformerCTL implements ITransformerCTL {
 	private IConverterSRV converter;
 
 	@Override
-	public TransformResDTO createOrReplaceBundle(FhirResourceDTO dto, BundleTypeEnum type, GtwPostOperationEnum op, HttpServletRequest request) {
-		log.debug("Invoked transform controller");
-		TransformResDTO out = new TransformResDTO();
-		if(dto.getCda()!=null){
-			try {
-				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
-				
-				String cdaTrasformed = service.transform(
-					cdaString,
-					dto.getEngineId(),
-					dto.getObjectId(),
-					dto.getDocumentReferenceDTO()
-				);
-				Document doc = converter.convert(type, op.toGeneric(), cdaTrasformed);
-				out.setJson(doc);
-			} catch(Throwable tr) {
-				out.setErrorMessage(tr.getMessage());
-			}
-		}
-		log.debug("Conversion of CDA completed");
-		return out;
+	public TransformResDTO createBundle(FhirResourceDTO dto, BundleTypeEnum type) {
+		return transform(dto, type, CREATE, cda -> cda);
+	}
+
+	@Override
+	public TransformResDTO replaceBundle(FhirResourceDTO res, BundleTypeEnum type, String id) {
+		return transform(res, type, REPLACE, cda -> Pair.of(cda, id));
 	}
 
 	@Override
@@ -143,5 +130,26 @@ public class TransformerCTL implements ITransformerCTL {
 			throw new BusinessException(message, ex);
 		}
 		
+	}
+
+	private TransformResDTO transform(FhirResourceDTO dto, BundleTypeEnum type, GtwOperationEnum op, Function<String, Object> mapper) {
+		log.debug("Invoked transform controller");
+		TransformResDTO out = new TransformResDTO();
+		if(dto.getCda()!=null){
+			try {
+				String transaction = service.transform(
+						new String(dto.getCda().getBytes(),StandardCharsets.UTF_8),
+						dto.getEngineId(),
+						dto.getObjectId(),
+						dto.getDocumentReferenceDTO()
+				);
+				Document doc = converter.convert(type, op, mapper.apply(transaction));
+				out.setJson(doc);
+			} catch(Throwable tr) {
+				out.setErrorMessage(tr.getMessage());
+			}
+		}
+		log.debug("Conversion of CDA completed");
+		return out;
 	}
 }

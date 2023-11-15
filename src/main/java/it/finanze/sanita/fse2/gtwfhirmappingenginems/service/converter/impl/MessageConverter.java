@@ -3,11 +3,15 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.*;
+
+import java.util.function.Consumer;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper.createDocumentReference;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility.addRelatesTo;
 import static org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import static org.hl7.fhir.r4.model.Bundle.BundleType.MESSAGE;
 
@@ -24,8 +28,10 @@ public class MessageConverter {
         String out = null;
         switch (op) {
             case CREATE:
+                out = toMessageCreate((String) data);
+                break;
             case REPLACE:
-                out = toMessageCreateOrReplace((String) data);
+                out = toMessageReplace((Pair<?, ?>) data);
                 break;
             case DELETE:
                 out = toMessageDelete((String) data);
@@ -36,24 +42,15 @@ public class MessageConverter {
         return out;
     }
 
-    private String toMessageUpdate(DocumentReferenceDTO ref) {
-        // 1. Create new Bundle type as MESSAGE
-        Bundle msg = new Bundle();
-        msg.setType(MESSAGE);
-        // 2. First element is always the message header
-        msg.addEntry(createMessageHeader());
-        // 3. Create document reference
-        DocumentReference out = new DocumentReference();
-        BundleEntryComponent component = new BundleEntryComponent();
-        component.setResource(out);
-        // 4. Add reference
-        createDocumentReference(ref, out);
-        // 5. Set
-        msg.addEntry(component);
-        return serializeResource(msg, true, false, false);
+    private String toMessageCreate(String transaction) {
+        return toMessage(transaction, null);
     }
 
-    private String toMessageCreateOrReplace(String transaction) {
+    private String toMessageReplace(Pair<?, ?> data) {
+        return toMessage((String) data.getLeft(), bnd -> addRelatesTo(bnd, (String) data.getRight()));
+    }
+
+    private String toMessage(String transaction, Consumer<Bundle> fn) {
         // 1. Decode transaction as Bundle
         Bundle tx = deserializeResource(Bundle.class, transaction, true);
         // 2. Create new Bundle type as MESSAGE
@@ -70,6 +67,26 @@ public class MessageConverter {
             // 6. Add to the message
             msg.addEntry(current);
         }
+        // Additional call if needed
+        if(fn != null) fn.accept(msg);
+        // Return string
+        return serializeResource(msg, true, false, false);
+    }
+
+    private String toMessageUpdate(DocumentReferenceDTO ref) {
+        // 1. Create new Bundle type as MESSAGE
+        Bundle msg = new Bundle();
+        msg.setType(MESSAGE);
+        // 2. First element is always the message header
+        msg.addEntry(createMessageHeader());
+        // 3. Create document reference
+        DocumentReference out = new DocumentReference();
+        BundleEntryComponent component = new BundleEntryComponent();
+        component.setResource(out);
+        // 4. Add reference
+        createDocumentReference(ref, out);
+        // 5. Set
+        msg.addEntry(component);
         return serializeResource(msg, true, false, false);
     }
 
