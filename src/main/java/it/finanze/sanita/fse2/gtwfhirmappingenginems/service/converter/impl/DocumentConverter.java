@@ -28,9 +28,9 @@ public class DocumentConverter {
         String out = null;
         switch (op) {
             case CREATE:
-            case REPLACE:
                 out = toDocument((String) data, op);
                 break;
+            case REPLACE:
             case UPDATE:
             case DELETE:
                 throw new IllegalArgumentException("Unsupported operation for type document " + op.name());
