@@ -3,14 +3,12 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.ResourceType;
-
-import java.util.Optional;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum.REPLACE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility.addRelatesTo;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility.sortByComposition;
 import static org.hl7.fhir.r4.model.Bundle.BundleType.DOCUMENT;
 
 public class DocumentConverter {
@@ -54,20 +52,7 @@ public class DocumentConverter {
         // Create new Bundle as Document
         doc.setType(DOCUMENT);
 
-        // Find Composition from bundle
-        Optional<Bundle.BundleEntryComponent> composition = doc.getEntry()
-            .stream()
-            .filter(entry -> ResourceType.Composition.equals(entry.getResource().getResourceType()))
-            .findFirst();
-
-        // Integrity check
-        if (composition.isEmpty()) {
-            throw new IllegalStateException("Cannot transform transaction to document due to missing Composition");
-        }
-
-        // Place composition at the first position of entries
-        doc.getEntry().remove(composition.get());
-        doc.getEntry().add(0, composition.get());
+        sortByComposition(doc);
 
         for (Bundle.BundleEntryComponent entry : doc.getEntry()) {
             // Remove request from Document type
@@ -79,5 +64,7 @@ public class DocumentConverter {
 
         return serializeResource(doc, true, false, false);
     }
+
+
 
 }

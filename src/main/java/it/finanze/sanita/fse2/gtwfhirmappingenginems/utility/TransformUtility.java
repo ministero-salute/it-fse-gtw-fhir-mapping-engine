@@ -24,4 +24,22 @@ public class TransformUtility {
 			entry.setRelatesTo(List.of(relatesTo));
 		}
 	}
+
+	public static void sortByComposition(Bundle doc) {
+
+		// Find Composition from bundle
+		Optional<Bundle.BundleEntryComponent> composition = doc.getEntry()
+				.stream()
+				.filter(entry -> ResourceType.Composition.equals(entry.getResource().getResourceType()))
+				.findFirst();
+
+		// Integrity check
+		if (composition.isEmpty()) {
+			throw new IllegalStateException("Cannot sort Bundle due to missing Composition");
+		}
+
+		// Place composition at the first position of entries
+		doc.getEntry().remove(composition.get());
+		doc.getEntry().add(0, composition.get());
+	}
 }

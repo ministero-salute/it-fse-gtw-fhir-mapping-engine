@@ -12,6 +12,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentRefer
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility.addRelatesTo;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility.sortByComposition;
 import static org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import static org.hl7.fhir.r4.model.Bundle.BundleType.MESSAGE;
 
@@ -56,17 +57,19 @@ public class MessageConverter {
         // 2. Create new Bundle type as MESSAGE
         Bundle msg = new Bundle();
         msg.setType(MESSAGE);
-        // 3. First element is always the message header
-        msg.addEntry(createMessageHeader());
-        // 4. Iterate on each transaction entry
+        // 3. Iterate on each transaction entry
         for (BundleEntryComponent entry : tx.getEntry()) {
-            // 5. For each transaction entries, we omit the request entry and leave everything else as it is
+            // 4. For each transaction entries, we omit the request entry and leave everything else as it is
             BundleEntryComponent current = new BundleEntryComponent();
             current.setFullUrl(entry.getFullUrl());
             current.setResource(entry.getResource());
-            // 6. Add to the message
+            // 5. Add to the message
             msg.addEntry(current);
         }
+        // 6. Sort Bundle
+        sortByComposition(msg);
+        // 7. First element is always the message header
+        msg.getEntry().add(0, createMessageHeader());
         // Additional call if needed
         if(fn != null) fn.accept(msg);
         // Return string
