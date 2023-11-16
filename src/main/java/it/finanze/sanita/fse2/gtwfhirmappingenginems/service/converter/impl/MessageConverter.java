@@ -69,7 +69,7 @@ public class MessageConverter {
         // 6. Sort Bundle
         sortByComposition(msg);
         // 7. First element is always the message header
-        msg.getEntry().add(0, createMessageHeader());
+        msg.getEntry().add(0, createMessageHeader(op.id()));
         // Additional call if needed
         if(fn != null) fn.accept(msg);
         // Return string
@@ -81,7 +81,7 @@ public class MessageConverter {
         Bundle msg = new Bundle();
         msg.setType(MESSAGE);
         // 2. First element is always the message header
-        msg.addEntry(createMessageHeader());
+        msg.addEntry(createMessageHeader(op.id()));
         // 3. Create document reference
         DocumentReference out = new DocumentReference();
         BundleEntryComponent component = new BundleEntryComponent();
@@ -98,18 +98,18 @@ public class MessageConverter {
         Bundle msg = new Bundle();
         msg.setType(MESSAGE);
         // 2. First element is always the message header
-        msg.addEntry(createMessageHeader(id));
+        msg.addEntry(createMessageHeader(op.id(), id));
 
         return serializeResource(msg, true, false, false);
     }
 
-    private BundleEntryComponent createMessageHeader() {
-        return createMessageHeader(null);
+    private BundleEntryComponent createMessageHeader(String code) {
+        return createMessageHeader(code, null);
     }
 
-    private BundleEntryComponent createMessageHeader(String ref) {
+    private BundleEntryComponent createMessageHeader(String code, String ref) {
         return createMessageHeader(
-            null,
+            code,
             "MyAppSource",
             "ep",
             "http://hl7.org/fhir/message-events",
