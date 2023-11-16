@@ -4,6 +4,10 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.DocumentReference;
+import org.hl7.fhir.r4.model.ResourceType;
+
+import java.util.Optional;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.serializeResource;
@@ -27,8 +31,10 @@ public class TransactionConverter {
             case REPLACE:
                 out = toTransaction((Pair<?, ?>) data);
                 break;
-            case UPDATE:
             case DELETE:
+                out = toTransactionDelete((String) data);
+                break;
+            case UPDATE:
                 throw new IllegalArgumentException("Unsupported operation for type document " + op.name());
         }
         return out;
@@ -46,5 +52,21 @@ public class TransactionConverter {
         // Return data
         return serializeResource(bundle, true, true, false);
     }
+
+    public String toTransactionDelete(String transaction){
+        // Get bundle
+        Bundle bundle = deserializeResource(Bundle.class, transaction, true);
+        // Get Document Reference
+        Optional<Bundle.BundleEntryComponent> documentReference = bundle.getEntry().stream().filter(elem -> ResourceType.DocumentReference.equals(elem.getResource().getResourceType())).findFirst();
+        if (documentReference.isPresent()){
+            // Create Bundle for delete
+            TransformUtility.prepareForDelete(bundle, (DocumentReference) documentReference.get().getResource());
+        }else {
+            throw new IllegalArgumentException("Document Reference not present in converted Bundle");
+        }
+        // Return data
+        return serializeResource(bundle, true, true, false);
+    }
+
 
 }

@@ -86,9 +86,9 @@ public interface ITransformerCTL {
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
 	TransformResDTO deleteBundle(
-			@RequestParam(API_QP_ID)
-			String id,
-			@RequestParam(API_BUNDLE_TYPE_VAR)
+			@RequestBody
+			FhirResourceDTO cda,
+			@RequestParam(value = API_BUNDLE_TYPE_VAR)
 			PutOrDeleteBundleEnum type
 	);
 

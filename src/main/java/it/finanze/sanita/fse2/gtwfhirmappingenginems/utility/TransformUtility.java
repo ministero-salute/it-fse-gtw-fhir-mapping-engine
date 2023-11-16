@@ -1,9 +1,8 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.utility;
 
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.DocumentReference;
-import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,5 +40,50 @@ public class TransformUtility {
 		// Place composition at the first position of entries
 		doc.getEntry().remove(composition.get());
 		doc.getEntry().add(0, composition.get());
+	}
+
+	public static final List<Class<?>> IMMUTABLE_RESOURCES = Arrays.asList(
+			Patient.class,
+			Practitioner.class,
+			Organization.class,
+			Location.class
+	);
+
+	public static void prepareForDelete(Bundle bundle, DocumentReference documentReference) {
+		bundle.setType(Bundle.BundleType.TRANSACTION);
+		bundle.getEntry().add(getBundleEntryComponent(documentReference));
+		bundle.getEntry().removeIf(TransformUtility::isImmutable);
+		bundle.getEntry().forEach(TransformUtility::setDeletionRequest);
+	}
+
+	private static void setDeletionRequest(Bundle.BundleEntryComponent entry) {
+		Bundle.BundleEntryRequestComponent request = new Bundle.BundleEntryRequestComponent();
+		request.setMethod(Bundle.HTTPVerb.DELETE);
+		request.setUrl(getUrl(entry));
+		entry.setRequest(request);
+		entry.setFullUrl(null);
+		entry.setSearch(null);
+	}
+
+	private static String getUrl(Bundle.BundleEntryComponent entry) {
+		IdType idType = entry.getResource().getIdElement();
+		return idType.getResourceType() + "/" + idType.getIdPart();
+	}
+
+
+	private static Bundle.BundleEntryComponent getBundleEntryComponent(DocumentReference documentReference) {
+		Bundle.BundleEntryComponent component = new Bundle.BundleEntryComponent();
+		component.setResource(documentReference);
+		return component;
+	}
+
+	private static boolean isImmutable(Bundle.BundleEntryComponent bundleEntryComponent) {
+		return isImmutable(bundleEntryComponent.getResource());
+	}
+
+	private static boolean isImmutable(Resource resource) {
+		return IMMUTABLE_RESOURCES
+				.stream()
+				.anyMatch(immutableResource -> resource.getClass() == immutableResource);
 	}
 }

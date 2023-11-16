@@ -71,26 +71,25 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 
 	@Override
-	public TransformResDTO deleteBundle(String id, PutOrDeleteBundleEnum type) {
-		log.debug("Invoke conversion bundle");
-		TransformResDTO out = new TransformResDTO();
-		if (type == null) type = PutOrDeleteBundleEnum.MESSAGE;
-
-		try{
-			Document doc = converter.convert(type.toGeneric(), DELETE, id);
-			out.setJson(doc);
-			log.debug("Conversion completed");
-		}catch (Throwable tr){
-			out.setErrorMessage(tr.getMessage());
+	public TransformResDTO deleteBundle(FhirResourceDTO dto, PutOrDeleteBundleEnum type) {
+		switch (type){
+			case TRANSACTION:
+				return transform(dto, type.toGeneric(), DELETE, cda -> cda);
+			case MESSAGE:
+				TransformResDTO out = new TransformResDTO();
+				Document doc = converter.convert(type.toGeneric(), DELETE, dto.getDocumentReferenceDTO().getIdentificativoDoc());
+				out.setJson(doc);
+				return out;
+			default:
+				throw new IllegalArgumentException("Type not supported for DELETE operation");
 		}
-		return out;
+
 	}
 
 	@Override
 	public TransformResDTO updateMetadata(DocumentReferenceDTO ref, PutOrDeleteBundleEnum type) {
 		log.debug("Invoke conversion Bundle");
 		TransformResDTO out = new TransformResDTO();
-		if (type == null) type = PutOrDeleteBundleEnum.MESSAGE;
 
 		try{
 			Document doc = converter.convert(type.toGeneric(), UPDATE, ref);
