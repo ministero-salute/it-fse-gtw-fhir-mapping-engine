@@ -1,12 +1,15 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.converter.impl;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.op.GtwOperationEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.TransformUtility;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DocumentReference;
 import org.hl7.fhir.r4.model.ResourceType;
 
+import java.util.List;
 import java.util.Optional;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FHIRR4Helper.deserializeResource;
@@ -23,7 +26,7 @@ public class TransactionConverter {
     }
 
     public String convert() {
-        String out = null;
+        String out;
         switch (op) {
             case CREATE:
                 out = toTransaction((String) data);
@@ -35,6 +38,9 @@ public class TransactionConverter {
                 out = toTransactionDelete((String) data);
                 break;
             case UPDATE:
+                out = toTransactionUpdate((DocumentReferenceDTO) data);
+                break;
+            default:
                 throw new IllegalArgumentException("Unsupported operation for type document " + op.name());
         }
         return out;
@@ -64,6 +70,21 @@ public class TransactionConverter {
         }else {
             throw new IllegalArgumentException("Document Reference not present in converted Bundle");
         }
+        // Return data
+        return serializeResource(bundle, true, true, false);
+    }
+
+    public String toTransactionUpdate(DocumentReferenceDTO ref){
+        // Create Bundle
+        Bundle bundle = new Bundle();
+        bundle.setType(Bundle.BundleType.TRANSACTION);
+        // Create Document Reference
+        Bundle.BundleEntryComponent entry = new Bundle.BundleEntryComponent();
+        DocumentReference dr = new DocumentReference();
+        DocumentReferenceHelper.createDocumentReference(ref, dr);
+        entry.setResource(dr);
+        // Insert Document Reference
+        bundle.setEntry(List.of(entry));
         // Return data
         return serializeResource(bundle, true, true, false);
     }
