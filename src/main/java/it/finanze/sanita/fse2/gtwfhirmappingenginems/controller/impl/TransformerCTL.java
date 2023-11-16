@@ -77,7 +77,11 @@ public class TransformerCTL implements ITransformerCTL {
 				return transform(dto, type.toGeneric(), DELETE, cda -> cda);
 			case MESSAGE:
 				TransformResDTO out = new TransformResDTO();
-				Document doc = converter.convert(type.toGeneric(), DELETE, dto.getDocumentReferenceDTO().getIdentificativoDoc());
+				Document doc = converter.convert(
+					type.toGeneric(),
+					DELETE,
+					dto.getDocumentReferenceDTO().getIdentificativoDoc()
+				);
 				out.setJson(doc);
 				return out;
 			default:
