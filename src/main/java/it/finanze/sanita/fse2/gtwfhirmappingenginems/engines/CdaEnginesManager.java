@@ -27,6 +27,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineExce
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.hl7.fhir.r4.model.Bundle;
@@ -53,15 +54,18 @@ public class CdaEnginesManager {
     private final ConcurrentHashMap<String, Engine> engines;
     private volatile boolean ready;
     private volatile boolean running;
+    private final ProfileUtility profiles;
 
     public CdaEnginesManager(
         @Autowired IConfigClient client,
         @Autowired IEngineRepo repository,
-        @Autowired EngineBuilder builder
+        @Autowired EngineBuilder builder,
+        @Autowired ProfileUtility profiles
     ) {
         this.client = client;
         this.repository = repository;
         this.builder = builder;
+        this.profiles = profiles;
         this.engines = new ConcurrentHashMap<>();
         this.ready = false;
     }
@@ -127,15 +131,20 @@ public class CdaEnginesManager {
 
     public boolean cleanup() {
         boolean out = false;
-        try {
-            log.info("Reaching gtw-config to retrieve data retention");
-            int days = client.getDataRetention();
-            log.info("Removing engines obsoletes more than {} days", days);
-            int cleanup = repository.cleanup(removeAt(-days));
-            log.info("Removed {} engines", cleanup);
+        if(profiles.isDevProfile()) {
+            log.info("Skipping clean-up because running with dev-mode");
             out = true;
-        } catch (Exception e) {
-            log.error("Unable to perform clean-up engine operation", e);
+        } else {
+            try {
+                log.info("Reaching gtw-config to retrieve data retention");
+                int days = client.getDataRetention();
+                log.info("Removing engines obsoletes more than {} days", days);
+                int cleanup = repository.cleanup(removeAt(-days));
+                log.info("Removed {} engines", cleanup);
+                out = true;
+            } catch (Exception e) {
+                log.error("Unable to perform clean-up engine operation", e);
+            }
         }
         return out;
     }
