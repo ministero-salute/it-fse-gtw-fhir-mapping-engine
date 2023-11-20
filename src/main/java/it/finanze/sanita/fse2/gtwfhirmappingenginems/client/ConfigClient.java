@@ -3,8 +3,10 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.client;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.client.routes.ConfigClientRoutes;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.client.config.ConfigItemDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.client.config.ConfigItemsDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,10 +27,34 @@ public class ConfigClient implements IConfigClient {
     @Autowired
     private RestTemplate client;
 
+    @Autowired
+    private ProfileUtility profiles;
+
+    @Value("${cfg.retention-days.fallback}")
+    private Integer fallbackDataRetention;
+
     @Override
     public int getDataRetention() {
+        int days;
+        try{
+            // 1. Get Data Retention from gtw-config
+            days = obtainDataRetention();
+        }catch (Exception ex){
+            // 2. If it's docker profile, it-fse-gtw-config may not be running due to container-lite mode
+            if (profiles.isDockerProfile()){
+                log.warn("Unable to reach gtw-config, falling back to {} for data retention days", fallbackDataRetention);
+                days = fallbackDataRetention;
+            }else{
+                // 3. If it's not docker profile, there may be a problem in it-fse-gtw-config
+                throw ex;
+            }
+        }
+        return days;
+    }
 
-        int out = -1;
+    private int obtainDataRetention() {
+
+        int out;
 
         String endpoint = routes.getConfigItemsGarbage();
 
