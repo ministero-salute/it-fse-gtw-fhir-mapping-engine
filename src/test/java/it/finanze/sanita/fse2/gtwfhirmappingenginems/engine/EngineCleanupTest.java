@@ -17,9 +17,9 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.client.IConfigClient;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractCleanupEngineTest;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,7 +41,7 @@ public class EngineCleanupTest extends AbstractCleanupEngineTest {
     private static final int DAYS_AFTER_INSERTION = 5;
 
     @MockBean
-    private IConfigClient client;
+    private IConfigSRV config;
 
     @BeforeEach
     void onEachSetup() {
@@ -52,7 +52,7 @@ public class EngineCleanupTest extends AbstractCleanupEngineTest {
     @Test
     @DisplayName("Do not remove any engine (none available)")
     void emptyEngines() throws OperationException {
-        when(client.getDataRetention()).thenReturn(DAYS_AFTER_INSERTION);
+        when(config.getRetentionDay()).thenReturn(DAYS_AFTER_INSERTION);
         assertTrue(repository.find().isEmpty(), "engines should not be inserted before testing the empty deletion");
         assertDoesNotThrow(() -> service.manager().cleanup());
         assertTrue(repository.find().isEmpty());
@@ -61,7 +61,7 @@ public class EngineCleanupTest extends AbstractCleanupEngineTest {
     @Test
     @DisplayName("Do not remove any engine (only one available)")
     void noEngines() throws OperationException {
-        when(client.getDataRetention()).thenReturn(DAYS_AFTER_INSERTION);
+        when(config.getRetentionDay()).thenReturn(DAYS_AFTER_INSERTION);
         final int size = 1;
         spawnFakeEngines(size, DAYS_AFTER_INSERTION);
         assertFalse(repository.find().isEmpty(), "engines should be inserted before testing the deletion");
@@ -72,7 +72,7 @@ public class EngineCleanupTest extends AbstractCleanupEngineTest {
     @Test
     @DisplayName("Do not remove any engine (none expired)")
     void noEnginesExpired() throws OperationException {
-        when(client.getDataRetention()).thenReturn(DAYS_AFTER_INSERTION);
+        when(config.getRetentionDay()).thenReturn(DAYS_AFTER_INSERTION);
         final int size = 5;
         spawnFakeEngines(size, DAYS_AFTER_INSERTION - 2);
         assertFalse(repository.find().isEmpty(), "engines should be inserted before testing the deletion");
@@ -83,7 +83,7 @@ public class EngineCleanupTest extends AbstractCleanupEngineTest {
     @Test
     @DisplayName("Remove expired engines (not unexpired one)")
     void multipleEngines() throws OperationException {
-        when(client.getDataRetention()).thenReturn(DAYS_AFTER_INSERTION);
+        when(config.getRetentionDay()).thenReturn(DAYS_AFTER_INSERTION);
 
         final int unexpired = 5;
         final int expired = 10;

@@ -17,7 +17,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.client.IConfigClient;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.EngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
@@ -27,6 +26,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineExce
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -48,7 +48,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENG
 @Component
 public class CdaEnginesManager {
 
-    private final IConfigClient client;
+    private final IConfigSRV config;
     private final IEngineRepo repository;
     private final EngineBuilder builder;
     private final ConcurrentHashMap<String, Engine> engines;
@@ -57,12 +57,12 @@ public class CdaEnginesManager {
     private final ProfileUtility profiles;
 
     public CdaEnginesManager(
-        @Autowired IConfigClient client,
+        @Autowired IConfigSRV config,
         @Autowired IEngineRepo repository,
         @Autowired EngineBuilder builder,
         @Autowired ProfileUtility profiles
     ) {
-        this.client = client;
+        this.config = config;
         this.repository = repository;
         this.builder = builder;
         this.profiles = profiles;
@@ -137,7 +137,7 @@ public class CdaEnginesManager {
         } else {
             try {
                 log.info("Reaching gtw-config to retrieve data retention");
-                int days = client.getDataRetention();
+                int days = config.getRetentionDay();
                 log.info("Removing engines obsoletes more than {} days", days);
                 int cleanup = repository.cleanup(removeAt(-days));
                 log.info("Removed {} engines", cleanup);

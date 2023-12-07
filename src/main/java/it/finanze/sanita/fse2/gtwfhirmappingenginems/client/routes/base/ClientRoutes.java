@@ -25,11 +25,14 @@ public final class ClientRoutes {
         // ENDPOINT
         public static final String API_VERSION = "v1";
         public static final String API_CONFIG_ITEMS = "config-items";
+        public static final String API_PROPS = "props";
+        public static final String API_STATUS = "status";
+        public static final String API_WHOIS = "whois";
         // QP
         public static final String QP_TYPE = "type";
-        public static final String QP_TYPE_GARBAGE = "GARBAGE";
-
-        public static final String CFG_ITEMS_RETENTION_DAY = "CFG_ITEMS_RETENTION_DAY";
+        public static final String QP_PROPS = "props";
+        // VALUES
+        public static final String CFG_ITEMS_RETENTION_DAY = "cfg-items-retention-day";
 
     }
 

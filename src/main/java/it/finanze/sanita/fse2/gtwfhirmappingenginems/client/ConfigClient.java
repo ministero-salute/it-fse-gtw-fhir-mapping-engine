@@ -2,69 +2,51 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.client;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.client.routes.ConfigClientRoutes;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.client.config.ConfigItemDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.client.config.ConfigItemsDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ConfigItemTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.client.routes.base.ClientRoutes.Config.CFG_ITEMS_RETENTION_DAY;
-import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
 @Component
 public class ConfigClient implements IConfigClient {
 
+    /**
+     * Config host.
+     */
     @Autowired
     private ConfigClientRoutes routes;
 
     @Autowired
     private RestTemplate client;
 
+
     @Override
-    public int getDataRetention() {
+    public ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type) {
+        return client.getForObject(routes.getConfigItems(type), ConfigItemDTO.class);
+    }
 
-        int out = -1;
-
-        String endpoint = routes.getConfigItemsGarbage();
-
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
-
-        // Execute request
-        ResponseEntity<ConfigItemsDTO> response = client.exchange(
-            endpoint,
-            GET,
-            new HttpEntity<>(getJsonHeader()),
-            ConfigItemsDTO.class
-        );
-        // Retrieve body
-        ConfigItemsDTO output = response.getBody();
-        // Verify
-        if (
-            output != null &&
-            output.getConfigurationItems() != null &&
-            output.getConfigurationItems().get(0) != null
-        ) {
-            // Retrieve document
-            ConfigItemDTO item = output.getConfigurationItems().get(0);
-            // Get value
-            String value = item.getItems().get(CFG_ITEMS_RETENTION_DAY);
-            // Parse
-            out = Integer.parseInt(value);
-        } else {
-            throw new IllegalArgumentException("Configuration item cannot be null");
+    @Override
+    public String getProps(ConfigItemTypeEnum type, String props, String previous) {
+        String out = previous;
+        String endpoint = routes.getConfigItem(type, props);
+        if (isReachable()) out = client.getForObject(endpoint, String.class);
+        if(out == null || !out.equals(previous)) {
+            log.info("[GTW-CFG] Property {} is set as {} (previously: {})", props, out, previous);
         }
-
         return out;
     }
 
-    private HttpHeaders getJsonHeader() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        return headers;
+
+    private boolean isReachable() {
+        try {
+            final String endpoint = routes.status();
+            client.getForEntity(endpoint, String.class);
+            return true;
+        } catch (ResourceAccessException clientException) {
+            return false;
+        }
     }
 }

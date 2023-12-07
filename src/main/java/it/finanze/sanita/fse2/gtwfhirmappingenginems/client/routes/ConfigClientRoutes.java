@@ -11,6 +11,7 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.client.routes;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ConfigItemTypeEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -36,12 +37,35 @@ public final class ConfigClientRoutes {
         return IDENTIFIER_MS;
     }
 
-    public String getConfigItemsGarbage() {
+    public String status() {
         return base()
-            .pathSegment(API_VERSION, API_CONFIG_ITEMS)
-            .queryParam(QP_TYPE, QP_TYPE_GARBAGE)
-            .build()
-            .toUriString();
+                .pathSegment(API_STATUS)
+                .build()
+                .toUriString();
+    }
+
+    public String whois() {
+        return base()
+                .pathSegment(API_WHOIS)
+                .build()
+                .toUriString();
+    }
+
+    public String getConfigItem(ConfigItemTypeEnum type, String props) {
+        return base()
+                .pathSegment(API_VERSION, API_CONFIG_ITEMS, API_PROPS)
+                .queryParam(QP_TYPE, type.name())
+                .queryParam(QP_PROPS, props)
+                .build()
+                .toUriString();
+    }
+
+    public String getConfigItems(ConfigItemTypeEnum type) {
+        return base()
+                .pathSegment(API_VERSION, API_CONFIG_ITEMS)
+                .queryParam(QP_TYPE, type.name())
+                .build()
+                .toUriString();
     }
 
 }
