@@ -45,8 +45,8 @@ public class ConfigSRV implements IConfigSRV {
                     log.info("[GTW-CFG] Property {} is set as {}", key, value);
                     props.put(key, Pair.of(new Date().getTime(), value));
                 });
-                if(opt.getItems().isEmpty()) log.info("[GTW-CFG] No props were found");
             }
+            if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
         }
     }
 
