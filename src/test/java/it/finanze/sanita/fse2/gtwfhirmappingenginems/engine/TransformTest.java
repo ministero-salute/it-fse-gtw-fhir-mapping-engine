@@ -17,16 +17,8 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
-import java.io.FileWriter;
-import java.io.IOException;
-
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,8 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import java.io.IOException;
+
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles(TEST)
@@ -61,13 +59,8 @@ class TransformTest extends AbstractEngineTest {
             LAB_ENGINE.engineId(),
             LAB_ENGINE.transformId(),
             null);
-		
+
 		assertNotNull(json);
-		
-		String filePath = "src/test/resources/transform-test.json"; 
-	    try (FileWriter fileWriter = new FileWriter(filePath)) {
-			fileWriter.write(json);
-		}
 	}
 	
 }

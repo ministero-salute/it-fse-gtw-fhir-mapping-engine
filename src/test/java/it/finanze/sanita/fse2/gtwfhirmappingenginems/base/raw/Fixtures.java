@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY.FIELD_LAST_SYNC;
 
 public enum Fixtures {
     BASE_PATH(Paths.get("src", "test", "resources", "fixtures")),
@@ -54,6 +57,14 @@ public enum Fixtures {
         for (JsonNode node : root) {
             docs.add(Document.parse(node.toString()));
         }
+        return docs;
+    }
+
+    public List<Document> asFreshDocuments() throws IOException {
+        List<Document> docs = new ArrayList<>();
+        JsonNode root = new ObjectMapper().readTree(this.file());
+        for (JsonNode node : root) docs.add(Document.parse(node.toString()));
+        for (Document doc : docs) doc.replace(FIELD_LAST_SYNC, new Date());
         return docs;
     }
 }

@@ -22,10 +22,12 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationExceptio
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -39,6 +41,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw.Fixtures.EN
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw.Fixtures.TRANSFORM;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY.FIELD_ID;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.when;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -62,14 +65,20 @@ public abstract class AbstractEngineTest {
     @SpyBean
     protected IEngineSRV engines;
 
+    @MockBean
+    private IConfigSRV config;
+
     protected void initDb() throws IOException {
         // Reset data
         resetDb();
         // Read fixtures
-        insert(ENGINES.asDocuments(), EngineETY.class);
+        insert(ENGINES.asFreshDocuments(), EngineETY.class);
         insert(TRANSFORM.asDocuments(), TransformETY.class);
+        // Mock gtw-config
+        when(config.getRetentionDay()).thenReturn(5);
     }
     protected void initEngine() {
+        // Run refresh
         engines.manager().refreshSync();
     }
 
