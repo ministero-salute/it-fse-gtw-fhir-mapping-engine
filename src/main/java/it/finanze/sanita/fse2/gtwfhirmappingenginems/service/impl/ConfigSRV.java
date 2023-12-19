@@ -51,7 +51,7 @@ public class ConfigSRV implements IConfigSRV {
     public int getRetentionDay(){
         long lastUpdate = props.get(CFG_ITEMS_RETENTION_DAY).getKey();
         if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-            synchronized(ConfigSRV.class) {
+            synchronized(Locks.CFG_ITEMS_RETENTION_DAY) {
                 if (new Date().getTime() - lastUpdate >= DELTA_MS) {
                     refresh(CFG_ITEMS_RETENTION_DAY);
                 }
@@ -79,6 +79,10 @@ public class ConfigSRV implements IConfigSRV {
             }
             if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
         }
+    }
+
+    private static final class Locks {
+        public static final Object CFG_ITEMS_RETENTION_DAY = new Object();
     }
 
 }
