@@ -24,8 +24,6 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ConfigItemType
 @Slf4j
 public class ConfigSRV implements IConfigSRV {
 
-    private static final long DELTA_MS = 300_000L;
-
     @Autowired
     private IConfigClient client;
 
@@ -40,7 +38,7 @@ public class ConfigSRV implements IConfigSRV {
 
     @PostConstruct
     public void postConstruct() {
-        if(!profiles.isTestProfile()) {
+        if (!profiles.isTestProfile()) {
             init();
         } else {
             log.info("Skipping gtw-config initialization due to test profile");
@@ -48,11 +46,11 @@ public class ConfigSRV implements IConfigSRV {
     }
 
     @Override
-    public int getRetentionDay(){
+    public int getRetentionDay() {
         long lastUpdate = props.get(CFG_ITEMS_RETENTION_DAY).getKey();
-        if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-            synchronized(Locks.CFG_ITEMS_RETENTION_DAY) {
-                if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+        if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
+            synchronized (Locks.CFG_ITEMS_RETENTION_DAY) {
+                if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
                     refresh(CFG_ITEMS_RETENTION_DAY);
                 }
             }
@@ -79,6 +77,11 @@ public class ConfigSRV implements IConfigSRV {
             }
             if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
         }
+    }
+
+    @Override
+    public long getRefreshRate() {
+        return 300_000L;
     }
 
     private static final class Locks {
