@@ -17,9 +17,9 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
-import brave.Tracer;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 
 /**
  *	Abstract controller.
@@ -27,15 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractCTL {
 
 	@Autowired
-	private Tracer tracer;
-   
+	private org.springframework.cloud.sleuth.Tracer tracer;
 	protected LogTraceInfoDTO getLogTraceInfo() {
 		LogTraceInfoDTO out = new LogTraceInfoDTO(null, null);
 		if (tracer.currentSpan() != null) {
 			out = new LogTraceInfoDTO(
-					tracer.currentSpan().context().spanIdString(), 
-					tracer.currentSpan().context().traceIdString());
+					tracer.currentSpan().context().spanId(),
+					tracer.currentSpan().context().traceId());
 		}
 		return out;
 	}
+  
 }
