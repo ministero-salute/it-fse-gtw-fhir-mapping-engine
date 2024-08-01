@@ -17,28 +17,12 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
-import com.google.gson.Gson;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import lombok.extern.slf4j.Slf4j;
-import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.r4.formats.JsonParser;
-import org.hl7.fhir.r4.model.*;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Base;
@@ -51,21 +35,14 @@ import org.hl7.fhir.r4.model.Property;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 
-import ch.ahdis.matchbox.engine.CdaMappingEngine;
-import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.NotFoundException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import lombok.extern.slf4j.Slf4j;

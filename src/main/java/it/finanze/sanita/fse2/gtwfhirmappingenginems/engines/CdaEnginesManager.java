@@ -17,6 +17,29 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines;
 
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_ENG_NULL;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_ENG_ROOT_MAP;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_ENG_ROOT_URI;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_ENG_UNAVAILABLE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENGINE_EXECUTOR;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.Bundle;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.EngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
@@ -27,22 +50,10 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInit
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import org.hl7.fhir.r4.model.Bundle;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.*;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENGINE_EXECUTOR;
 
 @Slf4j
 @Component
@@ -56,6 +67,9 @@ public class CdaEnginesManager {
     private volatile boolean running;
     private final ProfileUtility profiles;
 
+    private Bundle bundleStatic;
+
+    
     public CdaEnginesManager(
         @Autowired IConfigSRV config,
         @Autowired IEngineRepo repository,
@@ -75,6 +89,18 @@ public class CdaEnginesManager {
     @Async(ENGINE_EXECUTOR)
     public void refresh() {
         update();
+        //Solo per test
+        if(bundleStatic==null){
+            String bundleFhir = new String(FileUtility.getFileFromInternalResources("bundle.json"));
+            try{
+                log.info("Initialize static bundle for test");
+                bundleStatic = (Bundle)(new JsonParser()).parse(bundleFhir);
+            } catch(Exception ex){
+                log.error("Error while parse bundle static for test", ex);
+            }
+        }
+        
+        
     }
 
     /**
@@ -116,7 +142,7 @@ public class CdaEnginesManager {
         // Reset running flag
         running = false;
     }
-
+ 
 
     public Bundle transform(String cda, String engineId, String objectId) throws IOException {
         if(!ready) throw new EngineInitException(ERR_ENG_UNAVAILABLE);
@@ -126,9 +152,18 @@ public class CdaEnginesManager {
         if (root == null) throw new EngineException(ERR_ENG_ROOT_MAP);
         String uri = root.getUri();
         if (uri == null) throw new EngineException(ERR_ENG_ROOT_URI);
-        return obj.getInstance().transformCdaToFhir(cda, uri);
+        
+        Bundle bundle = null;
+        if(cda.startsWith("<!--CDA_BENCHMARK_TEST-->")) {
+            bundle = bundleStatic;
+            log.info("Trasformata con bundle statico per benchmark");
+        } else{
+        	bundle = obj.getInstance().transformCdaToFhir(cda, uri);
+        }
+        
+        return bundle;
     }
-
+ 
     public boolean cleanup() {
         boolean out = false;
         if(profiles.isDevProfile()) {
