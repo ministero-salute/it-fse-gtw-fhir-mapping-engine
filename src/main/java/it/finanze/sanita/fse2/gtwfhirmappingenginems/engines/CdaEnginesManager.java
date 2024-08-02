@@ -24,6 +24,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Log
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENGINE_EXECUTOR;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -88,7 +89,7 @@ public class CdaEnginesManager {
     @PostConstruct
     void postConstruct() {
         if (bundleStatic == null) {
-            String bundleFhir = new String(FileUtility.getFileFromInternalResources("bundle.json"));
+            String bundleFhir = new String(FileUtility.getFileFromInternalResources("bundle.json"), StandardCharsets.UTF_8);
             try {
                 log.info("Initialize static bundle for test");
                 bundleStatic = (Bundle) (new JsonParser()).parse(bundleFhir);
