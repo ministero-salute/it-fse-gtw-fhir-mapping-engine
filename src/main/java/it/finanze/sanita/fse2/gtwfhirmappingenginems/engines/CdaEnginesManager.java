@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,13 +71,11 @@ public class CdaEnginesManager {
 
     private Bundle bundleStatic;
 
-    
     public CdaEnginesManager(
-        @Autowired IConfigSRV config,
-        @Autowired IEngineRepo repository,
-        @Autowired EngineBuilder builder,
-        @Autowired ProfileUtility profiles
-    ) {
+            @Autowired IConfigSRV config,
+            @Autowired IEngineRepo repository,
+            @Autowired EngineBuilder builder,
+            @Autowired ProfileUtility profiles) {
         this.config = config;
         this.repository = repository;
         this.builder = builder;
@@ -84,28 +84,33 @@ public class CdaEnginesManager {
         this.ready = false;
     }
 
+    // Solo per test
+    @PostConstruct
+    void postConstruct() {
+        if (bundleStatic == null) {
+            String bundleFhir = new String(FileUtility.getFileFromInternalResources("bundle.json"));
+            try {
+                log.info("Initialize static bundle for test");
+                bundleStatic = (Bundle) (new JsonParser()).parse(bundleFhir);
+            } catch (Exception ex) {
+                log.error("Error while parse bundle static for test", ex);
+            }
+        }
+    }
+
     @Scheduled(cron = "${engine.scheduler.invoke}")
     @SchedulerLock(name = "invokeGTWEngineScheduler")
     @Async(ENGINE_EXECUTOR)
     public void refresh() {
         update();
-        //Solo per test
-        if(bundleStatic==null){
-            String bundleFhir = new String(FileUtility.getFileFromInternalResources("bundle.json"));
-            try{
-                log.info("Initialize static bundle for test");
-                bundleStatic = (Bundle)(new JsonParser()).parse(bundleFhir);
-            } catch(Exception ex){
-                log.error("Error while parse bundle static for test", ex);
-            }
-        }
-        
-        
     }
 
     /**
-     * <p><b>DO NOT USE</b> this method for any other purpose than testing.</p>
+     * <p>
+     * <b>DO NOT USE</b> this method for any other purpose than testing.
+     * </p>
      * Use the asynchronous version of this method for production
+     * 
      * @see CdaEnginesManager#refresh()
      */
     public void refreshSync() {
@@ -113,7 +118,9 @@ public class CdaEnginesManager {
     }
 
     /**
-     * <p><b>DO NOT USE</b> this method for any other purpose than testing.</p>
+     * <p>
+     * <b>DO NOT USE</b> this method for any other purpose than testing.
+     * </p>
      * This method clear the engines memory and reset the ready flag
      */
     public void reset() {
@@ -126,7 +133,7 @@ public class CdaEnginesManager {
         running = true;
         log.info("Beginning engine refreshing process");
         // Remove obsolete engines
-        if(cleanup()) {
+        if (cleanup()) {
             // Retrieve available one
             List<EngineETY> lists = lists();
             // Start un-registering process
@@ -134,7 +141,8 @@ public class CdaEnginesManager {
             // Start registering process
             register(lists);
             // Set flag (start-up only)
-            if(!ready) ready = true;
+            if (!ready)
+                ready = true;
         } else {
             log.error("Aborting engine refreshing process");
         }
@@ -142,31 +150,34 @@ public class CdaEnginesManager {
         // Reset running flag
         running = false;
     }
- 
 
     public Bundle transform(String cda, String engineId, String objectId) throws IOException {
-        if(!ready) throw new EngineInitException(ERR_ENG_UNAVAILABLE);
+        if (!ready)
+            throw new EngineInitException(ERR_ENG_UNAVAILABLE);
         Engine obj = engines.get(engineId);
-        if (obj == null) throw new EngineException(ERR_ENG_NULL);
+        if (obj == null)
+            throw new EngineException(ERR_ENG_NULL);
         RootData root = obj.getRoots().get(objectId);
-        if (root == null) throw new EngineException(ERR_ENG_ROOT_MAP);
+        if (root == null)
+            throw new EngineException(ERR_ENG_ROOT_MAP);
         String uri = root.getUri();
-        if (uri == null) throw new EngineException(ERR_ENG_ROOT_URI);
-        
+        if (uri == null)
+            throw new EngineException(ERR_ENG_ROOT_URI);
+
         Bundle bundle = null;
-        if(cda.startsWith("<!--CDA_BENCHMARK_TEST-->")) {
+        if (cda.startsWith("<!--CDA_BENCHMARK_TEST-->")) {
             bundle = bundleStatic;
             log.info("Trasformata con bundle statico per benchmark");
-        } else{
-        	bundle = obj.getInstance().transformCdaToFhir(cda, uri);
+        } else {
+            bundle = obj.getInstance().transformCdaToFhir(cda, uri);
         }
-        
+
         return bundle;
     }
- 
+
     public boolean cleanup() {
         boolean out = false;
-        if(profiles.isDevProfile()) {
+        if (profiles.isDevProfile()) {
             log.info("Skipping clean-up because running with dev-mode");
             out = true;
         } else {
@@ -205,16 +216,17 @@ public class CdaEnginesManager {
         }
         return list;
     }
+
     private void register(List<EngineETY> list) {
         for (EngineETY e : list) {
             // Retrieve engine id
             String id = e.getId();
             // Check if instance exists
-            if(!engines.containsKey(id)) {
+            if (!engines.containsKey(id)) {
                 // Spawn engine
                 Optional<Engine> engine = create(id);
                 // Consistency check
-                if(engine.isPresent()) {
+                if (engine.isPresent()) {
                     // Update
                     engines.put(id, engine.get());
                     // Mark as available, if unsuccessful unload from memory
@@ -254,6 +266,7 @@ public class CdaEnginesManager {
         }
         return Optional.ofNullable(e);
     }
+
     private boolean available(String id) {
         boolean b = false;
         try {
@@ -263,6 +276,7 @@ public class CdaEnginesManager {
         }
         return b;
     }
+
     public boolean isRunning() {
         return running;
     }
