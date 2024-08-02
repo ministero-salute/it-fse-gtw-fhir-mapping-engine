@@ -167,7 +167,13 @@ public class CdaEnginesManager {
         Bundle bundle = null;
         if (cda.startsWith("<!--CDA_BENCHMARK_TEST-->")) {
             bundle = bundleStatic;
-            log.info("Trasformata con bundle statico per benchmark");
+            log.info("Trasformata con bundle statico per benchmark ");
+            if(bundle!=null){
+                log.info("Bundle vuoto:" +bundle.isEmpty());
+            } else {
+                log.info("Bundle null");
+            }
+            
         } else {
             bundle = obj.getInstance().transformCdaToFhir(cda, uri);
         }

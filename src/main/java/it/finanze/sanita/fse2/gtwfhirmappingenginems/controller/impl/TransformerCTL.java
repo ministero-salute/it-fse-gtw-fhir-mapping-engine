@@ -66,6 +66,8 @@ public class TransformerCTL implements ITransformerCTL {
 			} catch(Throwable tr) {
 				out.setErrorMessage(tr.getMessage());
 			}
+		} else {
+			log.error("Il cda in input è vuoto");
 		}
 		log.debug("Conversion of CDA completed");
 		return out;
