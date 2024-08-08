@@ -45,6 +45,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -64,7 +65,7 @@ public class TransformerSRV implements ITransformerSRV {
 
 		// Return always the latest engine
 		Bundle bundle = engineSRV.manager().transform(cda, engineId, objectId);
-
+		
 		//Alg scoring
 		bundle.setEntry(chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate()));
 
@@ -80,8 +81,9 @@ public class TransformerSRV implements ITransformerSRV {
 		}
 		// Remove scoring signature
 		removeSignatureIfExists(bundle);
-
-		return new JsonParser().composeString(bundle);
+		String out = new JsonParser().composeString(bundle);
+		System.out.println("Bundle trasformato:" + !StringUtility.isNullOrEmpty(out));
+		return out;
 
 	}
 

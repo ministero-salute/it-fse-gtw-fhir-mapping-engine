@@ -64,6 +64,7 @@ public class TransformerCTL implements ITransformerCTL {
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
+				log.error("Sono nel catch del convert cda to bundle",tr);
 				out.setErrorMessage(tr.getMessage());
 			}
 		} else {

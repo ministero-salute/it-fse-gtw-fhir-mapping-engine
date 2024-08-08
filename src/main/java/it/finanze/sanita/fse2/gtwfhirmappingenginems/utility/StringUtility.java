@@ -34,4 +34,14 @@ public final class StringUtility {
 	public static String generateUUID() {
 	    return UUID.randomUUID().toString();
 	}
+
+	/**
+	 * Returns {@code true} if the String passed as parameter is null or empty.
+	 * 
+	 * @param str	String to validate.
+	 * @return		{@code true} if the String passed as parameter is null or empty.
+	 */
+	public static boolean isNullOrEmpty(final String str) {
+		return str == null || str.isEmpty();
+	}
 }

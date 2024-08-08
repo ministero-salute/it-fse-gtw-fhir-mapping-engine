@@ -20,8 +20,10 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.handler;
 import brave.Tracer;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineSchedulerException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.ErrorBuilderDTO.*;
@@ -83,6 +86,27 @@ public class ExceptionCTL extends ResponseEntityExceptionHandler {
         headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
         return new ResponseEntity<>(out, headers, out.getStatus());
     }
+
+   /**
+	 * Management generic exception.
+	 * 
+	 * @param ex		exception
+	 * @param request	request
+	 * @return			
+	 */
+	@ExceptionHandler(value = {Exception.class})
+	protected ResponseEntity<ErrorResponseDTO> handleGenericException(final Exception ex, final WebRequest request) {
+		log.error("Errore generico", ex);		
+		Integer status = 500;
+        
+		String msg = StringUtility.isNullOrEmpty(ex.getMessage()) ? "Errore generico" : ex.getMessage();
+		ErrorResponseDTO out = new ErrorResponseDTO(getLogTraceInfo(), "/msg/generic-error", "/msg/generic-error", msg , status, "");
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
+
+		return new ResponseEntity<>(out, headers, status);
+	}
 
     /**
      * Generate a new {@link LogTraceInfoDTO} instance
