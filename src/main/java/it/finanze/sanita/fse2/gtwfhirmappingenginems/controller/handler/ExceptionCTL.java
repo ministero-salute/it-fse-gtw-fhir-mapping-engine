@@ -86,28 +86,7 @@ public class ExceptionCTL extends ResponseEntityExceptionHandler {
         headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
         return new ResponseEntity<>(out, headers, out.getStatus());
     }
-
-   /**
-	 * Management generic exception.
-	 * 
-	 * @param ex		exception
-	 * @param request	request
-	 * @return			
-	 */
-	@ExceptionHandler(value = {Exception.class})
-	protected ResponseEntity<ErrorResponseDTO> handleGenericException(final Exception ex, final WebRequest request) {
-		log.error("Errore generico", ex);		
-		Integer status = 500;
-        
-		String msg = StringUtility.isNullOrEmpty(ex.getMessage()) ? "Errore generico" : ex.getMessage();
-		ErrorResponseDTO out = new ErrorResponseDTO(getLogTraceInfo(), "/msg/generic-error", "/msg/generic-error", msg , status, "");
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
-
-		return new ResponseEntity<>(out, headers, status);
-	}
-
+ 
     /**
      * Generate a new {@link LogTraceInfoDTO} instance
      * @return The new instance

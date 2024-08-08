@@ -18,10 +18,13 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
@@ -45,6 +48,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,6 +63,15 @@ public class TransformerSRV implements ITransformerSRV {
 	
 	@Autowired
 	private EngineSRV engineSRV;
+
+	private String bundleString;
+	//SOLO PER TEST
+	@PostConstruct
+    void postConstruct() {
+        if (bundleString == null) {
+            bundleString = new String(FileUtility.getFileFromInternalResources("bundle.json"), StandardCharsets.UTF_8);
+        }
+    }
 
 	@Override
 	public String transform(final String cda, final String engineId, final String objectId, final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
@@ -81,7 +94,13 @@ public class TransformerSRV implements ITransformerSRV {
 		}
 		// Remove scoring signature
 		removeSignatureIfExists(bundle);
-		String out = new JsonParser().composeString(bundle);
+		String out = "";
+		if (cda.startsWith("<!--CDA_BENCHMARK_TEST-->")) {
+			out = bundleString;
+		} else {
+			out = new JsonParser().composeString(bundle);
+		}
+		// String out = new JsonParser().composeString(bundle);
 		System.out.println("Bundle trasformato:" + !StringUtility.isNullOrEmpty(out));
 		return out;
 

@@ -71,6 +71,7 @@ public class CdaEnginesManager {
     private final ProfileUtility profiles;
 
     private Bundle bundleStatic;
+    
 
     public CdaEnginesManager(
             @Autowired IConfigSRV config,
