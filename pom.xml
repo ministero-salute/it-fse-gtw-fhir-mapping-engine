@@ -139,8 +139,6 @@
 			</exclusions>
 		</dependency>
 
-
-
 		<!-- JSOUP -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -149,26 +147,20 @@
 		</dependency>
 
 		<!-- MATCHBOX -->
+		<!-- https://mvnrepository.com/artifact/health.matchbox/matchbox-engine -->
 		<dependency>
-			<groupId>com.matchbox</groupId>
-			<artifactId>matchbox</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/matchbox-engine.jar</systemPath>
+		    <groupId>health.matchbox</groupId>
+		    <artifactId>matchbox-engine</artifactId>
+		    <version>3.2.2</version>
 		</dependency>
-		
+
 		<!-- FHIR -->
 	    <dependency>
 		      <groupId>ca.uhn.hapi.fhir</groupId>
 		      <artifactId>org.hl7.fhir.validation</artifactId>
-		      <version>6.3.23</version>
-				<exclusions>
-					<exclusion>
-						<groupId>commons-io</groupId>
-						<artifactId>commons-io</artifactId>
-					</exclusion>
-				</exclusions>
+				<version>5.6.971</version>				
 	    </dependency>
+
 		
 		<!-- SHEDLOCK -->
 		<dependency>
