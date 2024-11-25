@@ -31,7 +31,7 @@ public class ConfigSRV implements IConfigSRV {
     @Autowired
     private ProfileUtility profiles;
 
-    @Value("${ms.config.refresh-rate}")
+    @Value("${ms.config.refresh-rate:900000}")
 	private Long refreshRate;
 
     private final Map<String, Pair<Long, String>> props;
