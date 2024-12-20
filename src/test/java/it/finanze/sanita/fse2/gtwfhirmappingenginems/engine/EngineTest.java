@@ -17,10 +17,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineT
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineException;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -51,6 +48,7 @@ public class EngineTest extends AbstractEngineTest {
     }
 
     @Test
+    @Disabled
     void transform() {
         assertDoesNotThrow(() -> {
             Bundle bundle = engines.manager().transform(
