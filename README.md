@@ -35,17 +35,10 @@
 
 # Context
 
-**This microservice is responsible for transforming a CDA into a FHIR bundle using the FHIR Mapping Language.**
+Please take the time to read and consider the other repositories in full before digging into the source code or opening an Issue. They contain a lot of details that are fundamental to understanding the source code and this repository's documentation.
 
-**for more information visit:** [*it-fse-landing*](https://github.com/ministero-salute/it-fse-landing)
-
-
-# Installation
-**Visit:** [*it-fse-support*](https://github.com/ministero-salute/it-fse-support)
-
-### Prerequisites
-- Java 1.8
-- Maven
+- <a href="https://github.com/ministero-salute/it-fse-support">it-fse-support</a> - Support page for FSE 2.0
+- <a href="https://github.com/ministero-salute/it-fse-landing">it-fse-landing</a> - Landing page of all FSE 2.0 repositories
 
 # Contributing
 Contributions are most welcome. Before proceeding, please read the [Code of Conduct](./CODE_OF_CONDUCT.md) for guidance on how to approach the community and create a positive environment. Additionally, please read our [CONTRIBUTING](./CONTRIBUTING.md) file, which contains guidance on ensuring a smooth contribution process.
