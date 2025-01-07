@@ -69,8 +69,8 @@ Please check the [AUTHORS](AUTHORS) file for extended reference.
 | org.mongodb:bson                                                           | 4.8.2   | Apache License 2.0 |
 | org.projectlombok:lombok                                                   | 1.18.30 | MIT License        |
 | org.springframework.cloud:spring-cloud-starter-sleuth                      | 3.1.1   | Apache License 2.0 |
-| ch.qos.logback.contrib:logback-json-classic                                | 0.1.5   | Apache License 2.0 |
-| ch.qos.logback.contrib:logback-jackson                                     | 0.1.5   | Apache License 2.0 |
+| ch.qos.logback.contrib:logback-json-classic                                | 0.1.5   | EPL1.0 & LGPL2.1   |
+| ch.qos.logback.contrib:logback-jackson                                     | 0.1.5   | EPL1.0 & LGPL2.1   |
 | org.springframework.boot:spring-boot-starter-actuator                      | 2.7.18  | Apache License 2.0 |
 | io.micrometer:micrometer-registry-prometheus                               | 1.9.17  | Apache License 2.0 |
 | org.springframework.boot:spring-boot-starter-aop                           | 2.7.18  | Apache License 2.0 |
