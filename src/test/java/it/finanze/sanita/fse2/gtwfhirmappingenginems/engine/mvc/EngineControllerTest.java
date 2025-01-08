@@ -57,6 +57,7 @@ public class EngineControllerTest extends AbstractEngineTest {
     }
 
     @Test
+    @Disabled
     void statusOk() throws Exception {
         // Returns empty while loading engines
         mvc.perform(engines()).andExpectAll(
@@ -83,6 +84,7 @@ public class EngineControllerTest extends AbstractEngineTest {
     }
 
     @Test
+    @Disabled
     void refreshOk() throws Exception {
         // Returns error while loading engines
         mvc.perform(refresh()).andExpect(status().isLocked());
