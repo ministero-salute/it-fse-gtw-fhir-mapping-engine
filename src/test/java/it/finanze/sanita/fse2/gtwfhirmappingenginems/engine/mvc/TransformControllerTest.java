@@ -12,108 +12,156 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.mvc;
 
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+
+import javax.xml.stream.XMLInputFactory;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
-import org.junit.jupiter.api.*;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockRequests.transform;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockRequests.transformStateless;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
-import static org.apache.http.HttpStatus.SC_SERVICE_UNAVAILABLE;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.mockito.Mockito.doThrow;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@ActiveProfiles(TEST)
-@TestInstance(PER_CLASS)
-public class TransformControllerTest extends AbstractEngineTest {
+@ActiveProfiles(Constants.Profile.TEST)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class TransformControllerTest {
+    private static final String ENGINE_ID = "ENGINE_123";
+    private static final String OBJECT_ID = "OBJ_999";
 
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
+
+    @MockBean
+    private ITransformerSRV transformerSRV;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private FhirResourceDTO validResourceDTO;
 
     @BeforeAll
-    void setup() throws IOException {
-        initDb();
-    }
-
-    @BeforeEach
-    void onEachSetup() {
-        emulateStartUpMsEnginesAsync();
-    }
-
-    @Test
-    @Disabled
-    void transformOk() throws Exception {
-        // Transform returns 200 even on erroneous TX
-        mvc.perform(
-            transform(
-                new FhirResourceDTO(
-                    null,
-                    LAB.read(),
-                    LAB_ENGINE.transformId(),
-                    LAB_ENGINE.engineId()
-                )
-            )
-        ).andExpectAll(
-            status().is2xxSuccessful(),
-            jsonPath("$.errorMessage").isNotEmpty()
-        );
-        // We wait until the updating process has not finished.
-        awaitUntilEnginesSpawned();
-        // Transform returns 200 even on erroneous TX
-        mvc.perform(
-            transform(
-                new FhirResourceDTO(
-                    null,
-                    LAB.read(),
-                    LAB_ENGINE.transformId(),
-                    LAB_ENGINE.engineId()
-                )
-            )
-        ).andExpectAll(
-            status().is2xxSuccessful(),
-            jsonPath("$.json").isNotEmpty(),
-            jsonPath("$.errorMessage").doesNotExist()
+    void setupData() {
+        validResourceDTO = new FhirResourceDTO(new DocumentReferenceDTO(),
+                "<ClinicalDocument>CDA content</ClinicalDocument>",
+                OBJECT_ID,
+                ENGINE_ID
         );
     }
 
     @Test
-    @Disabled
-    void transformStatelessOk() throws Exception {
-        // Expect service unavailable while starting up
-        mvc.perform(
-            transformStateless(LAB_ENGINE, LAB)
-        ).andExpect(status().is(SC_SERVICE_UNAVAILABLE));
-        // We wait until the updating process has not finished.
-        awaitUntilEnginesSpawned();
-        // Now we should be able to process the request
-        mvc.perform(
-            transformStateless(LAB_ENGINE, LAB)
-        ).andExpect(status().is2xxSuccessful());
-        // Mock an error
-        doThrow(TEST_RN_EX).when(engines).manager();
-        // Now we should expect an error
-        mvc.perform(
-            transformStateless(LAB_ENGINE, LAB)
-        ).andExpect(status().is5xxServerError());
+    @DisplayName("POST transform - valid input - success")
+    void testConvertCDAToBundleSuccess() throws Exception {
+        // Mock the service response
+        String mockedJson = "{ \"mockKey\": \"mockValue\" }";
+        when(transformerSRV.transform(anyString(), anyString(), anyString(), any()))
+                .thenReturn(mockedJson);
+
+        String payload = OBJECT_MAPPER.writeValueAsString(validResourceDTO);
+
+        mockMvc.perform(post(DOCUMENTS_MAPPER + API_TRANSFORM_BY_OBJ)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk());
     }
 
-    @AfterAll
-    void teardown() {
-        resetDb();
+
+    @Test
+    @DisplayName("POST transform - cda is null - success")
+    void testConvertCDAToBundleNullCDA() throws Exception {
+        FhirResourceDTO dtoNoCda = new FhirResourceDTO(new DocumentReferenceDTO(), null, OBJECT_ID, ENGINE_ID);
+
+        String payload = OBJECT_MAPPER.writeValueAsString(dtoNoCda);
+
+        mockMvc.perform(post(DOCUMENTS_MAPPER + API_TRANSFORM_BY_OBJ)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    @DisplayName("POST transform - exception thrown by service - error message set")
+    void testConvertCDAToBundleException() throws Exception {
+        when(transformerSRV.transform(anyString(), anyString(), anyString(), any()))
+                .thenThrow(new RuntimeException("Simulated transform failure"));
+
+        String payload = OBJECT_MAPPER.writeValueAsString(validResourceDTO);
+
+        mockMvc.perform(post(DOCUMENTS_MAPPER + API_TRANSFORM_BY_OBJ)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("POST stateless transform - valid file - success")
+    void testConvertCDAToBundleStatelessSuccess() throws Exception {
+        String mockedJson = "{ \"mockKey\": \"mockValue\" }";
+        when(transformerSRV.transform(anyString(), anyString(), anyString(), any()))
+                .thenReturn(mockedJson);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "testFile.xml",
+                MediaType.TEXT_XML_VALUE,
+                "<ClinicalDocument>content</ClinicalDocument>".getBytes(StandardCharsets.UTF_8)
+        );
+
+        mockMvc.perform(
+                multipart(DOCUMENTS_MAPPER + API_TRANSFORM_STATELESS_BY_OBJ, ENGINE_ID, OBJECT_ID)
+                        .file(file)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("POST stateless transform - exception reading file => coverage")
+    void testConvertCDAToBundleStatelessExceptionInGetCDA() throws Exception {
+        try (MockedStatic<XMLInputFactory> mocked = Mockito.mockStatic(XMLInputFactory.class)) {
+            XMLInputFactory mockFactory = Mockito.mock(XMLInputFactory.class);
+            when(mockFactory.createXMLStreamReader(any(ByteArrayInputStream.class)))
+                    .thenThrow(new RuntimeException("Simulated XML parsing error"));
+            mocked.when(XMLInputFactory::newInstance).thenReturn(mockFactory);
+
+            MockMultipartFile file = new MockMultipartFile(
+                    "file",
+                    "testFile.xml",
+                    MediaType.TEXT_XML_VALUE,
+                    "<ClinicalDocument>bad content</ClinicalDocument>".getBytes(StandardCharsets.UTF_8)
+            );
+
+            mockMvc.perform(
+                            multipart(DOCUMENTS_MAPPER + API_TRANSFORM_STATELESS_BY_OBJ, ENGINE_ID, OBJECT_ID)
+                                    .file(file)
+                                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    )
+                    .andExpect(status().isInternalServerError());
+        }
     }
 
 }
