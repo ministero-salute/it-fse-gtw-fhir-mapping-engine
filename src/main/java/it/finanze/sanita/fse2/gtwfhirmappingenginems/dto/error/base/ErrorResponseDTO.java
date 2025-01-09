@@ -82,9 +82,4 @@ public class ErrorResponseDTO extends AbstractDTO {
 		instance = inInstance;
 	}
 
-	public ErrorResponseDTO(final LogTraceInfoDTO traceInfo) {
-		traceID = traceInfo.getTraceID();
-		spanID = traceInfo.getSpanID(); 
-	}
-
 }
