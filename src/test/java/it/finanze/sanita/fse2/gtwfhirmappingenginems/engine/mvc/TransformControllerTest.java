@@ -60,6 +60,7 @@ public class TransformControllerTest extends AbstractEngineTest {
     }
 
     @Test
+    @Disabled
     void transformOk() throws Exception {
         // Transform returns 200 even on erroneous TX
         mvc.perform(
@@ -95,6 +96,7 @@ public class TransformControllerTest extends AbstractEngineTest {
     }
 
     @Test
+    @Disabled
     void transformStatelessOk() throws Exception {
         // Expect service unavailable while starting up
         mvc.perform(

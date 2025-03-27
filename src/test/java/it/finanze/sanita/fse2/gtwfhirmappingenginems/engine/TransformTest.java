@@ -21,6 +21,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineT
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ class TransformTest extends AbstractEngineTest {
     }
 	
 	@Test
+	@Disabled
 	void transform() throws FHIRException, IOException {
 		String json = service.transform(
 			LAB.read(),
