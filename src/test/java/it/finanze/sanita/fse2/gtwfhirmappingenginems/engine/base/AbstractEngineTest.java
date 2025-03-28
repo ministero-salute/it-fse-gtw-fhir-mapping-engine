@@ -86,6 +86,10 @@ public abstract class AbstractEngineTest {
         await().atMost(5, TimeUnit.MINUTES).until(() -> !engines.manager().isRunning());
     }
 
+    protected void awaitUntilEnginesReady() {
+        await().atMost(1, TimeUnit.MINUTES).until(() -> engines.manager().isReady());
+    }
+
     protected void dropUselessEngine() {
         EngineETY e = mongo.findAndRemove(new Query(where(FIELD_ID).is(REMOVABLE.engineId())), EngineETY.class);
         if(e == null) throw new IllegalStateException("Useless engine already removed");

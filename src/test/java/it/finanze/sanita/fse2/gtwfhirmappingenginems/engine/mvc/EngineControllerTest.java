@@ -23,6 +23,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -57,7 +58,7 @@ public class EngineControllerTest extends AbstractEngineTest {
     }
 
     @Test
-    @Disabled
+    @Order(2)
     void statusOk() throws Exception {
         // Returns empty while loading engines
         mvc.perform(engines()).andExpectAll(
@@ -84,6 +85,7 @@ public class EngineControllerTest extends AbstractEngineTest {
     }
 
     @Test
+    @Order(1)
     void refreshOk() throws Exception {
         // Returns error while loading engines
         mvc.perform(refresh()).andExpect(status().isLocked());
@@ -98,4 +100,8 @@ public class EngineControllerTest extends AbstractEngineTest {
         resetDb();
     }
 
+    @AfterEach
+    void cleanup() throws Exception {
+        awaitUntilEnginesSpawned();
+    }
 }

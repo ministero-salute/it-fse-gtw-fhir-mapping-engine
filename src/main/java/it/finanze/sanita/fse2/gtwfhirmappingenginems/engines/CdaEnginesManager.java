@@ -288,4 +288,6 @@ public class CdaEnginesManager {
     public boolean isRunning() {
         return running;
     }
+
+    public boolean isReady() { return ready; }
 }

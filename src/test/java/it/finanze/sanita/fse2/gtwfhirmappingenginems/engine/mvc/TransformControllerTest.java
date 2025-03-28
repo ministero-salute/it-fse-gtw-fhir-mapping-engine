@@ -60,7 +60,6 @@ public class TransformControllerTest extends AbstractEngineTest {
     }
 
     @Test
-    @Disabled
     void transformOk() throws Exception {
         // Transform returns 200 even on erroneous TX
         mvc.perform(
@@ -78,6 +77,7 @@ public class TransformControllerTest extends AbstractEngineTest {
         );
         // We wait until the updating process has not finished.
         awaitUntilEnginesSpawned();
+        awaitUntilEnginesReady();
         // Transform returns 200 even on erroneous TX
         mvc.perform(
             transform(
@@ -96,7 +96,6 @@ public class TransformControllerTest extends AbstractEngineTest {
     }
 
     @Test
-    @Disabled
     void transformStatelessOk() throws Exception {
         // Expect service unavailable while starting up
         mvc.perform(
@@ -104,6 +103,7 @@ public class TransformControllerTest extends AbstractEngineTest {
         ).andExpect(status().is(SC_SERVICE_UNAVAILABLE));
         // We wait until the updating process has not finished.
         awaitUntilEnginesSpawned();
+        awaitUntilEnginesReady();
         // Now we should be able to process the request
         mvc.perform(
             transformStateless(LAB_ENGINE, LAB)
