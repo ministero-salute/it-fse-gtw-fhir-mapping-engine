@@ -17,13 +17,13 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
+import org.bson.Document;
+
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.AbstractDTO;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.bson.Document;
-
-import javax.validation.constraints.Size;
 
 /**
  * 

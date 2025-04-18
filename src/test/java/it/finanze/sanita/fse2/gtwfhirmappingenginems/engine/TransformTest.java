@@ -54,7 +54,6 @@ class TransformTest extends AbstractEngineTest {
     }
 	
 	@Test
-	@Disabled
 	void transform() throws FHIRException, IOException {
 		String json = service.transform(
 			LAB.read(),
