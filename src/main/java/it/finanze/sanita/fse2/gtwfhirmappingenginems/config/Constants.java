@@ -17,16 +17,19 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.config;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
- * 
- *
  * Constants application.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Constants {
 
     /**
 	 *	Path scan.
 	 */
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class ComponentScan {
 
 		/**
@@ -34,43 +37,40 @@ public final class Constants {
 		 */
 		public static final String CONFIG_MONGO = "it.finanze.sanita.fse2.gtwfhirmappingenginems.config.mongo";
 		
-		private ComponentScan() {
-			//This method is intentionally left blank.
-		}
 
 	}
 	
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class Collections {
-
 		public static final String TRANSFORM = "transform";
 		public static final String ENGINE = "engines";
-
-		private Collections() {
-
-		}
-	}
+ 	}
  
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class Profile {
+		/**
+		 * Test profile.
+		 */
 		public static final String TEST = "test";
 
+		/**
+		 * Test profile.
+		 */
 		public static final String TEST_PREFIX = "test_";
 
 		/**
 		 * Dev profile.
 		 */
 		public static final String DEV = "dev";
-		public static final String DOCKER = "docker";
-
 		
-		/** 
-		 * Constructor.
+		/**
+		 * Docker profile.
 		 */
-		private Profile() {
-			//This method is intentionally left blank.
-		}
+		public static final String DOCKER = "docker";
 
 	}
 	
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class DocumentReference {
 		/**
 		 * Constant that defines bundle fhir language.
@@ -86,22 +86,10 @@ public final class Constants {
 		 * Constant that defines bundle fhir document reference identifier.
 		 */
 		public static final String BUNDLE_FHIR_DOCUMENT_REFERENCE_ID = "Document00";
-		
-		/** 
-		 * Constructor.
-		 */
-		private DocumentReference() {
-			//This method is intentionally left blank.
-		}
 
 	}
-  
 	
-	/**
-	 *	Constants.
-	 */
-	private Constants() {}
-
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class Logs {
 		// Engine
 		public static final String ERR_ENG_UNAVAILABLE = "Inizializzazione engines in corso";
@@ -128,6 +116,11 @@ public final class Constants {
 		// Scheduler
 		public static final String ERR_SCH_RUNNING = "Il processo di aggiornamento risulta già avviato";
 		public static final String DTO_RUN_TASK_QUEUED = "Processo avviato, verifica i logs";
-		private Logs() {}
 	}
+	
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
+	public static final class Properties {
+		public static final String MS_NAME = "gtw-fhir-mapping-engine";
+	}
+		
 }
