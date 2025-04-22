@@ -6,9 +6,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
-		<relativePath />
-		<!-- lookup parent from repository -->
+		<version>3.4.3</version>
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>it.finanze.sanita.fse2</groupId>
@@ -20,7 +19,7 @@
 	<properties>
 		<!-- Application -->
 		<java.version>21</java.version>
-		<spring-cloud.version>2021.0.1</spring-cloud.version>
+		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<start-class>it.finanze.sanita.fse2.gtwfhirmappingenginems.GtwFhirMappingEngineMsApplication</start-class>
 		<!-- Build -->
 		<config.infra>${project.basedir}/infrastructure</config.infra>
@@ -32,7 +31,7 @@
 		<sonar.exclusions>
 			src/main/java/it/finanze/sanita/fse2/ms/gtwfhirmappingenginems/config/**/*.*
 		</sonar.exclusions>
-		<logback.version>1.2.13</logback.version>
+		<logback.version>1.5.16</logback.version>
 	</properties>
 
 	<dependencies> 
@@ -41,12 +40,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.yaml</groupId>
-					<artifactId>snakeyaml</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 
@@ -54,12 +47,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-		</dependency>
-
-
+		 
 		<!-- MONGODB -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -86,13 +74,7 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-
-		<!-- TRACING -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-sleuth</artifactId>
-		</dependency>
-
+ 
 		<!-- LOGBACK JSON -->
 		<dependency>
 			<groupId>ch.qos.logback.contrib</groupId>
@@ -110,11 +92,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-prometheus</artifactId>
-			<scope>runtime</scope>
-		</dependency>
 
 		<!-- RESILIENCE -->
 		<dependency>
@@ -126,19 +103,15 @@
 			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
 		</dependency>
 
-		<!-- OPENAPI-UI -->
+			<!-- OpenAPI -->
+		<!--
+		https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.11</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.yaml</groupId>
-					<artifactId>snakeyaml</artifactId>
-				</exclusion>
-			</exclusions>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.6</version>
 		</dependency>
-
+		
 		<!-- JSOUP -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -161,7 +134,6 @@
 				<version>5.6.971</version>				
 	    </dependency>
 
-		
 		<!-- SHEDLOCK -->
 		<dependency>
 			<groupId>net.javacrumbs.shedlock</groupId>
@@ -180,6 +152,18 @@
 			<version>4.2.0</version>
 			<scope>test</scope>
 		</dependency>
+		
+		 <!-- OpenTelemetry - Micrometer -->
+	    <dependency>
+	      <groupId>io.opentelemetry.instrumentation</groupId>
+	      <artifactId>opentelemetry-spring-boot-starter</artifactId>
+	    </dependency>
+	    
+	    <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+			
 	</dependencies>
 
 	<dependencyManagement>
@@ -192,11 +176,12 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>2.13.5</version>
-				<scope>compile</scope>
-			</dependency>
+		        <groupId>io.opentelemetry.instrumentation</groupId>
+		        <artifactId>opentelemetry-instrumentation-bom</artifactId>
+		        <version>2.15.0</version>
+		        <type>pom</type>
+		        <scope>import</scope>
+		      </dependency>
 		</dependencies>
 	</dependencyManagement>
  
@@ -228,6 +213,10 @@
 						<exclude>src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/utility/**/*.*</exclude>
 						<exclude>src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/config/**/*.*</exclude>
 						<exclude>src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/repository/**/*.*</exclude>
+						<exclude>org/hl7/fhir/r4/formats/JsonParser</exclude>
+						<exclude>org/hl7/fhir/r4/formats/XmlParser</exclude>
+						<exclude>org/hl7/fhir/r5/formats/JsonParser</exclude>
+						<exclude>org/hl7/fhir/r5/formats/XmlParser</exclude>
 					</excludes>
 				</configuration>
 				<executions>

@@ -53,7 +53,6 @@ public class EngineTest extends AbstractEngineTest {
     }
 
     @Test
-    @Disabled
     void transform() {
         assertDoesNotThrow(() -> {
             Bundle bundle = engines.manager().transform(

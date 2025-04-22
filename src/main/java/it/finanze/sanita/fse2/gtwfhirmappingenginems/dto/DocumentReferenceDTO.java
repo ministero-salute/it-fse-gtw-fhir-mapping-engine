@@ -19,8 +19,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
 import java.util.List;
 
-import javax.validation.constraints.Size;
-
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

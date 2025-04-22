@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Base;
@@ -50,6 +48,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHel
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
