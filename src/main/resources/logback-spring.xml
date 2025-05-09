@@ -9,7 +9,7 @@
 
 	<!-- You can override this to have a custom pattern -->
 	<property name="CONSOLE_LOG_PATTERN"
-		value=" %d{yyyy-MM-dd HH:mm:ss.SSS} %5p [${springAppName},trace: %X{X-B3-TraceId:-} span: %X{X-B3-SpanId:-}, parent: %X{X-B3-ParentSpanId:-} exportable: %X{X-Span-Export:-},] %m%n%throwable" />
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [ ${springAppName}, trace: %X{trace_id}, parent: %X{parent_id}, span: %X{span_id},  sampled: %X{sampled},] %m%n%throwable"/>
 
 	<appender name="console"
 		class="ch.qos.logback.core.ConsoleAppender">
