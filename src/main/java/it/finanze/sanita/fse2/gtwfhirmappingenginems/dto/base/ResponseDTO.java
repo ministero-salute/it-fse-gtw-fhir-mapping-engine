@@ -22,9 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
- *
- *         Base response.
+ * Base response.
  */
 @Getter
 @Setter

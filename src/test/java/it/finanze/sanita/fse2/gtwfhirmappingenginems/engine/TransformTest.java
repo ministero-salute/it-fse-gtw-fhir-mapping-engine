@@ -17,25 +17,25 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import org.hl7.fhir.exceptions.FHIRException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-
-import java.io.IOException;
-
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+import java.io.IOException;
+
+import org.hl7.fhir.exceptions.FHIRException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles(TEST)

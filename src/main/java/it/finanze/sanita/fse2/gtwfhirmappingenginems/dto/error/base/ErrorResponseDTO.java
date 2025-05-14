@@ -18,13 +18,11 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.AbstractDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 
 /**
@@ -33,8 +31,7 @@ import lombok.EqualsAndHashCode;
  * 	Error response.
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class ErrorResponseDTO extends AbstractDTO {
+public class ErrorResponseDTO {
 
 	/**
 	 * Trace id log.

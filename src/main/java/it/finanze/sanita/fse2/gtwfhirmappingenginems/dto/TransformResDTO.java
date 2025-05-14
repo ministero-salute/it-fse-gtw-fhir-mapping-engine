@@ -19,10 +19,8 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
 import org.bson.Document;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.AbstractDTO;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -32,13 +30,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class TransformResDTO extends AbstractDTO {
-
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = -2618965716083072681L;
+public class TransformResDTO {
 	
 	@Size(min = 0, max = 1000)
 	private String errorMessage;

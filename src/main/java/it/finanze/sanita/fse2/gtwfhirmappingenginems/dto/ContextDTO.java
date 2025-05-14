@@ -34,6 +34,6 @@ public class ContextDTO {
     private String practiceSettingCode;
     private String serviceStartTime;
     private String serviceStopTime;
-//    private String referenceId;
-//    private String patientId;
+    private String referenceId;
+    private String patientId;
 }

@@ -18,7 +18,10 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine;
 
 public class EngineBuilderException extends Exception {
-    /**
+	
+    private static final long serialVersionUID = -3304001827716177421L;
+
+	/**
      * Constructs a new exception with the specified detail message.
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.

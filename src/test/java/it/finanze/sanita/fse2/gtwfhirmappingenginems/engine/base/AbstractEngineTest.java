@@ -17,25 +17,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base;
 
-import com.mongodb.MongoException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
-import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.REMOVABLE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw.Fixtures.ENGINES;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw.Fixtures.TRANSFORM;
@@ -43,6 +24,27 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.en
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+
+import com.mongodb.MongoException;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractEngineTest {
@@ -59,13 +61,13 @@ public abstract class AbstractEngineTest {
     @Autowired
     protected MongoTemplate mongo;
 
-    @SpyBean
+    @MockitoSpyBean
     protected IEngineRepo repository;
 
-    @SpyBean
+    @MockitoSpyBean
     protected IEngineSRV engines;
 
-    @MockBean
+    @MockitoBean
     private IConfigSRV config;
 
     protected void initDb() throws IOException {
