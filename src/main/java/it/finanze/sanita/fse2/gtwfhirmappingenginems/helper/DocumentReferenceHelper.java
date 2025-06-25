@@ -103,7 +103,13 @@ public class DocumentReferenceHelper {
 		attachment.setHash(hash.getBytes());
 		attachment.setSize(size);
 		attachment.setLanguage(languageCode);
-		dr.getContent().get(0).setAttachment(attachment);
+//		dr.getContent().get(0).setAttachment(attachment);
+		
+		
+		DocumentReference.DocumentReferenceContentComponent content = new DocumentReference.DocumentReferenceContentComponent();
+		content.setAttachment(attachment);
+		dr.addContent(content);
+
 	}
 
 	private static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {
@@ -128,6 +134,10 @@ public class DocumentReferenceHelper {
 	 * @return
 	 */
 	public static DocumentReference createDocumentReference(final DocumentReferenceDTO documentReferenceDTO, final DocumentReference dr) {
+		return buildDocumentReference(documentReferenceDTO, dr);
+	}
+
+	private static DocumentReference buildDocumentReference(final DocumentReferenceDTO documentReferenceDTO, final DocumentReference dr) {
 		try {
 			ContextDTO contextDTO = ContextDTO.builder()
 					.facilityTypeCode(documentReferenceDTO.getFacilityTypeCode())
@@ -151,6 +161,11 @@ public class DocumentReferenceHelper {
 			log.error("Error while create document reference: {}", ex.getMessage());
 			throw new BusinessException("Error while create document reference", ex);
 		}
+	}
+	
+	public static DocumentReference createDocumentReference(final DocumentReferenceDTO documentReferenceDTO) {
+		DocumentReference documentReference = new DocumentReference();
+		return buildDocumentReference(documentReferenceDTO, documentReference);
 	}
 	 
 }

@@ -133,6 +133,13 @@
 		      <artifactId>org.hl7.fhir.validation</artifactId>
 				<version>5.6.971</version>				
 	    </dependency>
+	    
+	    <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-structures-r4 -->
+		<dependency>
+		    <groupId>ca.uhn.hapi.fhir</groupId>
+		    <artifactId>hapi-fhir-structures-r4</artifactId>
+		    <version>8.2.0</version>
+		</dependency>
 
 		<!-- SHEDLOCK -->
 		<dependency>
@@ -193,14 +200,7 @@
 			<plugin>
 			  <groupId>org.springframework.boot</groupId>
 			  <artifactId>spring-boot-maven-plugin</artifactId>
-			  <configuration>
-			    <includeSystemScope>true</includeSystemScope>
-			  </configuration>
 			</plugin> 
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
 
 			<!-- Coverage -->
 			<plugin>

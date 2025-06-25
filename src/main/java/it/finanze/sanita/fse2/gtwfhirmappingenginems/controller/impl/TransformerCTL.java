@@ -57,12 +57,7 @@ public class TransformerCTL implements ITransformerCTL {
 			try {
 				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
 				
-				String cdaTrasformed = service.transform(
-					cdaString,
-					dto.getEngineId(),
-					dto.getObjectId(),
-					dto.getDocumentReferenceDTO()
-				);
+				String cdaTrasformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
