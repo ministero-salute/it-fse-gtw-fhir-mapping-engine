@@ -121,18 +121,39 @@
 
 		<!-- MATCHBOX -->
 		<!-- https://mvnrepository.com/artifact/health.matchbox/matchbox-engine -->
-		<dependency>
-		    <groupId>health.matchbox</groupId>
-		    <artifactId>matchbox-engine</artifactId>
-		    <version>3.2.2</version>
-		</dependency>
+		<!-- https://mvnrepository.com/artifact/health.matchbox/matchbox-engine -->
+<!--<dependency>-->
+<!--    <groupId>health.matchbox</groupId>-->
+<!--    <artifactId>matchbox-engine</artifactId>-->
+<!--    <version>4.0.2</version>-->
+<!--</dependency>-->
 
-		<!-- FHIR -->
-	    <dependency>
-		      <groupId>ca.uhn.hapi.fhir</groupId>
-		      <artifactId>org.hl7.fhir.validation</artifactId>
-				<version>5.6.971</version>				
-	    </dependency>
+<dependency>
+    <groupId>health.matchbox</groupId>
+    <artifactId>matchbox-engine</artifactId>
+    <version>4.0.8</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+<!-- Poi aggiungi una versione specifica -->
+<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-compress</artifactId>
+    <version>1.26.0</version>
+</dependency>
+ 
+<!--		 FHIR -->
+<!--	    <dependency>-->
+<!--		      <groupId>ca.uhn.hapi.fhir</groupId>-->
+<!--		      <artifactId>org.hl7.fhir.validation</artifactId>-->
+<!--				<version>5.6.971</version>				-->
+<!--	    </dependency>-->
 
 		<!-- SHEDLOCK -->
 		<dependency>
@@ -184,6 +205,7 @@
 		      </dependency>
 		</dependencies>
 	</dependencyManagement>
+	
  
 	<build>
 		<finalName>${project.artifactId}</finalName>
