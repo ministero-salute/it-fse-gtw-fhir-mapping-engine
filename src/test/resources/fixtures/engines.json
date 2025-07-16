@@ -1,300 +1,352 @@
 [{
   "_id": {
-    "$oid": "66437156246b8f543730a6b0"
+    "$oid": "68777b7f3972d22d71c1135e"
   },
   "roots": [
     {
       "oid": {
-        "$oid": "6537f44fbe0517258e7dfb94"
+        "$oid": "6877655858e2f14cfcb3f9f5"
       },
       "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.1"
+        "2.16.840.1.113883.2.9.10.1.6.1"
       ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodilaboratorioFULLBODY",
-      "version": "2.2"
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/verbalePS",
+      "version": "2.5"
     },
     {
       "oid": {
-        "$oid": "6537f447be0517258e7dfb92"
+        "$oid": "6877655e58e2f14cfcb3f9f6"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.5"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/LetteraDimissioneOspedaliera",
-      "version": "2.8"
+      "version": "2.9"
     },
     {
       "oid": {
-        "$oid": "6537f44dbe0517258e7dfb93"
+        "$oid": "6877656758e2f14cfcb3f9f7"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.4.1.1"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/ProfiloSanitarioSinteticoBody",
-      "version": "1.9"
+      "version": "2.0"
     },
     {
       "oid": {
-        "$oid": "6537f45abe0517258e7dfb97"
+        "$oid": "6877657258e2f14cfcb3f9f8"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.1"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodilaboratorioFULLBODY",
+      "version": "2.3"
+    },
+    {
+      "oid": {
+        "$oid": "6877657b58e2f14cfcb3f9f9"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.7.1"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiRadiologiaBody",
+      "version": "2.3"
+    },
+    {
+      "oid": {
+        "$oid": "6877658758e2f14cfcb3f9fa"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.9.1"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiSpecialisticaAmbulatorialeBody",
+      "version": "3.0"
+    },
+    {
+      "oid": {
+        "$oid": "6877659158e2f14cfcb3f9fb"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.11.1.1",
         "2.16.840.1.113883.2.9.10.1.11.1.2"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/Vaccinazioni",
-      "version": "2.0"
+      "version": "2.1"
     },
     {
       "oid": {
-        "$oid": "6537f45dbe0517258e7dfb98"
-      },
-      "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.6.1"
-      ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/verbalePS",
-      "version": "2.4"
-    },
-    {
-      "oid": {
-        "$oid": "6537f454be0517258e7dfb95"
-      },
-      "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.7.1"
-      ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiRadiologiaBody",
-      "version": "2.2"
-    },
-    {
-      "oid": {
-        "$oid": "6537f460be0517258e7dfb99"
+        "$oid": "687765ae58e2f14cfcb3f9fd"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.2.1"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/PrescrizioneFarmaceutica",
-      "version": "2.0"
+      "version": "2.1"
     },
     {
       "oid": {
-        "$oid": "6537f462be0517258e7dfb9a"
+        "$oid": "687765b558e2f14cfcb3f9fe"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.2.2"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/PrescrizioneSpecialistica",
-      "version": "2.0"
+      "version": "2.1"
     },
     {
       "oid": {
-        "$oid": "65dcb3fc9a8e614a638332e2"
+        "$oid": "687765bb58e2f14cfcb3f9ff"
       },
       "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.9.1"
+        "2.16.840.1.113883.2.9.10.1.13.1.1"
       ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiSpecialisticaAmbulatorialeBody",
-      "version": "2.9"
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/ErogazioneFarmaceutica",
+      "version": "1.1"
     },
     {
       "oid": {
-        "$oid": "664371249a8e614a638332e3"
+        "$oid": "687765c058e2f14cfcb3fa00"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.13.1.2"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/ErogazioneSpecialistica",
+      "version": "1.1"
+    },
+    {
+      "oid": {
+        "$oid": "68777b5658e2f14cfcb3fa03"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.8.1"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiAnatomiaPatologica",
-      "version": "1.1"
+      "version": "1.2"
     }
   ],
   "files": [
     {
-      "$oid": "6537f43ebe0517258e7dfb8f"
+      "$oid": "6877654a58e2f14cfcb3f9f3"
     },
     {
-      "$oid": "6537f43fbe0517258e7dfb90"
+      "$oid": "6877655358e2f14cfcb3f9f4"
     },
     {
-      "$oid": "6537f44fbe0517258e7dfb94"
+      "$oid": "6877655858e2f14cfcb3f9f5"
     },
     {
-      "$oid": "6537f447be0517258e7dfb92"
+      "$oid": "6877655e58e2f14cfcb3f9f6"
     },
     {
-      "$oid": "6537f44dbe0517258e7dfb93"
+      "$oid": "6877656758e2f14cfcb3f9f7"
     },
     {
-      "$oid": "6537f45abe0517258e7dfb97"
+      "$oid": "6877657258e2f14cfcb3f9f8"
     },
     {
-      "$oid": "6537f45dbe0517258e7dfb98"
+      "$oid": "6877657b58e2f14cfcb3f9f9"
     },
     {
-      "$oid": "6537f454be0517258e7dfb95"
+      "$oid": "6877658758e2f14cfcb3f9fa"
     },
     {
-      "$oid": "6537f460be0517258e7dfb99"
+      "$oid": "6877659158e2f14cfcb3f9fb"
     },
     {
-      "$oid": "6537f462be0517258e7dfb9a"
+      "$oid": "687765ae58e2f14cfcb3f9fd"
     },
     {
-      "$oid": "65dcb3fc9a8e614a638332e2"
+      "$oid": "687765b558e2f14cfcb3f9fe"
     },
     {
-      "$oid": "664371249a8e614a638332e3"
+      "$oid": "687765bb58e2f14cfcb3f9ff"
+    },
+    {
+      "$oid": "687765c058e2f14cfcb3fa00"
+    },
+    {
+      "$oid": "68777b5658e2f14cfcb3fa03"
     }
   ],
   "last_sync": {
-    "$date": "2024-05-14T14:12:37.842Z"
+    "$date": "2025-07-16T10:14:23.577Z"
   },
   "available": true
 },
 {
   "_id": {
-    "$oid": "67f5492a2f52c3901206662c"
+    "$oid": "6877a5c64afe567ca0ac23aa"
   },
   "roots": [
     {
       "oid": {
-        "$oid": "6537f44fbe0517258e7dfb94"
+        "$oid": "6877655858e2f14cfcb3f9f5"
       },
       "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.1"
+        "2.16.840.1.113883.2.9.10.1.6.1"
       ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodilaboratorioFULLBODY",
-      "version": "2.2"
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/verbalePS",
+      "version": "2.5"
     },
     {
       "oid": {
-        "$oid": "6537f447be0517258e7dfb92"
+        "$oid": "6877655e58e2f14cfcb3f9f6"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.5"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/LetteraDimissioneOspedaliera",
-      "version": "2.8"
+      "version": "2.9"
     },
     {
       "oid": {
-        "$oid": "6537f44dbe0517258e7dfb93"
+        "$oid": "6877656758e2f14cfcb3f9f7"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.4.1.1"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/ProfiloSanitarioSinteticoBody",
-      "version": "1.9"
+      "version": "2.0"
     },
     {
       "oid": {
-        "$oid": "6537f45abe0517258e7dfb97"
+        "$oid": "6877657258e2f14cfcb3f9f8"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.1"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodilaboratorioFULLBODY",
+      "version": "2.3"
+    },
+    {
+      "oid": {
+        "$oid": "6877657b58e2f14cfcb3f9f9"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.7.1"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiRadiologiaBody",
+      "version": "2.3"
+    },
+    {
+      "oid": {
+        "$oid": "6877658758e2f14cfcb3f9fa"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.9.1"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiSpecialisticaAmbulatorialeBody",
+      "version": "3.0"
+    },
+    {
+      "oid": {
+        "$oid": "6877659158e2f14cfcb3f9fb"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.11.1.1",
         "2.16.840.1.113883.2.9.10.1.11.1.2"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/Vaccinazioni",
-      "version": "2.0"
+      "version": "2.1"
     },
     {
       "oid": {
-        "$oid": "6537f45dbe0517258e7dfb98"
-      },
-      "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.6.1"
-      ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/verbalePS",
-      "version": "2.4"
-    },
-    {
-      "oid": {
-        "$oid": "6537f454be0517258e7dfb95"
-      },
-      "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.7.1"
-      ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiRadiologiaBody",
-      "version": "2.2"
-    },
-    {
-      "oid": {
-        "$oid": "6537f460be0517258e7dfb99"
+        "$oid": "687765ae58e2f14cfcb3f9fd"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.2.1"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/PrescrizioneFarmaceutica",
-      "version": "2.0"
+      "version": "2.1"
     },
     {
       "oid": {
-        "$oid": "6537f462be0517258e7dfb9a"
+        "$oid": "687765b558e2f14cfcb3f9fe"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.2.2"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/PrescrizioneSpecialistica",
-      "version": "2.0"
+      "version": "2.1"
     },
     {
       "oid": {
-        "$oid": "65dcb3fc9a8e614a638332e2"
+        "$oid": "687765bb58e2f14cfcb3f9ff"
       },
       "template_id_root": [
-        "2.16.840.1.113883.2.9.10.1.9.1"
+        "2.16.840.1.113883.2.9.10.1.13.1.1"
       ],
-      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiSpecialisticaAmbulatorialeBody",
-      "version": "2.9"
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/ErogazioneFarmaceutica",
+      "version": "1.1"
     },
     {
       "oid": {
-        "$oid": "664371249a8e614a638332e3"
+        "$oid": "687765c058e2f14cfcb3fa00"
+      },
+      "template_id_root": [
+        "2.16.840.1.113883.2.9.10.1.13.1.2"
+      ],
+      "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/ErogazioneSpecialistica",
+      "version": "1.1"
+    },
+    {
+      "oid": {
+        "$oid": "68777b5658e2f14cfcb3fa03"
       },
       "template_id_root": [
         "2.16.840.1.113883.2.9.10.1.8.1"
       ],
       "uri": "http://salute.gov.it/ig/cda-fhir-maps/StructureMap/RefertodiAnatomiaPatologica",
-      "version": "1.1"
+      "version": "1.2"
     }
   ],
   "files": [
     {
-      "$oid": "6537f43ebe0517258e7dfb8f"
+      "$oid": "6877654a58e2f14cfcb3f9f3"
     },
     {
-      "$oid": "6537f43fbe0517258e7dfb90"
+      "$oid": "6877655358e2f14cfcb3f9f4"
     },
     {
-      "$oid": "6537f44fbe0517258e7dfb94"
+      "$oid": "6877655858e2f14cfcb3f9f5"
     },
     {
-      "$oid": "6537f447be0517258e7dfb92"
+      "$oid": "6877655e58e2f14cfcb3f9f6"
     },
     {
-      "$oid": "6537f44dbe0517258e7dfb93"
+      "$oid": "6877656758e2f14cfcb3f9f7"
     },
     {
-      "$oid": "6537f45abe0517258e7dfb97"
+      "$oid": "6877657258e2f14cfcb3f9f8"
     },
     {
-      "$oid": "6537f45dbe0517258e7dfb98"
+      "$oid": "6877657b58e2f14cfcb3f9f9"
     },
     {
-      "$oid": "6537f454be0517258e7dfb95"
+      "$oid": "6877658758e2f14cfcb3f9fa"
     },
     {
-      "$oid": "6537f460be0517258e7dfb99"
+      "$oid": "6877659158e2f14cfcb3f9fb"
     },
     {
-      "$oid": "6537f462be0517258e7dfb9a"
+      "$oid": "687765ae58e2f14cfcb3f9fd"
     },
     {
-      "$oid": "65dcb3fc9a8e614a638332e2"
+      "$oid": "687765b558e2f14cfcb3f9fe"
     },
     {
-      "$oid": "664371249a8e614a638332e3"
+      "$oid": "687765bb58e2f14cfcb3f9ff"
+    },
+    {
+      "$oid": "687765c058e2f14cfcb3fa00"
+    },
+    {
+      "$oid": "68777b5658e2f14cfcb3fa03"
     }
   ],
   "last_sync": {
-    "$date": "2024-05-14T14:12:37.842Z"
+    "$date": "2025-07-16T10:14:23.577Z"
   },
   "available": false
 }]
