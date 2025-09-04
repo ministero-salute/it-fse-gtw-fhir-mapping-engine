@@ -9,6 +9,9 @@
 	<springProfile name="dev">
 		<property resource="application-dev.properties" />
 	</springProfile>
+	<springProfile name="docker">
+		<property resource="application-docker.properties" />
+	</springProfile>
 	<springProfile name="test">
 		<property resource="application-test.properties" />
 	</springProfile>
