@@ -17,12 +17,13 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
+import java.util.List;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -36,4 +37,5 @@ public class ContextDTO {
     private String serviceStopTime;
     private String referenceId;
     private String patientId;
+    private List<AdministrativeReqEnum> administrativeRequestEnum;
 }

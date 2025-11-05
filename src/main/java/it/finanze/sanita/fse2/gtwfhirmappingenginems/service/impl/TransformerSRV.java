@@ -58,18 +58,13 @@ public class TransformerSRV implements ITransformerSRV {
 	
 	@Autowired
 	private EngineSRV engineSRV;
-
-	/**
-	 * THREAD-SAFE version with shallow copy
-	 * Guaranteed safe for concurrent access
-	 */
+ 
 	@Override
 	public String transform(final String cda, final String engineId, final String objectId, 
 	                       final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
 
 	    Bundle originalBundle = engineSRV.manager().transform(cda, engineId, objectId);
 	    
-	    // Shallow copy protects against concurrent modifications
 	    Bundle bundle = originalBundle.copy();
 
 	    List<BundleEntryComponent> filteredEntries = chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate());
