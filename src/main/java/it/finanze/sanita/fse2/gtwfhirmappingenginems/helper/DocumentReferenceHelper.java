@@ -93,7 +93,7 @@ public class DocumentReferenceHelper {
 
 			if (!CollectionUtils.isEmpty(contextDTO.getAdministrativeRequestEnum())) {
 			    for (AdministrativeReqEnum adminReq : contextDTO.getAdministrativeRequestEnum()) {
-			        CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:ita:2022:administrativeRequest", adminReq.getCode(), adminReq.name()));
+			        CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:ita:2022:administrativeRequest", adminReq.getCode(), adminReq.getDescription()));
 			        events.add(ccEvent);
 			    }
 			}
