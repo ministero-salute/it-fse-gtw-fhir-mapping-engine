@@ -19,9 +19,11 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.helper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.hl7.fhir.r4.model.Attachment;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -33,16 +35,21 @@ import org.hl7.fhir.r4.model.Period;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ContextDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.EventCodeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DocumentReferenceHelper {
+	
+	private static final String FACILITY_TYPE_CODE_SYSTEM = "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.1";
+	private static final String PRACTICE_SETTINGCODE_SYSTEM = "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.2";
+	private static final String TIPODOC_LIVALTO_SYSTEM = "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.5";
 
 	private DocumentReferenceHelper() {}
 
-	//https://1up.health/dev/fhir/resource/DocumentReference/stu3
 	
 	private static void addCreationTime(DocumentReference dr, Date creationTime) {
 		dr.setDate(creationTime);
@@ -56,27 +63,18 @@ public class DocumentReferenceHelper {
 	
 	private static void addCategory(DocumentReference dr, String tipoDocumentoLivAlto) {
 		if(dr.getCategory()!=null) {
-			dr.getCategory().add(new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.5", tipoDocumentoLivAlto , null)));
+			dr.getCategory().add(new CodeableConcept(new Coding(TIPODOC_LIVALTO_SYSTEM, tipoDocumentoLivAlto , null)));
 		}
 	}
 	 
 	private static void addContext(DocumentReference dr, ContextDTO contextDTO) {
 		try {
 			DocumentReferenceContextComponent drcc = dr.getContext();
-			Coding codeFT = new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.1", contextDTO.getFacilityTypeCode(), null);
+			Coding codeFT = new Coding(FACILITY_TYPE_CODE_SYSTEM, contextDTO.getFacilityTypeCode(), null);
 			CodeableConcept ccFacilityType = new CodeableConcept(codeFT);
 			drcc.setFacilityType(ccFacilityType);
 	
-			List<CodeableConcept> events = new ArrayList<>();
-			if(contextDTO.getEventsCode()!=null) {
-				for(String eventCode : contextDTO.getEventsCode()) {
-					CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.3", eventCode , null));
-					events.add(ccEvent);
-				}
-			}
-			drcc.setEvent(events);
-			
-			drcc.setPracticeSetting(new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.2", contextDTO.getPracticeSettingCode() , null)));
+			drcc.setPracticeSetting(new CodeableConcept(new Coding(PRACTICE_SETTINGCODE_SYSTEM, contextDTO.getPracticeSettingCode() , null)));
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 			Period period = new Period();
@@ -88,7 +86,42 @@ public class DocumentReferenceHelper {
 				period.setEnd(sdf.parse(contextDTO.getServiceStopTime()));
 			}
 			drcc.setPeriod(period);
-	
+			
+			
+			List<CodeableConcept> events = new ArrayList<>();
+			boolean hasP99 = false;
+
+			if (!CollectionUtils.isEmpty(contextDTO.getAdministrativeRequestEnum())) {
+			    for (AdministrativeReqEnum adminReq : contextDTO.getAdministrativeRequestEnum()) {
+			        CodeableConcept ccEvent = new CodeableConcept(new Coding("urn:ita:2022:administrativeRequest", adminReq.getCode(), adminReq.getDescription()));
+			        events.add(ccEvent);
+			    }
+			}
+
+
+			if (contextDTO.getEventsCode() != null) {
+			    for (String eventCode : contextDTO.getEventsCode()) {
+			        CodeableConcept ccEvent = new CodeableConcept(
+			            new Coding(EventCodeEnum.OID, eventCode, null)
+			        );
+			        events.add(ccEvent);
+
+			        if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
+			            hasP99 = true;
+			        }
+			    }
+			}
+
+			drcc.setEvent(events);
+
+			if (hasP99) {
+			    CodeableConcept cc = new CodeableConcept();
+			    List<Coding> cods = new ArrayList<>();
+			    cods.add(new Coding(EventCodeEnum.OID, EventCodeEnum.P99.getCode(), EventCodeEnum.P99.getDescription()));
+			    cc.setCoding(cods);
+			    dr.setSecurityLabel(Arrays.asList(cc));
+			}
+
 		} catch (Exception ex) {
 			log.error("Error while running add context : " , ex);
 			throw new BusinessException("Error while running add context : " , ex);
@@ -135,6 +168,7 @@ public class DocumentReferenceHelper {
 					.practiceSettingCode(documentReferenceDTO.getPracticeSettingCode())
 					.serviceStartTime(documentReferenceDTO.getServiceStartTime())
 					.serviceStopTime(documentReferenceDTO.getServiceStopTime())
+					.administrativeRequestEnum(documentReferenceDTO.getAdministrativeRequestEnum())
 					.build();
 
 			addContext(dr, contextDTO);
