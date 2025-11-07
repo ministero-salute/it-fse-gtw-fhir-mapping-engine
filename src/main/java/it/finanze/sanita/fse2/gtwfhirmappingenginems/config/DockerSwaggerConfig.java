@@ -14,7 +14,7 @@ public class DockerSwaggerConfig {
         public OpenApiCustomizer hideInternalEndpointInDocker() {
             return openApi -> {
                 if (openApi.getPaths() != null) {
-                    openApi.getPaths().remove(RouteUtility.API_TRANSFORM_BY_OBJ);
+                    openApi.getPaths().remove(RouteUtility.API_TRANSFORM_BY_OBJ_FULL);
                 }
             };
         }
