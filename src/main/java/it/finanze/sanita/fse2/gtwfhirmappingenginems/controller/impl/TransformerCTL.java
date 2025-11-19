@@ -17,24 +17,26 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -55,17 +57,15 @@ public class TransformerCTL implements ITransformerCTL {
 			try {
 				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
 				
-				String cdaTrasformed = service.transform(
-					cdaString,
-					dto.getEngineId(),
-					dto.getObjectId(),
-					dto.getDocumentReferenceDTO()
-				);
+				String cdaTrasformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
 			} catch(Throwable tr) {
+				log.error("Sono nel catch del convert cda to bundle",tr);
 				out.setErrorMessage(tr.getMessage());
 			}
+		} else {
+			log.error("Il cda in input è vuoto");
 		}
 		log.debug("Conversion of CDA completed");
 		return out;

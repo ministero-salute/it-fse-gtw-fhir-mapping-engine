@@ -18,14 +18,11 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.AbstractDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 
 
 /**
@@ -34,13 +31,7 @@ import javax.validation.constraints.Size;
  * 	Error response.
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class ErrorResponseDTO extends AbstractDTO {
-
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = 55830152402769144L;
+public class ErrorResponseDTO {
 
 	/**
 	 * Trace id log.

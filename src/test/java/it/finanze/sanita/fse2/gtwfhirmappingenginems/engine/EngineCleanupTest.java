@@ -17,20 +17,28 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractCleanupEngineTest;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Slf4j
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -40,7 +48,7 @@ public class EngineCleanupTest extends AbstractCleanupEngineTest {
 
     private static final int DAYS_AFTER_INSERTION = 5;
 
-    @MockBean
+    @MockitoBean
     private IConfigSRV config;
 
     @BeforeEach

@@ -1,24 +1,26 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.client.IConfigClient;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.client.config.ConfigItemDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ConfigItemTypeEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.client.routes.base.ClientRoutes.Config.CFG_ITEMS_RETENTION_DAY;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ConfigItemTypeEnum.FHIR_MAPPING_ENGINE;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.client.routes.base.ClientRoutes.Config.CFG_ITEMS_RETENTION_DAY;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ConfigItemTypeEnum.FHIR_MAPPING_ENGINE;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.client.IConfigClient;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.client.config.ConfigItemDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ConfigItemTypeEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -29,6 +31,9 @@ public class ConfigSRV implements IConfigSRV {
 
     @Autowired
     private ProfileUtility profiles;
+
+    @Value("${ms.config.refresh-rate:900000}")
+	private Long refreshRate;
 
     private final Map<String, Pair<Long, String>> props;
 
@@ -81,7 +86,7 @@ public class ConfigSRV implements IConfigSRV {
 
     @Override
     public long getRefreshRate() {
-        return 300_000L;
+        return this.refreshRate;
     }
 
     private static final class Locks {

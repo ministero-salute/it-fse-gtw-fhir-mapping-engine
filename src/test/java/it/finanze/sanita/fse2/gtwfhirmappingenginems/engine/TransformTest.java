@@ -17,24 +17,32 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.BASE_PATH;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
 import org.hl7.fhir.exceptions.FHIRException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
-
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles(TEST)
@@ -51,16 +59,40 @@ class TransformTest extends AbstractEngineTest {
         // Reload engines (if required)
         initEngine();
     }
-	
-	@Test
-	void transform() throws FHIRException, IOException {
-		String json = service.transform(
-			LAB.read(),
-            LAB_ENGINE.engineId(),
-            LAB_ENGINE.transformId(),
-            null);
 
-		assertNotNull(json);
-	}
+    // Input CDA in src/test/resources/cda/
+    // Output in target/test-output/cda-to-bundle
+    @ParameterizedTest
+    @CsvSource({
+            "LAB, 6877bb031e71a91de9280aff, 6877bac1c799cf749958624e",
+    })
+    void transformCDA(String cdaFileName, String engineId, String transformId) throws Exception {
+        Path filePath = Path.of("src/test/resources/cda/", cdaFileName + ".xml");
+
+        String json = service.transform(new String(Files.readAllBytes(filePath), UTF_8), engineId, transformId, null);
+
+        assertNotNull(json);
+
+        // Write JSON to file
+        Path outputPath = Path.of("target", "test-output", "cda-to-bundle", cdaFileName + "_transform.json");
+        Files.createDirectories(outputPath.getParent());
+        Files.writeString(outputPath, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+        System.out.println("JSON written to " + outputPath.toAbsolutePath());
+    }
+
+    @Test
+    void transformLAB() throws FHIRException, IOException {
+        String json = service.transform(LAB.read(), LAB_ENGINE.engineId(), LAB_ENGINE.transformId(), null);
+
+        assertNotNull(json);
+
+        // Write JSON to file
+        Path outputPath = Path.of("target", "test-output", "cda-to-bundle", "lab_transform.json");
+        Files.createDirectories(outputPath.getParent());
+        Files.writeString(outputPath, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+        System.out.println("JSON written to " + outputPath.toAbsolutePath());
+    }
 	
 }

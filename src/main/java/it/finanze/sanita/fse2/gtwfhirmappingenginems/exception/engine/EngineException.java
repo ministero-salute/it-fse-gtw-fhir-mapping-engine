@@ -18,7 +18,9 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine;
 
 public class EngineException extends RuntimeException {
-    /**
+    private static final long serialVersionUID = 6361143662427998444L;
+
+	/**
      * Constructs a new runtime exception with the specified detail message.
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.

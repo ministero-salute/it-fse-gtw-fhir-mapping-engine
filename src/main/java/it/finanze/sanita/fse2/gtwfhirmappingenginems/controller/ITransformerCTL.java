@@ -17,6 +17,24 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller;
 
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_ENGINE_ID_VAR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_FILE_VAR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_OBJECT_ID_VAR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_BY_OBJ;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_STATELESS_BY_OBJ;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.DOCUMENTS_MAPPER;
+
+import java.io.IOException;
+
+import org.bson.Document;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,15 +44,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
-import org.bson.Document;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 

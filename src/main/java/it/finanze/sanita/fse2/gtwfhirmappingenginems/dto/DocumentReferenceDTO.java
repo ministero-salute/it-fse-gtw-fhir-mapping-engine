@@ -19,8 +19,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
 import java.util.List;
 
-import javax.validation.constraints.Size;
-
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,30 +32,14 @@ import lombok.NoArgsConstructor;
 public class DocumentReferenceDTO {
 
 	private Integer size;
-
-	@Size(min = 0, max = 100)
 	private String hash;      
-
-	@Size(min = 0, max = 100)
 	private String facilityTypeCode;
-
-	@Size(min = 0, max = 100)
 	private List<String> eventCode;
-
-	@Size(min = 0, max = 100)
 	private String practiceSettingCode;
-
-	@Size(min = 0, max = 100)
 	private String tipoDocumentoLivAlto;
-
-	@Size(min = 0, max = 100)
 	private String repositoryUniqueID;
-
-	@Size(min = 0, max = 100)
 	private String serviceStartTime;
-
-	@Size(min = 0, max = 100)
 	private String serviceStopTime;
-
 	private String identificativoDoc;
+	private List<AdministrativeReqEnum> administrativeRequestEnum;
 }

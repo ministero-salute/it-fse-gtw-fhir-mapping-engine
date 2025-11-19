@@ -3,12 +3,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.5.7</version>
 		<relativePath />
-		<!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>it.finanze.sanita.fse2</groupId>
@@ -19,9 +19,10 @@
 
 	<properties>
 		<!-- Application -->
-		<java.version>11</java.version>
-		<spring-cloud.version>2021.0.1</spring-cloud.version>
-		<start-class>it.finanze.sanita.fse2.gtwfhirmappingenginems.GtwFhirMappingEngineMsApplication</start-class>
+		<java.version>21</java.version>
+		<spring-cloud.version>2025.0.0</spring-cloud.version>
+		<start-class>
+			it.finanze.sanita.fse2.gtwfhirmappingenginems.GtwFhirMappingEngineMsApplication</start-class>
 		<!-- Build -->
 		<config.infra>${project.basedir}/infrastructure</config.infra>
 		<container.output>target/container</container.output>
@@ -32,13 +33,10 @@
 		<sonar.exclusions>
 			src/main/java/it/finanze/sanita/fse2/ms/gtwfhirmappingenginems/config/**/*.*
 		</sonar.exclusions>
+		<logback.version>1.5.16</logback.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -51,43 +49,18 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-		</dependency>
-
 
 		<!-- MONGODB -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver-sync</artifactId>
-			<version>4.8.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver-core</artifactId>
-			<version>4.8.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>bson</artifactId>
-			<version>4.8.2</version>
-		</dependency>
+		
 		<!-- DEVTOOL -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
-		</dependency>
-
-		<!-- TRACING -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-sleuth</artifactId>
 		</dependency>
 
 		<!-- LOGBACK JSON -->
@@ -107,11 +80,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-prometheus</artifactId>
-			<scope>runtime</scope>
-		</dependency>
 
 		<!-- RESILIENCE -->
 		<dependency>
@@ -123,11 +91,12 @@
 			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
 		</dependency>
 
-		<!-- OPENAPI-UI -->
+		<!-- OpenAPI -->
+		<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
 		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.11</version>
+		    <groupId>org.springdoc</groupId>
+		    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+		    <version>2.8.13</version>
 		</dependency>
 
 		<!-- JSOUP -->
@@ -136,23 +105,28 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.15.3</version>
 		</dependency>
-
-		<!-- MATCHBOX -->
+ 
 		<dependency>
-			<groupId>com.matchbox</groupId>
-			<artifactId>matchbox</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/matchbox-engine.jar</systemPath>
+			<groupId>health.matchbox</groupId>
+			<artifactId>matchbox-engine</artifactId>
+			<version>4.0.8</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-compress</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-		
-		<!-- FHIR -->
-	    <dependency>
-		      <groupId>ca.uhn.hapi.fhir</groupId>
-		      <artifactId>org.hl7.fhir.validation</artifactId>
-		      <version>5.6.88</version>
-	    </dependency>
-		
+
+		<!-- Poi aggiungi una versione specifica -->
+		<!--
+		https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.26.0</version>
+		</dependency>
+ 
 		<!-- SHEDLOCK -->
 		<dependency>
 			<groupId>net.javacrumbs.shedlock</groupId>
@@ -171,6 +145,23 @@
 			<version>4.2.0</version>
 			<scope>test</scope>
 		</dependency>
+
+		 <!-- OpenTelemetry - Micrometer -->
+	    <dependency>
+	      <groupId>io.opentelemetry.instrumentation</groupId>
+	      <artifactId>opentelemetry-spring-boot-starter</artifactId>
+	    </dependency>
+	
+	    <dependency>
+	      <groupId>io.opentelemetry</groupId>
+	      <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
+	    </dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
@@ -182,21 +173,29 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry.instrumentation</groupId>
+				<artifactId>opentelemetry-instrumentation-bom</artifactId>
+				<version>2.15.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
- 
+
+
 	<build>
 		<finalName>${project.artifactId}</finalName>
 
 		<plugins>
 
 			<plugin>
-			  <groupId>org.springframework.boot</groupId>
-			  <artifactId>spring-boot-maven-plugin</artifactId>
-			  <configuration>
-			    <includeSystemScope>true</includeSystemScope>
-			  </configuration>
-			</plugin> 
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<includeSystemScope>true</includeSystemScope>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -209,10 +208,18 @@
 				<version>0.8.12</version>
 				<configuration>
 					<excludes>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/dto/**/*.*</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/utility/**/*.*</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/config/**/*.*</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/repository/**/*.*</exclude>
+						<exclude>
+							src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/dto/**/*.*</exclude>
+						<exclude>
+							src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/utility/**/*.*</exclude>
+						<exclude>
+							src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/config/**/*.*</exclude>
+						<exclude>
+							src/main/java/it/finanze/sanita/fse2/ms/gtw/fhirmapping/repository/**/*.*</exclude>
+						<exclude>org/hl7/fhir/r4/formats/JsonParser</exclude>
+						<exclude>org/hl7/fhir/r4/formats/XmlParser</exclude>
+						<exclude>org/hl7/fhir/r5/formats/JsonParser</exclude>
+						<exclude>org/hl7/fhir/r5/formats/XmlParser</exclude>
 					</excludes>
 				</configuration>
 				<executions>
@@ -275,21 +282,30 @@
 								<if>
 									<available file="infrastructure" />
 									<then>
-										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output.runtime}"
+										<!-- copy common resources of server
+										runtime to project build directory -->
+										<copy
+											todir="${container.output.runtime}"
 											overwrite="true" failonerror="false">
-											<fileset dir="${config.infra}/runtime" includes="**" />
+											<fileset
+												dir="${config.infra}/runtime"
+												includes="**" />
 										</copy>
-										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output}" overwrite="true"
+										<!-- copy common resources of server
+										runtime to project build directory -->
+										<copy todir="${container.output}"
+											overwrite="true"
 											failonerror="false">
 											<fileset dir="${project.basedir}"
 												includes="Dockerfile" />
 										</copy>
-										<!-- copy common resources of server runtime to project build directory -->
-										<copy todir="${container.output}" overwrite="true"
+										<!-- copy common resources of server
+										runtime to project build directory -->
+										<copy todir="${container.output}"
+											overwrite="true"
 											failonerror="false">
-											<fileset dir="${project.basedir}/target"
+											<fileset
+												dir="${project.basedir}/target"
 												includes="${project.artifactId}.jar" />
 										</copy>
 									</then>

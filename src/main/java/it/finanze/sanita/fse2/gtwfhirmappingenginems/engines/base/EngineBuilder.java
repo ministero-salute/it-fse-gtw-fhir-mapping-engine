@@ -154,8 +154,9 @@ public class EngineBuilder {
     private CdaMappingEngine createEngine() throws EngineBuilderException {
         CdaMappingEngine engine;
         try {
+        	engine = new CdaMappingEngineBuilder().getCdaEngineR4();
             // Preload default packages
-            engine = new CdaMappingEngineBuilder().getEngine();
+//            engine = new CdaMappingEngineBuilder().getEngine();
         } catch (IOException | URISyntaxException e) {
             throw new EngineBuilderException(ERR_BLD_ENGINE_UNAVAILALE, e);
         }

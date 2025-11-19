@@ -17,14 +17,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.data.mongodb.core.MongoTemplate;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,16 +25,25 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public abstract class AbstractCleanupEngineTest {
 
     @Autowired
     protected MongoTemplate mongo;
 
-    @SpyBean
+    @MockitoSpyBean
     protected IEngineRepo repository;
 
-    @SpyBean
+    @MockitoSpyBean
     protected IEngineSRV service;
 
 

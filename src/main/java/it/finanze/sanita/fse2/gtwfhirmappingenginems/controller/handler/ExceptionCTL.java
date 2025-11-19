@@ -17,12 +17,10 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.handler;
 
-import brave.Tracer;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineSchedulerException;
-import lombok.extern.slf4j.Slf4j;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.ErrorBuilderDTO.createEngineInitError;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.ErrorBuilderDTO.createGenericError;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.ErrorBuilderDTO.createSchedulerRunningError;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Properties.MS_NAME;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -31,7 +29,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.ErrorBuilderDTO.*;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.Tracer;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineSchedulerException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *	Exceptions handler
@@ -43,8 +47,8 @@ public class ExceptionCTL extends ResponseEntityExceptionHandler {
     /**
      * Tracker log.
      */
-    @Autowired
-    private Tracer tracer;
+	@Autowired
+	private Tracer tracer;
 
     @ExceptionHandler(value = {Exception.class})
     protected ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
@@ -83,21 +87,18 @@ public class ExceptionCTL extends ResponseEntityExceptionHandler {
         headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
         return new ResponseEntity<>(out, headers, out.getStatus());
     }
+ 
+ 
 
-    /**
-     * Generate a new {@link LogTraceInfoDTO} instance
-     * @return The new instance
-     */
-    private LogTraceInfoDTO getLogTraceInfo() {
-        // Create instance
-        LogTraceInfoDTO out = new LogTraceInfoDTO(null, null);
-        // Verify if context is available
-        if (tracer.currentSpan() != null) {
-            out = new LogTraceInfoDTO(
-                tracer.currentSpan().context().spanIdString(),
-                tracer.currentSpan().context().traceIdString());
-        }
-        // Return the log trace
-        return out;
-    }
+    protected LogTraceInfoDTO getLogTraceInfo() {
+		LogTraceInfoDTO out = new LogTraceInfoDTO(null, null);
+		SpanBuilder spanbuilder = tracer.spanBuilder(MS_NAME);
+		
+		if (spanbuilder != null) {
+			out = new LogTraceInfoDTO(
+					spanbuilder.startSpan().getSpanContext().getSpanId(), 
+					spanbuilder.startSpan().getSpanContext().getTraceId());
+		}
+		return out;
+	}
 }
