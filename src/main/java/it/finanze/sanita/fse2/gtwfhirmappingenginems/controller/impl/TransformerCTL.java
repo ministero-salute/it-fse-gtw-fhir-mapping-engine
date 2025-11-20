@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,9 +73,9 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 	
 	@Override
-	public Document convertCDAToBundleStateless(String engineId, String objectId, MultipartFile file) throws IOException {
+	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
-		String bundle = service.transform(getCDA(file), engineId, objectId, null);
+		String bundle = service.transform(getCDA(file), engineId, objectId, documentReferenceDTO);
 		Document doc = Document.parse(bundle);
 		log.debug("Conversion of CDA completed");
 		return doc;
