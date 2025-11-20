@@ -26,6 +26,8 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility
 
 import java.io.IOException;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import org.bson.Document;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,21 +65,26 @@ public interface ITransformerCTL {
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
 	TransformResDTO convertCDAToBundle(@RequestBody FhirResourceDTO fhirResourceDTO,HttpServletRequest request);
-	
-	@PostMapping(value = API_TRANSFORM_STATELESS_BY_OBJ, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
+
+    @PostMapping(
+            value = API_TRANSFORM_STATELESS_BY_OBJ,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
 	})
 	Document convertCDAToBundleStateless(
-			@PathVariable(API_ENGINE_ID_VAR)
-			String engineId,
-			@PathVariable(API_OBJECT_ID_VAR)
-			String objectId,
-			@RequestPart(API_FILE_VAR)
-			MultipartFile file
-	) throws IOException;
+            @Parameter(description = "FHIR DocumentReference as JSON",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = DocumentReferenceDTO.class)))
+            @RequestPart("documentReference") DocumentReferenceDTO documentReferenceDTO,
+            @PathVariable(API_ENGINE_ID_VAR) String engineId,
+            @PathVariable(API_OBJECT_ID_VAR) String objectId,
+            @RequestPart("file") MultipartFile file
+            ) throws IOException;
 
 }
