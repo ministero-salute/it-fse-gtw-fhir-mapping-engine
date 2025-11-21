@@ -78,10 +78,10 @@ public interface ITransformerCTL {
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
 	})
 	Document convertCDAToBundleStateless(
-            @Parameter(description = "FHIR DocumentReference as JSON",
+            @Parameter(description = "FHIR DocumentReference as JSON", required = false,
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = DocumentReferenceDTO.class)))
-            @RequestPart("documentReference") DocumentReferenceDTO documentReferenceDTO,
+            @RequestPart(name = "documentReference", required = false) DocumentReferenceDTO documentReferenceDTO,
             @PathVariable(API_ENGINE_ID_VAR) String engineId,
             @PathVariable(API_OBJECT_ID_VAR) String objectId,
             @RequestPart("file") MultipartFile file
