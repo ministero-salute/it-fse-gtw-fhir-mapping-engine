@@ -19,6 +19,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +39,9 @@ public class DocumentReferenceDTO {
 	private String practiceSettingCode;
 	private String tipoDocumentoLivAlto;
 	private String repositoryUniqueID;
-	private String serviceStartTime;
+    @Schema(example = "yyyyMMddHHmmss")
+    private String serviceStartTime;
+    @Schema(example = "yyyyMMddHHmmss")
 	private String serviceStopTime;
 	private String identificativoDoc;
 	private List<AdministrativeReqEnum> administrativeRequestEnum;
