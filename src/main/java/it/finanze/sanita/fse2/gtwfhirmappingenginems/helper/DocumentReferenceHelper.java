@@ -129,12 +129,16 @@ public class DocumentReferenceHelper {
 
 	}
  
-	private static void addContent(DocumentReference dr,  String repositoryUniqueID, String mimeType, String hash, int size, String languageCode) {
+	private static void addContent(DocumentReference dr,  String repositoryUniqueID, String mimeType, String hash, Integer size, String languageCode) {
 		Attachment attachment = new Attachment();
 		attachment.setUrl(repositoryUniqueID);
 		attachment.setContentType(mimeType);
-		attachment.setHash(hash.getBytes());
-		attachment.setSize(size);
+        if (hash != null){
+            attachment.setHash(hash.getBytes());
+        }
+        if (size != null){
+            attachment.setSize(size);
+        }
 		attachment.setLanguage(languageCode);
 		dr.getContent().get(0).setAttachment(attachment);
 	}
@@ -143,7 +147,7 @@ public class DocumentReferenceHelper {
 		Identifier mid = new Identifier();
 		
 		mid.setSystem("urn:uuid:"+ StringUtility.generateUUID());
-		if (masterIdentifier.contains("^")) {
+		if (masterIdentifier != null && masterIdentifier.contains("^")) {
 			String[] masterIdentifierSplit = masterIdentifier.split("\\^");
 			mid.setValue(masterIdentifierSplit[1]);
 		} else {
