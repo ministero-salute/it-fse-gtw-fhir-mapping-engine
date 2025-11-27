@@ -42,7 +42,7 @@ public interface IConverterCTL {
       summary = "Conversione Bundle DOCUMENT to TRANSACTION",
       description =
                     """
-                    Converte un Bundle FHIR di tipo DOCUMENT (derivato da CDA) in un Bundle FHIR di tipo TRANSACTION. 
+                    Converte un Bundle FHIR di tipo DOCUMENT in un Bundle FHIR di tipo TRANSACTION.
                     Il body deve contenere un Bundle FHIR valido in formato JSON, con resourceType = "Bundle" e type = "document"
                     """ )
   @ApiResponses(value = {
