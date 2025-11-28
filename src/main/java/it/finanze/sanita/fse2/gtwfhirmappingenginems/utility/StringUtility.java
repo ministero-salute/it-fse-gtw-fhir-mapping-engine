@@ -17,19 +17,23 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.utility;
 
-import lombok.extern.slf4j.Slf4j;
-
+import java.security.MessageDigest;
 import java.util.UUID;
 
+import org.apache.commons.codec.binary.Hex;
+
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StringUtility {
 
-	/**
-	 * Private constructor to avoid instantiation.
-	 */
-	private StringUtility() {
-		// Constructor intentionally empty.
-	}
+	private static final String SHA_ALGORITHM = "SHA-256";
+	
+	
 	     
 	public static String generateUUID() {
 	    return UUID.randomUUID().toString();
@@ -44,4 +48,20 @@ public final class StringUtility {
 	public static boolean isNullOrEmpty(final String str) {
 		return str == null || str.isEmpty();
 	}
+	
+	/**
+	 * Returns the encoded String of the SHA-256 algorithm represented in base 64.
+	 * 
+	 * @param objectToEncode String to encode.
+	 * @return String Encoded.
+	 */
+	public static String encodeSHA256(final byte[] objectToEncode) {
+		try {
+			final MessageDigest digest = MessageDigest.getInstance(SHA_ALGORITHM);
+			return Hex.encodeHexString(digest.digest(objectToEncode));
+		} catch (final Exception e) {
+			throw new BusinessException(e);
+		}
+	}
+	
 }
