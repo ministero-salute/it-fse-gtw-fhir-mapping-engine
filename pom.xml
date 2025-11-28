@@ -118,9 +118,14 @@
 			</exclusions>
 		</dependency>
 
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
+            <version>6.4.1</version>
+        </dependency>
+
 		<!-- Poi aggiungi una versione specifica -->
-		<!--
-		https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+		<!--https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
