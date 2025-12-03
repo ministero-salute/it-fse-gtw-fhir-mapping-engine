@@ -25,5 +25,4 @@ import java.io.IOException;
 public interface ITransformerSRV {
 
 	String transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref) throws FHIRException, IOException;
-
 }

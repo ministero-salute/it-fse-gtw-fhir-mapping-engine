@@ -26,8 +26,12 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +53,8 @@ public class TransformerCTL implements ITransformerCTL {
 
 	@Autowired
 	private ITransformerSRV service;
+    @Autowired
+    private IConverterSRV converterService;
 
 	@Override
 	public TransformResDTO convertCDAToBundle(FhirResourceDTO dto, HttpServletRequest request) {
@@ -71,7 +77,7 @@ public class TransformerCTL implements ITransformerCTL {
 		log.debug("Conversion of CDA completed");
 		return out;
 	}
-	
+
 	@Override
 	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
@@ -80,6 +86,16 @@ public class TransformerCTL implements ITransformerCTL {
 		log.debug("Conversion of CDA completed");
 		return doc;
 	}
+
+    @Override
+    public ResponseEntity<TransformResDTO> convertDocumentToTransaction(FhirDocumentDTO dto, HttpServletRequest request)  throws IOException {
+
+        Document transactionBundleJson =
+            converterService.convertDocumentToTransactionJson(dto.getBundleJson());
+        TransformResDTO resDTO = new TransformResDTO();
+        resDTO.setJson(transactionBundleJson);
+        return ResponseEntity.ok(resDTO);
+    }
 
 	protected String getCDA(final MultipartFile file) {
 		try {

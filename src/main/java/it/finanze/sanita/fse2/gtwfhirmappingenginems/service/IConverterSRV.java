@@ -1,5 +1,8 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
+import org.bson.Document;
+import org.hl7.fhir.r4.model.Bundle;
+
 public interface IConverterSRV {
 
   /**
@@ -8,5 +11,11 @@ public interface IConverterSRV {
    * @param documentBundleJson JSON del Bundle FHIR di tipo DOCUMENT
    * @return JSON del Bundle FHIR di tipo TRANSACTION
    */
-  String convertDocumentToTransactionJson(String documentBundleJson);
+  Document convertDocumentToTransactionJson(String documentBundleJson);
+
+    /**
+     * Parses a JSON string and returns a FHIR Bundle object.
+     */
+    Bundle getBundleFromJson(String bundleJson);
+
 }

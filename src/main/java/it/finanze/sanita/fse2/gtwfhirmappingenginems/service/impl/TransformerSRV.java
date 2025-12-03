@@ -8,7 +8,6 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
@@ -34,32 +33,32 @@ public class TransformerSRV implements ITransformerSRV {
  
     private static final String SYSTEM_SCORING = "http://algoritmodiscoring";
     private static final String HTTPS_EXAMPLE_PREFIX = "https://example/";
-    
+
     @Autowired
     private FhirTransformCFG transformCFG;
-    
+
     @Autowired
     private EngineSRV engineSRV;
- 
+
     @Override
-    public String transform(final String cda, final String engineId, final String objectId, 
+    public String transform(final String cda, final String engineId, final String objectId,
                            final DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException {
 
         Bundle originalBundle = engineSRV.manager().transform(cda, engineId, objectId);
-        
+
         // Defensive copy per thread-safety
         Bundle bundle = originalBundle.copy();
-        
+
         processBundle(bundle);
-        
+
         List<BundleEntryComponent> filteredEntries = chooseMajorSize(
-            bundle.getEntry(), 
+            bundle.getEntry(),
             transformCFG.getAlgToRemoveDuplicate()
         );
         bundle.setEntry(filteredEntries);
 
         DocumentReference documentReference = findAndModifyDocumentReference(bundle, documentReferenceDTO);
-        
+
         if (documentReference == null && documentReferenceDTO != null) {
             log.warn("DocumentReference not found in bundle for objectId: {}", objectId);
         }
@@ -68,16 +67,16 @@ public class TransformerSRV implements ITransformerSRV {
         System.out.println(JsonParserHolder.get().composeString(bundle));
         return JsonParserHolder.get().composeString(bundle);
     }
-    
+
     private DocumentReference findAndModifyDocumentReference(Bundle bundle, DocumentReferenceDTO dto) {
         if (dto == null || bundle.getEntry() == null) {
             return null;
         }
-        
+
         // Stream più efficiente per ricerca
         return bundle.getEntry().stream()
             .map(BundleEntryComponent::getResource)
-            .filter(resource -> resource != null && 
+            .filter(resource -> resource != null &&
                     ResourceType.DocumentReference == resource.getResourceType())
             .map(resource -> (DocumentReference) resource)
             .findFirst()
@@ -87,7 +86,7 @@ public class TransformerSRV implements ITransformerSRV {
             })
             .orElse(null);
     }
-    
+
     private void processBundle(Bundle bundle) {
         if (bundle == null || bundle.getEntry() == null || bundle.getEntry().isEmpty()) {
             return;
@@ -96,7 +95,7 @@ public class TransformerSRV implements ITransformerSRV {
         BundleProcessor processor = new BundleProcessor(bundle);
         processor.process();
     }
-    
+
     /**
      * Processore ottimizzato per gestione Bundle con thread-safety migliorata
      */
@@ -230,7 +229,7 @@ public class TransformerSRV implements ITransformerSRV {
             resourcesToUpdate.parallelStream()
                 .forEach(item -> item.references.forEach(this::updateSingleReference));
         }
-        
+
         private static class ResourceWithReferences {
             final List<Reference> references;
 
@@ -263,15 +262,15 @@ public class TransformerSRV implements ITransformerSRV {
             }
         }
     }
-    
+
     /**
      * Ottiene tutti i riferimenti da una risorsa in modo ottimizzato
      */
     private List<Reference> getAllReferencesOptimized(Resource resource) {
         List<Reference> references = new ArrayList<>();
-        
+
         try {
-            resource.children().forEach(property -> 
+            resource.children().forEach(property ->
                 property.getValues().forEach(value -> {
                     if (value instanceof Reference) {
                         references.add((Reference) value);
@@ -279,23 +278,23 @@ public class TransformerSRV implements ITransformerSRV {
                 })
             );
         } catch (Exception e) {
-            log.warn("Error extracting references from resource {}: {}", 
+            log.warn("Error extracting references from resource {}: {}",
                      resource.getIdElement().getIdPart(), e.getMessage());
         }
-        
+
         return references;
     }
-     
+
     /**
      * ThreadLocal JsonParser - thread-safe e performante
      */
     private static class JsonParserHolder {
         private static final ThreadLocal<JsonParser> PARSER = ThreadLocal.withInitial(JsonParser::new);
-        
+
         public static JsonParser get() {
             return PARSER.get();
         }
-        
+
         // Cleanup per evitare memory leaks in application server
         public static void remove() {
             PARSER.remove();
@@ -306,85 +305,85 @@ public class TransformerSRV implements ITransformerSRV {
         if (bundle.getEntry() == null) {
             return;
         }
-        
+
         bundle.getEntry().parallelStream()
             .map(BundleEntryComponent::getResource)
             .filter(Objects::nonNull)
             .map(Resource::getMeta)
             .filter(Objects::nonNull)
-            .forEach(meta -> meta.getTag().removeIf(c -> 
+            .forEach(meta -> meta.getTag().removeIf(c ->
                 c.getSystem() != null && c.getSystem().equalsIgnoreCase(SYSTEM_SCORING)
             ));
     }
-    
+
     /**
      * Sceglie l'entry con peso maggiore, thread-safe
      */
-    private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries, 
+    private List<BundleEntryComponent> chooseMajorSize(List<BundleEntryComponent> entries,
                                                        final TransformALGEnum transfAlg) {
         if (entries == null || entries.isEmpty()) {
             return new ArrayList<>();
         }
 
         Map<String, BundleEntryComponent> toKeep = new ConcurrentHashMap<>();
-        
+
         entries.parallelStream()
             .filter(entry -> entry.getResource() != null)
             .forEach(resourceEntry -> {
                 Resource resource = resourceEntry.getResource();
                 String key = resource.getResourceType().toString() + "_" + resource.getId();
-                
+
                 toKeep.compute(key, (k, existingEntry) -> {
                     if (existingEntry == null) {
                         return resourceEntry;
                     }
-                    
+
                     float newWeight = calculateWeight(resourceEntry, transfAlg);
                     float oldWeight = calculateWeight(existingEntry, transfAlg);
-                    
-                    if (newWeight > oldWeight || 
+
+                    if (newWeight > oldWeight ||
                         (newWeight == oldWeight && TransformALGEnum.KEEP_RICHER_DOWN.equals(transfAlg))) {
                         return resourceEntry;
                     }
                     return existingEntry;
                 });
             });
-        
+
         return new ArrayList<>(toKeep.values());
     }
-    
+
     /**
      * Calcola il peso con caching ottimizzato
      */
-    private float calculateWeight(final BundleEntryComponent bundleEntryComponent, 
+    private float calculateWeight(final BundleEntryComponent bundleEntryComponent,
                                  final TransformALGEnum transfAlg) {
         Resource resource = bundleEntryComponent.getResource();
         if (resource == null) {
             return 0;
         }
-        
+
         switch (transfAlg) {
             case KEEP_LONGER:
                 return GsonHolder.get().toJson(resource).length();
-                
+
             case KEEP_RICHER_UP:
             case KEEP_RICHER_DOWN:
                 return resource.listChildrenByName("*").size();
-                
+
             case KEEP_PRIOR:
                 return calculatePriorityWeight(resource);
-                
+
             default:
                 return 0;
         }
     }
-    
+
     private float calculatePriorityWeight(Resource resource) {
         Property prop = resource.getChildByName("meta");
         if (prop == null) {
             return 0;
         }
-        
+
         return prop.getValues().stream()
             .filter(entry -> entry instanceof Meta)
             .map(entry -> (Meta) entry)
@@ -397,16 +396,16 @@ public class TransformerSRV implements ITransformerSRV {
             .findFirst()
             .orElse(0f);
     }
-    
+
     /**
      * ThreadLocal Gson - thread-safe e performante
      */
     private static class GsonHolder {
         private static final ThreadLocal<Gson> GSON = ThreadLocal.withInitial(Gson::new);
-        
+
         public static Gson get() {
             return GSON.get();
         }
-        
+
     }
 }

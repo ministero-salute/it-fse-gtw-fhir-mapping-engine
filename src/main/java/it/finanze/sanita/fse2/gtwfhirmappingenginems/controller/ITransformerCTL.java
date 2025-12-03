@@ -28,8 +28,10 @@ import java.io.IOException;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import org.bson.Document;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,5 +88,25 @@ public interface ITransformerCTL {
             @PathVariable(API_OBJECT_ID_VAR) String objectId,
             @RequestPart("file") MultipartFile file
             ) throws IOException;
+
+
+    @Operation(
+            summary = "Conversione Bundle DOCUMENT to TRANSACTION",
+            description =
+                    """
+                    Converte un Bundle FHIR di tipo DOCUMENT in un Bundle FHIR di tipo TRANSACTION.
+                    Il body deve contenere un Bundle FHIR valido in formato JSON, con resourceType = "Bundle" e type = "document"
+                    """ )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conversione eseguita con successo. Ritorna un Bundle FHIR di tipo TRANSACTION.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Errore di validazione o formato non valido del Bundle in input.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Errore interno durante la conversione del Bundle.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @PostMapping(
+            path = "transform/document-to-transaction",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<TransformResDTO> convertDocumentToTransaction(@RequestBody FhirDocumentDTO fhirResourceDTO,
+                                                          HttpServletRequest request) throws IOException;
 
 }
