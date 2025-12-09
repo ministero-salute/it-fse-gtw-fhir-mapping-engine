@@ -15,16 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
+package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
-import org.hl7.fhir.exceptions.FHIRException;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.IOException;
+@Data
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
+public class UpdateDocumentReferenceRequestDTO {
 
-public interface ITransformerSRV {
-
-	String transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref) throws FHIRException, IOException;
-
-	String mergeDocumentReferenceForUpdate(String oldDocumentReference, DocumentReferenceDTO newDocumentReference);
+	private String oldDocumentReference;
+	private DocumentReferenceDTO documentReferenceDTO;
 }
