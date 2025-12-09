@@ -128,7 +128,7 @@ public class TransformerCTL implements ITransformerCTL {
     }
 
     @Override
-    public ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(FhirDocumentDTO fhirDocumentDTO) {
+    public ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(FhirDocumentDTO fhirDocumentDTO) throws IOException {
         Document updatedBundle = service.addDocumentReferenceToBundle(fhirDocumentDTO.getBundleJson(), fhirDocumentDTO.getDocumentReferenceDTO());
         TransformResDTO response = new TransformResDTO();
         response.setJson(updatedBundle);

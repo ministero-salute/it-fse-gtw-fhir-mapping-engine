@@ -30,5 +30,5 @@ public interface ITransformerSRV {
 
 	String mergeDocumentReferenceForUpdate(String oldDocumentReference, DocumentReferenceDTO newDocumentReference);
 
-    Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto);
+    Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto) throws IOException;
 }

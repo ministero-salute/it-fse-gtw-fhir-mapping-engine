@@ -7,10 +7,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
@@ -90,7 +87,7 @@ public class TransformerSRV implements ITransformerSRV {
 
 		return bundle.getEntry().stream()
 				.map(BundleEntryComponent::getResource)
-				.filter(resource -> resource != null && 
+				.filter(resource -> resource != null &&
 						ResourceType.DocumentReference == resource.getResourceType())
 				.map(resource -> (DocumentReference) resource)
 				.findFirst()
@@ -426,15 +423,52 @@ public class TransformerSRV implements ITransformerSRV {
 		return jsonParser.encodeResourceToString(documentReference);
 	}
 
+    private DocumentReference generateDocumentReferenceIfNotPresent(Bundle bundle, DocumentReferenceDTO dto) {
+        if (dto == null || bundle == null || bundle.getEntry() == null) {
+            return null;
+        }
+
+        Optional<DocumentReference> existing = bundle.getEntry().stream()
+                .map(Bundle.BundleEntryComponent::getResource)
+                .filter(resource -> resource != null
+                        && ResourceType.DocumentReference == resource.getResourceType())
+                .map(resource -> (DocumentReference) resource)
+                .findFirst();
+
+        if (existing.isPresent()) {
+            DocumentReference dr = existing.get();
+            DocumentReferenceHelper.createDocumentReference(dto, dr);
+            return dr;
+        } else {
+            DocumentReference dr = new DocumentReference();
+            DocumentReferenceHelper.createDocumentReference(dto, dr);
+
+            Bundle.BundleEntryComponent entry = bundle.addEntry();
+            entry.setResource(dr);
+
+            if (bundle.getType() == Bundle.BundleType.TRANSACTION) {
+                if (!dr.hasId()) {
+                    dr.setId(UUID.randomUUID().toString());
+                }
+                entry.setFullUrl("urn:uuid:" + dr.getIdElement().getIdPart());
+
+                entry.getRequest()
+                        .setMethod(Bundle.HTTPVerb.POST)
+                        .setUrl("DocumentReference");
+            }
+
+            return dr;
+        }
+    }
 
     @Override
-    public Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto) {
+    public Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto) throws IOException {
         FhirContext ctx = FhirContext.forR4();
-        Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, bundleJson);
-        DocumentReference docRef = DocumentReferenceHelper.createDocumentReference(dto, new DocumentReference());
-        bundle.addEntry().setResource(docRef);
         IParser jsonParser = ctx.newJsonParser();
-        String transactionBundleJson = jsonParser.encodeResourceToString(bundle);
-        return Document.parse(transactionBundleJson);
+        Bundle bundle = jsonParser.parseResource(Bundle.class, bundleJson);
+        generateDocumentReferenceIfNotPresent(bundle, dto);
+        removeSignatureIfExists(bundle);
+        String jsonBundle = jsonParser.encodeResourceToString(bundle);
+        return Document.parse(jsonBundle);
     }
 }

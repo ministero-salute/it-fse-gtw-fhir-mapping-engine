@@ -137,6 +137,6 @@ public interface ITransformerCTL {
             path = "transform/add-document-reference",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(@RequestBody FhirDocumentDTO fhirDocumentDTO);
+    ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(@RequestBody FhirDocumentDTO fhirDocumentDTO) throws IOException;
 
 }
