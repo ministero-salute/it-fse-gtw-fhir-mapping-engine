@@ -120,4 +120,23 @@ public interface ITransformerCTL {
     ResponseEntity<TransformResDTO> convertDocumentToTransaction(@RequestBody FhirDocumentDTO fhirResourceDTO,
                                                           HttpServletRequest request) throws IOException;
 
+
+
+    @Operation(
+            summary = "Aggiunge DocumentReference a Bundle",
+            description =
+                    """
+                    Aggiunge sezione DocumentReference in bundle json.
+                    """ )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conversione eseguita con successo. Ritorna un Bundle FHIR di tipo TRANSACTION.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Errore di validazione o formato non valido del Bundle in input.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Errore interno durante la conversione del Bundle.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @PostMapping(
+            path = "transform/add-document-reference",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(@RequestBody FhirDocumentDTO fhirDocumentDTO);
+
 }

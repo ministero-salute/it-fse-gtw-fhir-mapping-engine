@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
+import org.bson.Document;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
@@ -423,4 +425,16 @@ public class TransformerSRV implements ITransformerSRV {
 
 		return jsonParser.encodeResourceToString(documentReference);
 	}
+
+
+    @Override
+    public Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto) {
+        FhirContext ctx = FhirContext.forR4();
+        Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, bundleJson);
+        DocumentReference docRef = DocumentReferenceHelper.createDocumentReference(dto, new DocumentReference());
+        bundle.addEntry().setResource(docRef);
+        IParser jsonParser = ctx.newJsonParser();
+        String transactionBundleJson = jsonParser.encodeResourceToString(bundle);
+        return Document.parse(transactionBundleJson);
+    }
 }

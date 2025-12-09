@@ -17,6 +17,8 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
+import com.mongodb.lang.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,5 +29,6 @@ import lombok.NoArgsConstructor;
 public class FhirDocumentDTO {
 
 	private String bundleJson;
+    private DocumentReferenceDTO documentReferenceDTO;
 
 }

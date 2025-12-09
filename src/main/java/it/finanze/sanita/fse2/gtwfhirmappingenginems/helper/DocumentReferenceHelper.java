@@ -140,7 +140,14 @@ public class DocumentReferenceHelper {
             attachment.setSize(size);
         }
 		attachment.setLanguage(languageCode);
-		dr.getContent().get(0).setAttachment(attachment);
+        List<DocumentReference.DocumentReferenceContentComponent> content = dr.getContent();
+        if (content == null || content.isEmpty()) {
+            content = new ArrayList<>();
+            content.add(new DocumentReference.DocumentReferenceContentComponent());
+            dr.setContent(content);
+        }
+
+        content.get(0).setAttachment(attachment);
 	}
 
 	private static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {

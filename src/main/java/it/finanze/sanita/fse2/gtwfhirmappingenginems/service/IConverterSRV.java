@@ -1,7 +1,6 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
 import org.bson.Document;
-import org.hl7.fhir.r4.model.Bundle;
 
 public interface IConverterSRV {
 
@@ -13,9 +12,4 @@ public interface IConverterSRV {
    */
   Document convertDocumentToTransactionJson(String documentBundleJson);
 
-    /**
-     * Parses a JSON string and returns a FHIR Bundle object.
-     */
-    Bundle getBundleFromJson(String bundleJson);
-
-}
+    }

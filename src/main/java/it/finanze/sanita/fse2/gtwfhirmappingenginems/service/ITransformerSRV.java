@@ -18,6 +18,8 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
+import org.bson.Document;
 import org.hl7.fhir.exceptions.FHIRException;
 
 import java.io.IOException;
@@ -27,4 +29,6 @@ public interface ITransformerSRV {
 	String transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref) throws FHIRException, IOException;
 
 	String mergeDocumentReferenceForUpdate(String oldDocumentReference, DocumentReferenceDTO newDocumentReference);
+
+    Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto);
 }
