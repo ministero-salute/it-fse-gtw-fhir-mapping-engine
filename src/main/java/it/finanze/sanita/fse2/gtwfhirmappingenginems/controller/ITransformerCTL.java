@@ -18,18 +18,17 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_ENGINE_ID_VAR;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_FILE_VAR;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_OBJECT_ID_VAR;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_BY_OBJ;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_STATELESS_BY_OBJ;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_UPDATE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.DOCUMENTS_MAPPER;
 
 import java.io.IOException;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import org.bson.Document;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,13 +37,17 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -86,5 +89,54 @@ public interface ITransformerCTL {
             @PathVariable(API_OBJECT_ID_VAR) String objectId,
             @RequestPart("file") MultipartFile file
             ) throws IOException;
+    
+    @PostMapping(API_TRANSFORM_UPDATE)
+	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
+	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+	TransformResDTO updateDocumentReference(@RequestBody UpdateDocumentReferenceRequestDTO updateResourceDto,HttpServletRequest request);
+
+
+
+    @Operation(
+            summary = "Conversione Bundle DOCUMENT to TRANSACTION",
+            description =
+                    """
+                    Converte un Bundle FHIR di tipo DOCUMENT in un Bundle FHIR di tipo TRANSACTION.
+                    Il body deve contenere un Bundle FHIR valido in formato JSON, con resourceType = "Bundle" e type = "document"
+                    """ )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conversione eseguita con successo. Ritorna un Bundle FHIR di tipo TRANSACTION.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Errore di validazione o formato non valido del Bundle in input.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Errore interno durante la conversione del Bundle.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @PostMapping(
+            path = "transform/document-to-transaction",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<TransformResDTO> convertDocumentToTransaction(@RequestBody FhirDocumentDTO fhirResourceDTO,
+                                                          HttpServletRequest request) throws IOException;
+
+
+
+    @Operation(
+            summary = "Aggiunge DocumentReference a Bundle",
+            description =
+                    """
+                    Aggiunge sezione DocumentReference in bundle json.
+                    """ )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conversione eseguita con successo. Ritorna un Bundle FHIR di tipo TRANSACTION.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Errore di validazione o formato non valido del Bundle in input.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Errore interno durante la conversione del Bundle.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @PostMapping(
+            path = "transform/add-document-reference",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(@RequestBody FhirDocumentDTO fhirDocumentDTO) throws IOException;
 
 }

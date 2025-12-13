@@ -25,16 +25,20 @@ import java.nio.charset.StandardCharsets;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +53,8 @@ public class TransformerCTL implements ITransformerCTL {
 
 	@Autowired
 	private ITransformerSRV service;
+    @Autowired
+    private IConverterSRV converterService;
 
 	@Override
 	public TransformResDTO convertCDAToBundle(FhirResourceDTO dto, HttpServletRequest request) {
@@ -57,7 +63,7 @@ public class TransformerCTL implements ITransformerCTL {
 		if(dto.getCda()!=null){
 			try {
 				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
-				
+
 				String cdaTrasformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
@@ -71,7 +77,7 @@ public class TransformerCTL implements ITransformerCTL {
 		log.debug("Conversion of CDA completed");
 		return out;
 	}
-	
+
 	@Override
 	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
@@ -80,6 +86,16 @@ public class TransformerCTL implements ITransformerCTL {
 		log.debug("Conversion of CDA completed");
 		return doc;
 	}
+
+    @Override
+    public ResponseEntity<TransformResDTO> convertDocumentToTransaction(FhirDocumentDTO dto, HttpServletRequest request)  throws IOException {
+
+        Document transactionBundleJson =
+            converterService.convertDocumentToTransactionJson(dto.getBundleJson());
+        TransformResDTO resDTO = new TransformResDTO();
+        resDTO.setJson(transactionBundleJson);
+        return ResponseEntity.ok(resDTO);
+    }
 
 	protected String getCDA(final MultipartFile file) {
 		try {
@@ -98,6 +114,25 @@ public class TransformerCTL implements ITransformerCTL {
 			log.error(message, ex);
 			throw new BusinessException(message, ex);
 		}
-		
+
 	}
+
+    @Override
+    public TransformResDTO updateDocumentReference(UpdateDocumentReferenceRequestDTO updateResourceDto, HttpServletRequest request) {
+        System.out.println("OLD:"+updateResourceDto.getOldDocumentReference());
+        String documentReference = service.mergeDocumentReferenceForUpdate(updateResourceDto.getOldDocumentReference(), updateResourceDto.getDocumentReferenceDTO());
+        System.out.println("NEW:"+documentReference);
+        TransformResDTO response = new TransformResDTO();
+        response.setJson(Document.parse(documentReference));
+        return response;
+    }
+
+    @Override
+    public ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(FhirDocumentDTO fhirDocumentDTO) throws IOException {
+        Document updatedBundle = service.addDocumentReferenceToBundle(fhirDocumentDTO.getBundleJson(), fhirDocumentDTO.getDocumentReferenceDTO());
+        TransformResDTO response = new TransformResDTO();
+        response.setJson(updatedBundle);
+        return ResponseEntity.ok(response);
+    }
+
 }

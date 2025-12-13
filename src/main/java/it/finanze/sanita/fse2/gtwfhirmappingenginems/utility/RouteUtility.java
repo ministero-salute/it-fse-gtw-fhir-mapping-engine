@@ -49,5 +49,7 @@ public final class RouteUtility {
 
     public static final String API_ENGINE_STATUS_FULL = ENGINE_MAPPER + ENGINE_STATUS_API;
     public static final String API_ENGINE_REFRESH_FULL = ENGINE_MAPPER + ENGINE_REFRESH_API;
+    
+    public static final String API_TRANSFORM_UPDATE = "/" + API_TRANSFORM + "/update";
 
 }
