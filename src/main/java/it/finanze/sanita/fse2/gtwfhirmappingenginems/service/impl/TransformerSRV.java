@@ -18,6 +18,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Composition;
 import org.hl7.fhir.r4.model.DocumentReference;
 import org.hl7.fhir.r4.model.DocumentReference.DocumentReferenceContextComponent;
 import org.hl7.fhir.r4.model.Meta;
@@ -461,14 +462,111 @@ public class TransformerSRV implements ITransformerSRV {
         }
     }
 
+	/**
+	 * Arricchisce DocumentReference estraendo riferimenti dalla Composition.
+	 * Crea NUOVE Reference con solo reference strings per evitare risorse embedded.
+	 */
+	private void enrichDocumentReferenceFromComposition(Bundle bundle, DocumentReference dr) {
+		if (bundle == null || dr == null || bundle.getEntry() == null) {
+			return;
+		}
+
+		try {
+			// Trova Composition nel Bundle
+			Composition composition = bundle.getEntry().stream()
+					.map(Bundle.BundleEntryComponent::getResource)
+					.filter(resource -> resource != null &&
+							ResourceType.Composition == resource.getResourceType())
+					.map(resource -> (Composition) resource)
+					.findFirst()
+					.orElse(null);
+
+			if (composition == null) {
+				log.warn("Composition non trovata nel Bundle");
+				return;
+			}
+
+//			// 1. Subject - crea NUOVA Reference con solo string
+//			if (composition.hasSubject() && !dr.hasSubject()) {
+//				String refString = composition.getSubject().getReference();
+//				if (!StringUtility.isNullOrEmpty(refString)) {
+//					dr.setSubject(new Reference(refString));
+//					log.debug("DocumentReference.subject: {}", refString);
+//				}
+//			}
+
+			// 2. Date
+			if (composition.hasDate() && !dr.hasDate()) {
+				dr.setDate(composition.getDate());
+			}
+
+//			// 3. Authors - crea NUOVE Reference con solo strings
+//			if (composition.hasAuthor() && !dr.hasAuthor()) {
+//				List<Reference> newAuthors = new ArrayList<>();
+//				for (Reference authorRef : composition.getAuthor()) {
+//					String refString = authorRef.getReference();
+//					if (!StringUtility.isNullOrEmpty(refString)) {
+//						newAuthors.add(new Reference(refString));
+//					}
+//				}
+//				if (!newAuthors.isEmpty()) {
+//					dr.setAuthor(newAuthors);
+//				}
+//			}
+//
+//			// 4. Custodian - crea NUOVA Reference con solo string
+//			if (composition.hasCustodian() && !dr.hasCustodian()) {
+//				String refString = composition.getCustodian().getReference();
+//				if (!StringUtility.isNullOrEmpty(refString)) {
+//					dr.setCustodian(new Reference(refString));
+//				}
+//			}
+
+			// 5. Aggiungi riferimento alla Composition in context.related
+			if (composition.hasId()) {
+				String compositionId = composition.getIdElement().getIdPart();
+				if (!StringUtility.isNullOrEmpty(compositionId)) {
+					// Assicurati che context esista
+					if (!dr.hasContext()) {
+						dr.setContext(new DocumentReferenceContextComponent());
+					}
+
+					// Aggiungi riferimento alla Composition
+					String compositionRef = "Composition/" + compositionId;
+					dr.getContext().addRelated(new Reference(compositionRef));
+					log.debug("DocumentReference.context.related: {}", compositionRef);
+				}
+			}
+
+			log.info("DocumentReference arricchita - subject: {}, date: {}, authors: {}, custodian: {}, related: {}",
+					dr.hasSubject(), dr.hasDate(),
+					dr.hasAuthor() ? dr.getAuthor().size() : 0,
+					dr.hasCustodian(),
+					dr.hasContext() && dr.getContext().hasRelated() ? dr.getContext().getRelated().size() : 0);
+
+		} catch (Exception ex) {
+			log.error("Errore arricchimento DocumentReference: {}", ex.getMessage(), ex);
+		}
+	}
+
     @Override
     public Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto) throws IOException {
         FhirContext ctx = FhirContext.forR4();
         IParser jsonParser = ctx.newJsonParser();
         Bundle bundle = jsonParser.parseResource(Bundle.class, bundleJson);
-        generateDocumentReferenceIfNotPresent(bundle, dto);
+
+		//  Crea/aggiorna DocumentReference con metadati business
+		DocumentReference dr = generateDocumentReferenceIfNotPresent(bundle, dto);
+		//  Arricchisci con riferimenti dalla Composition
+		if (dr != null) {
+			enrichDocumentReferenceFromComposition(bundle, dr);
+		}
+		//  Pulisci signature
         removeSignatureIfExists(bundle);
+
+		// Ritorna Bundle
         String jsonBundle = jsonParser.encodeResourceToString(bundle);
+		log.debug("Bundle con DocumentReference arricchita e ID hashati");
         return Document.parse(jsonBundle);
     }
 }
