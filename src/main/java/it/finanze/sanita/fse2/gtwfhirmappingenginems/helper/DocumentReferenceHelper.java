@@ -151,18 +151,20 @@ public class DocumentReferenceHelper {
 	}
 
 	private static void addMasterIdentifier(DocumentReference dr, String masterIdentifier) {
-		Identifier mid = new Identifier();
-		
-		mid.setSystem("urn:uuid:"+ StringUtility.generateUUID());
-		if (masterIdentifier != null && masterIdentifier.contains("^")) {
-			String[] masterIdentifierSplit = masterIdentifier.split("\\^");
-			mid.setValue(masterIdentifierSplit[1]);
-		} else {
-			mid.setValue(masterIdentifier);
-		}
-		
-		dr.setMasterIdentifier(mid);
+	    Identifier mid = new Identifier();
+
+	    if (masterIdentifier != null && masterIdentifier.contains("^")) {
+	        String[] masterIdentifierSplit = masterIdentifier.split("\\^");
+	        mid.setSystem(masterIdentifierSplit[0]);
+	        mid.setValue(masterIdentifierSplit[1]);
+	    } else {
+	        mid.setSystem("urn:uuid:" + StringUtility.generateUUID());
+	        mid.setValue(masterIdentifier);
+	    }
+
+	    dr.setMasterIdentifier(mid);
 	}
+
 
 	/**
 	 * create document reference from DTO and CDA
