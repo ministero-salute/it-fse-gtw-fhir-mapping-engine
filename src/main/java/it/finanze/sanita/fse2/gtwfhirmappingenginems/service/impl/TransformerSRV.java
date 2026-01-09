@@ -7,13 +7,18 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import org.bson.Document;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.Base;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -243,13 +248,7 @@ public class TransformerSRV implements ITransformerSRV {
 		List<Reference> references = new ArrayList<>();
 
 		try {
-			resource.children().forEach(property -> 
-					property.getValues().forEach(value -> {
-						if (value instanceof Reference) {
-							references.add((Reference) value);
-						}
-					})
-			);
+			extractReferencesRecursive(resource, references);
 		} catch (Exception e) {
 			log.warn("Error extracting references from resource {}: {}", 
 					resource.getIdElement().getIdPart(), e.getMessage());
@@ -257,6 +256,30 @@ public class TransformerSRV implements ITransformerSRV {
 
 		return references;
 	}
+
+    private void extractReferencesRecursive(Base element, List<Reference> references) {
+                if (element == null) {
+                    return;
+                }
+                
+                // Se l'elemento è una Reference, aggiungila alla lista
+                if (element instanceof Reference) {
+                    references.add((Reference) element);
+                    return;
+                }
+                
+                // Attraversa ricorsivamente tutti i figli dell'elemento
+                try {
+                    for (Property property : element.children()) {
+                        for (Base value : property.getValues()) {
+                            extractReferencesRecursive(value, references);
+                        }
+                    }
+                } catch (Exception e) {
+                    // Continua l'attraversamento anche in caso di errore su un singolo elemento
+                    log.debug("Error extracting references from element: {}", e.getMessage());
+                }
+            }
 
 	/**
 	 * ThreadLocal JsonParser - thread-safe e performante
