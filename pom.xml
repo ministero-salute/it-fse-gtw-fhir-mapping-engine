@@ -109,13 +109,7 @@
 		<dependency>
 			<groupId>health.matchbox</groupId>
 			<artifactId>matchbox-engine</artifactId>
-			<version>4.0.15</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.commons</groupId>
-					<artifactId>commons-compress</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>4.0.16</version>
 		</dependency>
 
         <dependency>
