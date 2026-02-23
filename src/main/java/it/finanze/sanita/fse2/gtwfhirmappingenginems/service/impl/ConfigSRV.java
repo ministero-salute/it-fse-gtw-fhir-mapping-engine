@@ -45,6 +45,7 @@ public class ConfigSRV implements IConfigSRV {
     public void postConstruct() {
         if (!profiles.isTestProfile()) {
             init();
+            validateRequiredProperties();
         } else {
             log.info("Skipping gtw-config initialization due to test profile");
         }
@@ -93,4 +94,10 @@ public class ConfigSRV implements IConfigSRV {
         public static final Object CFG_ITEMS_RETENTION_DAY = new Object();
     }
 
+    private void validateRequiredProperties() {
+        if (!props.containsKey(CFG_ITEMS_RETENTION_DAY)) {
+            throw new IllegalStateException(String.format("Required configuration item '%s' was not loaded during initialization", CFG_ITEMS_RETENTION_DAY));
+        }
+        log.info("All required configuration properties validated successfully");
+    }
 }

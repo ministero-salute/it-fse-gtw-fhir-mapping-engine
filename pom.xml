@@ -109,18 +109,17 @@
 		<dependency>
 			<groupId>health.matchbox</groupId>
 			<artifactId>matchbox-engine</artifactId>
-			<version>4.0.8</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.commons</groupId>
-					<artifactId>commons-compress</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>4.0.16</version>
 		</dependency>
 
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
+            <version>6.4.1</version>
+        </dependency>
+
 		<!-- Poi aggiungi una versione specifica -->
-		<!--
-		https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+		<!--https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
