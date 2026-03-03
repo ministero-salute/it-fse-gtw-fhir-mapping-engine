@@ -439,10 +439,12 @@ public class TransformerSRV implements ITransformerSRV {
 			if(newDocumentReference.getServiceStopTime() != null) {
 				period.setEnd(sdf.parse(newDocumentReference.getServiceStopTime()));
 			}
-			drcc.setPeriod(period);	
+			drcc.setPeriod(period);
 		} catch(Exception ex) {
 			throw new BusinessException("Error while set period on document reference",ex);
 		}
+
+		DocumentReferenceHelper.setSecurityLabelIfP99(documentReference, newDocumentReference.getEventCode());
 
 		return jsonParser.encodeResourceToString(documentReference);
 	}

@@ -50,6 +50,34 @@ public class DocumentReferenceHelper {
 
 	private DocumentReferenceHelper() {}
 
+	/**
+	 * Sets the security label on DocumentReference if P99 event code is present.
+	 * P99 indicates document obscuration ("Oscuramento del documento").
+	 *
+	 * @param dr         the DocumentReference to update
+	 * @param eventCodes list of event codes to check for P99
+	 */
+	public static void setSecurityLabelIfP99(DocumentReference dr, List<String> eventCodes) {
+		if (dr == null || eventCodes == null || eventCodes.isEmpty()) {
+			return;
+		}
+
+		boolean hasP99 = false;
+		for (String eventCode : eventCodes) {
+			if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
+				hasP99 = true;
+				break;
+			}
+		}
+
+		if (hasP99) {
+			CodeableConcept cc = new CodeableConcept();
+			List<Coding> cods = new ArrayList<>();
+			cods.add(new Coding(EventCodeEnum.OID, EventCodeEnum.P99.getCode(), EventCodeEnum.P99.getDescription()));
+			cc.setCoding(cods);
+			dr.setSecurityLabel(Arrays.asList(cc));
+		}
+	}
 	
 	private static void addCreationTime(DocumentReference dr, Date creationTime) {
 		dr.setDate(creationTime);
@@ -89,7 +117,6 @@ public class DocumentReferenceHelper {
 			
 			
 			List<CodeableConcept> events = new ArrayList<>();
-			boolean hasP99 = false;
 
 			if (!CollectionUtils.isEmpty(contextDTO.getAdministrativeRequestEnum())) {
 			    for (AdministrativeReqEnum adminReq : contextDTO.getAdministrativeRequestEnum()) {
@@ -98,29 +125,18 @@ public class DocumentReferenceHelper {
 			    }
 			}
 
-
 			if (contextDTO.getEventsCode() != null) {
 			    for (String eventCode : contextDTO.getEventsCode()) {
 			        CodeableConcept ccEvent = new CodeableConcept(
 			            new Coding(EventCodeEnum.OID, eventCode, null)
 			        );
-			        events.add(ccEvent);
-
-			        if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
-			            hasP99 = true;
-			        }
+					events.add(ccEvent);
 			    }
 			}
 
 			drcc.setEvent(events);
 
-			if (hasP99) {
-			    CodeableConcept cc = new CodeableConcept();
-			    List<Coding> cods = new ArrayList<>();
-			    cods.add(new Coding(EventCodeEnum.OID, EventCodeEnum.P99.getCode(), EventCodeEnum.P99.getDescription()));
-			    cc.setCoding(cods);
-			    dr.setSecurityLabel(Arrays.asList(cc));
-			}
+			setSecurityLabelIfP99(dr, contextDTO.getEventsCode());
 
 		} catch (Exception ex) {
 			log.error("Error while running add context : " , ex);
