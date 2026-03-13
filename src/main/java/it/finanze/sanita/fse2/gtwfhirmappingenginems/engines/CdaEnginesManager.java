@@ -165,21 +165,7 @@ public class CdaEnginesManager {
         if (uri == null)
             throw new EngineException(ERR_ENG_ROOT_URI);
 
-        Bundle bundle = null;
-        if (cda.startsWith("<!--CDA_BENCHMARK_TEST-->")) {
-            bundle = bundleStatic;
-            log.info("Trasformata con bundle statico per benchmark ");
-            if(bundle!=null){
-                log.info("Bundle vuoto:" +bundle.isEmpty());
-            } else {
-                log.info("Bundle null");
-            }
-            
-        } else {
-            bundle = obj.getInstance().transformCdaToFhir(cda, uri);
-        }
-
-        return bundle;
+        return obj.getInstance().transformCdaToFhir(cda, uri);
     }
 
     public boolean cleanup() {

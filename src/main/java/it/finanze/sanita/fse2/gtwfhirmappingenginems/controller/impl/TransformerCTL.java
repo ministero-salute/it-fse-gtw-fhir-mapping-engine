@@ -119,9 +119,7 @@ public class TransformerCTL implements ITransformerCTL {
 
     @Override
     public TransformResDTO updateDocumentReference(UpdateDocumentReferenceRequestDTO updateResourceDto, HttpServletRequest request) {
-        System.out.println("OLD:"+updateResourceDto.getOldDocumentReference());
         String documentReference = service.mergeDocumentReferenceForUpdate(updateResourceDto.getOldDocumentReference(), updateResourceDto.getDocumentReferenceDTO());
-        System.out.println("NEW:"+documentReference);
         TransformResDTO response = new TransformResDTO();
         response.setJson(Document.parse(documentReference));
         return response;
