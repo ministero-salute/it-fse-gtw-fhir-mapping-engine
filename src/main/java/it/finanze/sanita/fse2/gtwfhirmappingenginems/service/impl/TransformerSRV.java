@@ -82,7 +82,6 @@ public class TransformerSRV implements ITransformerSRV {
 		}
 
 		removeSignatureIfExists(bundle);
-		System.out.println(JsonParserHolder.get().composeString(bundle));
 		return JsonParserHolder.get().composeString(bundle);
 	}
 
@@ -137,31 +136,35 @@ public class TransformerSRV implements ITransformerSRV {
 		}
 
 		private void processAllResourcesInOnePass() {
-			for (BundleEntryComponent entry : entries) {
-				Resource resource = entry.getResource();
+		    for (BundleEntryComponent entry : entries) {
+		        Resource resource = entry.getResource();
 
-				if (resource == null) {
-					continue;
-				}
+		        if (resource == null) {
+		            continue;
+		        }
 
-				String resourceType = resource.fhirType();
-				String originalFullUrl = entry.getFullUrl();
+		        String resourceType = resource.fhirType();
+		        String originalFullUrl = entry.getFullUrl();
 
-				if ("Patient".equals(resourceType)) {
-					continue;
-				}
+		        if ("Patient".equals(resourceType)) {
+		            List<Reference> refs = getAllReferencesOptimized(resource);
+		            if (!refs.isEmpty()) {
+		                resourcesToUpdate.add(new ResourceWithReferences(refs));
+		            }
+		            continue;
+		        }
 
-				if (isPutRequest(entry)) {
-					processPutResource(entry, resource, originalFullUrl, resourceType);
-				} else {
-					normalizeFullUrl(entry, originalFullUrl);
-				}
+		        if (isPutRequest(entry)) {
+		            processPutResource(entry, resource, originalFullUrl, resourceType);
+		        } else {
+		            normalizeFullUrl(entry, originalFullUrl);
+		        }
 
-				List<Reference> refs = getAllReferencesOptimized(resource);
-				if (!refs.isEmpty()) {
-					resourcesToUpdate.add(new ResourceWithReferences(refs));
-				}
-			}
+		        List<Reference> refs = getAllReferencesOptimized(resource);
+		        if (!refs.isEmpty()) {
+		            resourcesToUpdate.add(new ResourceWithReferences(refs));
+		        }
+		    }
 		}
 
 		private void normalizeFullUrl(BundleEntryComponent entry, String originalFullUrl) {
