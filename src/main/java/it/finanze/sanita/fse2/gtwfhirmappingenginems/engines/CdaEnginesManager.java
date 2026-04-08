@@ -39,6 +39,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.Engine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base.EngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
@@ -146,7 +147,20 @@ public class CdaEnginesManager {
         if (uri == null)
             throw new EngineException(ERR_ENG_ROOT_URI);
 
-        return obj.getInstance().transformCdaToFhir(cda, uri);
+//        return obj.getInstance().transformCdaToFhir(cda, uri);
+        
+        CdaMappingEngine instance = null;
+        try {
+            instance = obj.acquire(); // prende un'istanza libera dal pool
+            return instance.transformCdaToFhir(cda, uri);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new EngineException("Interrupted while waiting for engine instance");
+        } finally {
+            if (instance != null) {
+                obj.release(instance); // restituisce SEMPRE l'istanza al pool
+            }
+        }
     }
     
     public Bundle transformBenchmark(String cda, String engineId, String objectId) throws IOException {
@@ -162,7 +176,18 @@ public class CdaEnginesManager {
         if (uri == null)
             throw new EngineException(ERR_ENG_ROOT_URI);
 
-        return obj.getInstance().transformCdaToFhir(cda, uri);
+        CdaMappingEngine instance = null;
+        try {
+            instance = obj.acquire(); // prende un'istanza libera dal pool
+            return instance.transformCdaToFhir(cda, uri);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new EngineException("Interrupted while waiting for engine instance");
+        } finally {
+            if (instance != null) {
+                obj.release(instance); // restituisce SEMPRE l'istanza al pool
+            }
+        }
     }
 
     public boolean cleanup() {

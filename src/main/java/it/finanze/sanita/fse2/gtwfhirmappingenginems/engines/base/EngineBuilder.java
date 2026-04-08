@@ -17,7 +17,36 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.base;
 
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_DUPLICATED_ENTRY_FHIR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_EMPTY_FILE_LIST_FHIR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_EMPTY_MAP_LIST_FHIR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_ENGINE_UNAVAILALE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_FIND_BY_ID_ENGINE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_REGISTER_FHIR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_ROOT_UNAVAILALE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_SIZE_FILE_LIST_FHIR;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.ERR_BLD_UKNOWN_TYPE;
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.hl7.fhir.r4.formats.JsonParser;
+import org.hl7.fhir.r4.model.StructureDefinition;
+import org.hl7.fhir.r4.model.StructureMap;
+import org.hl7.fhir.r4.model.ValueSet;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ch.ahdis.matchbox.engine.CdaMappingEngine;
+import ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.data.RootData;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.FhirTypeEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
@@ -28,25 +57,6 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.Transform
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.sub.EngineMap;
 import lombok.extern.slf4j.Slf4j;
-import org.hl7.fhir.r4.formats.JsonParser;
-import org.hl7.fhir.r4.model.StructureDefinition;
-import org.hl7.fhir.r4.model.StructureMap;
-import org.hl7.fhir.r4.model.ValueSet;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import static ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.*;
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 @Component
@@ -61,30 +71,55 @@ public class EngineBuilder {
     @Autowired
     private IEngineRepo repository;
 
+//    public Engine fromId(String id) throws OperationException, EngineBuilderException {
+//        log.debug("[{}][{}] Spawning new engine", TITLE, id);
+//        // Retrieve entity
+//        EngineETY engine = repository.findById(id);
+//        // Check nullity
+//        if (engine == null) throw new EngineBuilderException(ERR_BLD_FIND_BY_ID_ENGINE);
+//        // Create mapping for all available entities
+//        log.debug("[{}][{}] Creating entities map", TITLE, id);
+//        Map<String, TransformETY> entities = createEntitiesMap(engine);
+//        // Create files mapping
+//        log.debug("[{}][{}] Creating files mapping", TITLE, id);
+//        Map<String, String> files = createFilesMap(entities);
+//        // Create root mapping
+//        log.debug("[{}][{}] Creating root mapping", TITLE, id);
+//        Map<String, RootData> roots = createRootsMap(engine.getRoots(), entities);
+//        // Create engine
+//        log.debug("[{}][{}] Initializing engine", TITLE, id);
+//        CdaMappingEngine instance = createEngine();
+//        // Register resources
+//        log.debug("[{}][{}] Registering resources", TITLE, id);
+//        registerItems(id, instance, entities);
+//        // Return newly fresh engine
+//        log.debug("[{}][{}] Engine spawned", TITLE, id);
+//        return new Engine(id, roots, files, instance);
+//    }
+    
+    private static final int POOL_SIZE = 2; // regola in base ai core disponibili
+
     public Engine fromId(String id) throws OperationException, EngineBuilderException {
         log.debug("[{}][{}] Spawning new engine", TITLE, id);
-        // Retrieve entity
         EngineETY engine = repository.findById(id);
-        // Check nullity
         if (engine == null) throw new EngineBuilderException(ERR_BLD_FIND_BY_ID_ENGINE);
-        // Create mapping for all available entities
-        log.debug("[{}][{}] Creating entities map", TITLE, id);
+
         Map<String, TransformETY> entities = createEntitiesMap(engine);
-        // Create files mapping
-        log.debug("[{}][{}] Creating files mapping", TITLE, id);
         Map<String, String> files = createFilesMap(entities);
-        // Create root mapping
-        log.debug("[{}][{}] Creating root mapping", TITLE, id);
         Map<String, RootData> roots = createRootsMap(engine.getRoots(), entities);
-        // Create engine
-        log.debug("[{}][{}] Initializing engine", TITLE, id);
-        CdaMappingEngine instance = createEngine();
-        // Register resources
-        log.debug("[{}][{}] Registering resources", TITLE, id);
-        registerItems(id, instance, entities);
-        // Return newly fresh engine
-        log.debug("[{}][{}] Engine spawned", TITLE, id);
-        return new Engine(id, roots, files, instance);
+
+        // Crea POOL_SIZE istanze identiche
+        log.debug("[{}][{}] Initializing engine pool (size={})", TITLE, id, POOL_SIZE);
+        List<CdaMappingEngine> instances = new ArrayList<>();
+        for (int i = 0; i < POOL_SIZE; i++) {
+            log.debug("[{}][{}] Creating instance {}/{}", TITLE, id, i + 1, POOL_SIZE);
+            CdaMappingEngine instance = createEngine();
+            registerItems(id, instance, entities);
+            instances.add(instance);
+        }
+
+        log.debug("[{}][{}] Engine pool spawned", TITLE, id);
+        return new Engine(id, roots, files, instances);
     }
 
     private Map<String, TransformETY> createEntitiesMap(EngineETY e) throws OperationException, EngineBuilderException {
