@@ -17,16 +17,17 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
+import java.io.IOException;
+
 import org.bson.Document;
 import org.hl7.fhir.exceptions.FHIRException;
 
-import java.io.IOException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 
 public interface ITransformerSRV {
 
 	String transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref) throws FHIRException, IOException;
+	String transformBenchmark(String cda, String engineId, String objectId, DocumentReferenceDTO documentReferenceDTO) throws FHIRException, IOException;
 
 	String mergeDocumentReferenceForUpdate(String oldDocumentReference, DocumentReferenceDTO newDocumentReference);
 

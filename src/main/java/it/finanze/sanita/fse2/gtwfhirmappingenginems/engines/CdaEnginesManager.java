@@ -167,6 +167,23 @@ public class CdaEnginesManager {
 
         return obj.getInstance().transformCdaToFhir(cda, uri);
     }
+    
+    public Bundle transformBenchmark(String cda, String engineId, String objectId) throws IOException {
+        if (!ready)
+            throw new EngineInitException(ERR_ENG_UNAVAILABLE);
+        Engine obj = engines.get(engineId);
+        if (obj == null)
+            throw new EngineException(ERR_ENG_NULL);
+        RootData root = obj.getRoots().get(objectId);
+        if (root == null)
+            throw new EngineException(ERR_ENG_ROOT_MAP);
+        String uri = root.getUri();
+        if (uri == null)
+            throw new EngineException(ERR_ENG_ROOT_URI);
+
+        return null;
+//        return obj.getInstance().transformCdaToFhir(cda, uri);
+    }
 
     public boolean cleanup() {
         boolean out = false;
