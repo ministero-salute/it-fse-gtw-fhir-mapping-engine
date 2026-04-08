@@ -90,50 +90,51 @@ public class TransformerSRV implements ITransformerSRV {
 
 		Long startTime = System.currentTimeMillis();
 		log.info("START CONVERSION JAR");
-		Bundle bundle = engineSRV.manager().transformBenchmark(cda, engineId, objectId);
+		Bundle originalBundle = engineSRV.manager().transformBenchmark(cda, engineId, objectId);
 		Long endTime = System.currentTimeMillis() - startTime; 
 		log.info("END CONVERSION JAR: "+ endTime);
 		
-//		if (bundle == null || bundle.getEntry() == null || bundle.getEntry().isEmpty()) {
-//			throw new BusinessException("Errore durante la trasformazione in bundle fhir");
-//		}
-//		
-//		Long startTimeProcess = System.currentTimeMillis();
-//		log.info("START PROCESS JAR");
-//		processBundle(bundle);
-//		Long endTimeProcess = System.currentTimeMillis() - startTimeProcess;
-//		log.info("END PROCESS JAR: "+endTimeProcess);
-//
-//		Long startTimeScoring = System.currentTimeMillis();
-//		log.info("START SCORING JAR");
-//		List<BundleEntryComponent> filteredEntries = chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate());
-//		Long endTimeScoring = System.currentTimeMillis() - startTimeScoring;
-//		log.info("END SCORING JAR: "+endTimeScoring);
-//		bundle.setEntry(filteredEntries);
-//
-//		Long startTimeDR = System.currentTimeMillis();
-//		log.info("START DOC_REF JAR");
-//		DocumentReference documentReference = findAndModifyDocumentReference(bundle, documentReferenceDTO);
-//		Long endTimeDR = System.currentTimeMillis() - startTimeDR;
-//		log.info("END DOC_REF JAR: "+endTimeDR);
-//		
-//		if (documentReference == null && documentReferenceDTO != null) {
-//			log.warn("DocumentReference not found in bundle for objectId: {}", objectId);
-//		}
-//
-//		Long startTimeRemSign = System.currentTimeMillis();
-//		log.info("START REM SIGN");
-//		removeSignatureIfExists(bundle);
-//		Long endTimeRemSign = System.currentTimeMillis() - startTimeRemSign;
-//		log.info("End REM SIGN: "+endTimeRemSign);
-//		
-//		Long startCompose = System.currentTimeMillis();
-//		log.info("START COMPOSE");
-//		String out = JsonParserHolder.get().composeString(bundle);
-//		Long endCompose = System.currentTimeMillis() - startCompose;
-//		log.info("END COMPOSE: "+endCompose);
-//		return out;
-		return null;
+		Long startTimeCopy = System.currentTimeMillis();
+		log.info("START COPY CONVERSION");
+		Bundle bundle = originalBundle.copy();
+		Long endTimeCopy = System.currentTimeMillis() - startTimeCopy;
+		log.info("END COPY CONVERSION: "+ endTimeCopy);
+		
+		Long startTimeProcess = System.currentTimeMillis();
+		log.info("START PROCESS JAR");
+		processBundle(bundle);
+		Long endTimeProcess = System.currentTimeMillis() - startTimeProcess;
+		log.info("END PROCESS JAR: "+endTimeProcess);
+
+		Long startTimeScoring = System.currentTimeMillis();
+		log.info("START SCORING JAR");
+		List<BundleEntryComponent> filteredEntries = chooseMajorSize(bundle.getEntry(), transformCFG.getAlgToRemoveDuplicate());
+		Long endTimeScoring = System.currentTimeMillis() - startTimeScoring;
+		log.info("END SCORING JAR: "+endTimeScoring);
+		bundle.setEntry(filteredEntries);
+
+		Long startTimeDR = System.currentTimeMillis();
+		log.info("START DOC_REF JAR");
+		DocumentReference documentReference = findAndModifyDocumentReference(bundle, documentReferenceDTO);
+		Long endTimeDR = System.currentTimeMillis() - startTimeDR;
+		log.info("END DOC_REF JAR: "+endTimeDR);
+		
+		if (documentReference == null && documentReferenceDTO != null) {
+			log.warn("DocumentReference not found in bundle for objectId: {}", objectId);
+		}
+
+		Long startTimeRemSign = System.currentTimeMillis();
+		log.info("START REM SIGN");
+		removeSignatureIfExists(bundle);
+		Long endTimeRemSign = System.currentTimeMillis() - startTimeRemSign;
+		log.info("End REM SIGN: "+endTimeRemSign);
+		
+		Long startCompose = System.currentTimeMillis();
+		log.info("START COMPOSE");
+		String out = JsonParserHolder.get().composeString(bundle);
+		Long endCompose = System.currentTimeMillis() - startCompose;
+		log.info("END COMPOSE: "+endCompose);
+		return out;
 	}
 
 	private DocumentReference findAndModifyDocumentReference(Bundle bundle, DocumentReferenceDTO dto) {

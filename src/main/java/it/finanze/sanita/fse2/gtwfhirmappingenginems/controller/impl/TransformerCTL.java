@@ -86,13 +86,12 @@ public class TransformerCTL implements ITransformerCTL {
 		Long endTime = System.currentTimeMillis() - startTime;
 		log.info("END CONVERSION: "+endTime);
 		
-//		Long startTimeParse = System.currentTimeMillis();
-//		log.info("START PARSE");
-//		Document doc = Document.parse(bundle);
-//		Long endTimeParse = System.currentTimeMillis() - startTimeParse;
-//		log.info("END PARSE: "+endTimeParse);
-//		return doc;
-		return null;
+		Long startTimeParse = System.currentTimeMillis();
+		log.info("START PARSE");
+		Document doc = Document.parse(bundle);
+		Long endTimeParse = System.currentTimeMillis() - startTimeParse;
+		log.info("END PARSE: "+endTimeParse);
+		return doc;
 	}
 
     @Override

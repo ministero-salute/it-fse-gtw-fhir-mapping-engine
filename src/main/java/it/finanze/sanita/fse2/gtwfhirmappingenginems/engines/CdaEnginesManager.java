@@ -24,7 +24,6 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Log
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG.ENGINE_EXECUTOR;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -34,7 +33,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -51,9 +49,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInit
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConfigSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FileUtility;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
@@ -69,8 +65,6 @@ public class CdaEnginesManager {
     private volatile boolean running;
     private final ProfileUtility profiles;
 
-    private Bundle bundleStatic;
-    
 
     public CdaEnginesManager(
             @Autowired IConfigSRV config,
@@ -85,20 +79,7 @@ public class CdaEnginesManager {
         this.ready = false;
     }
 
-    // Solo per test
-    @PostConstruct
-    void postConstruct() {
-        if (bundleStatic == null) {
-            String bundleFhir = new String(FileUtility.getFileFromInternalResources("bundle.json"), StandardCharsets.UTF_8);
-            try {
-                log.info("Initialize static bundle for test");
-                bundleStatic = (Bundle) (new JsonParser()).parse(bundleFhir);
-            } catch (Exception ex) {
-                log.error("Error while parse bundle static for test", ex);
-            }
-        }
-    }
-
+   
     @Scheduled(cron = "${engine.scheduler.invoke}")
     @SchedulerLock(name = "invokeGTWEngineScheduler")
     @Async(ENGINE_EXECUTOR)
@@ -181,8 +162,7 @@ public class CdaEnginesManager {
         if (uri == null)
             throw new EngineException(ERR_ENG_ROOT_URI);
 
-        return null;
-//        return obj.getInstance().transformCdaToFhir(cda, uri);
+        return obj.getInstance().transformCdaToFhir(cda, uri);
     }
 
     public boolean cleanup() {
