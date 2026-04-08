@@ -97,7 +97,7 @@ public class EngineBuilder {
 //        return new Engine(id, roots, files, instance);
 //    }
     
-    private static final int POOL_SIZE = 2; // regola in base ai core disponibili
+    private static final int POOL_SIZE = 4; // regola in base ai core disponibili
 
     public Engine fromId(String id) throws OperationException, EngineBuilderException {
         log.debug("[{}][{}] Spawning new engine", TITLE, id);
