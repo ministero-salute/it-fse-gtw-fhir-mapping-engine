@@ -399,10 +399,10 @@ public class TransformerSRV implements ITransformerSRV {
 	 * ThreadLocal Gson - thread-safe e performante
 	 */
 	private static class GsonHolder {
-		private static final ThreadLocal<Gson> GSON = ThreadLocal.withInitial(Gson::new);
+		private static final Gson GSON = new Gson();
 
 		public static Gson get() {
-			return GSON.get();
+			return GSON;
 		}
 	}
 
