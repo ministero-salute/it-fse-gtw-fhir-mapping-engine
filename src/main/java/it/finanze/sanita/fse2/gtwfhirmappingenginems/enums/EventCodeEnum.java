@@ -4,7 +4,8 @@ import lombok.Getter;
 
 public enum EventCodeEnum {
 	
-    P99("P99", "Oscuramento del documento");
+    P99("P99", "Oscuramento del documento"),
+    P00("P00", "De-Oscuramento in alimentazione");
 	
     public static final String OID = "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.3";
 
