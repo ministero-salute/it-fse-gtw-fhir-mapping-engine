@@ -53,20 +53,24 @@ public class DocumentReferenceHelper {
 	/**
 	 * Sets the security label on DocumentReference if P99 event code is present.
 	 * P99 indicates document obscuration ("Oscuramento del documento").
-	 *
+	 * If P00 is present instead, the security label is cleared.
 	 * @param dr         the DocumentReference to update
-	 * @param eventCodes list of event codes to check for P99
+	 * @param eventCodes list of event codes to check for P99/P00
 	 */
-	public static void setSecurityLabelIfP99(DocumentReference dr, List<String> eventCodes) {
+	public static void setSecurityLabel(DocumentReference dr, List<String> eventCodes) {
+
 		if (dr == null || eventCodes == null || eventCodes.isEmpty()) {
 			return;
 		}
 
 		boolean hasP99 = false;
+		boolean hasP00 = false;
 		for (String eventCode : eventCodes) {
 			if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
 				hasP99 = true;
-				break;
+			}
+			if (EventCodeEnum.P00.getCode().equalsIgnoreCase(eventCode)) {
+				hasP00 = true;
 			}
 		}
 
@@ -76,9 +80,11 @@ public class DocumentReferenceHelper {
 			cods.add(new Coding(EventCodeEnum.OID, EventCodeEnum.P99.getCode(), EventCodeEnum.P99.getDescription()));
 			cc.setCoding(cods);
 			dr.setSecurityLabel(Arrays.asList(cc));
+		} else if (hasP00) {
+			dr.setSecurityLabel(null);
 		}
 	}
-	
+
 	private static void addCreationTime(DocumentReference dr, Date creationTime) {
 		dr.setDate(creationTime);
 	}
@@ -114,8 +120,7 @@ public class DocumentReferenceHelper {
 				period.setEnd(sdf.parse(contextDTO.getServiceStopTime()));
 			}
 			drcc.setPeriod(period);
-			
-			
+
 			List<CodeableConcept> events = new ArrayList<>();
 
 			if (!CollectionUtils.isEmpty(contextDTO.getAdministrativeRequestEnum())) {
@@ -136,7 +141,7 @@ public class DocumentReferenceHelper {
 
 			drcc.setEvent(events);
 
-			setSecurityLabelIfP99(dr, contextDTO.getEventsCode());
+			setSecurityLabel(dr, contextDTO.getEventsCode());
 
 		} catch (Exception ex) {
 			log.error("Error while running add context : " , ex);

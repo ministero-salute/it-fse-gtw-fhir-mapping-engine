@@ -499,7 +499,7 @@ public class TransformerSRV implements ITransformerSRV {
 			throw new BusinessException("Error while set period on document reference",ex);
 		}
 
-		DocumentReferenceHelper.setSecurityLabelIfP99(documentReference, newDocumentReference.getEventCode());
+		DocumentReferenceHelper.setSecurityLabel(documentReference, newDocumentReference.getEventCode());
 
 		return jsonParser.encodeResourceToString(documentReference);
 	}
