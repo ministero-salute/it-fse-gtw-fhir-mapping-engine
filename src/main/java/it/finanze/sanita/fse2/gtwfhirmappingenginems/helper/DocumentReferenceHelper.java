@@ -53,7 +53,7 @@ public class DocumentReferenceHelper {
 	/**
 	 * Sets the security label on DocumentReference if P99 event code is present.
 	 * P99 indicates document obscuration ("Oscuramento del documento").
-	 * If P00 is present instead, the security label is cleared.
+     * Other codes such as P00, P98, P97 should also be managed
 	 * @param dr         the DocumentReference to update
 	 * @param eventCodes list of event codes to check for P99/P00
 	 */
@@ -64,13 +64,9 @@ public class DocumentReferenceHelper {
 		}
 
 		boolean hasP99 = false;
-		boolean hasP00 = false;
 		for (String eventCode : eventCodes) {
 			if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
 				hasP99 = true;
-			}
-			if (EventCodeEnum.P00.getCode().equalsIgnoreCase(eventCode)) {
-				hasP00 = true;
 			}
 		}
 
@@ -80,9 +76,9 @@ public class DocumentReferenceHelper {
 			cods.add(new Coding(EventCodeEnum.OID, EventCodeEnum.P99.getCode(), EventCodeEnum.P99.getDescription()));
 			cc.setCoding(cods);
 			dr.setSecurityLabel(Arrays.asList(cc));
-		} else if (hasP00) {
-			dr.setSecurityLabel(null);
-		}
+		} else{
+            dr.setSecurityLabel(null);
+        }
 	}
 
 	private static void addCreationTime(DocumentReference dr, Date creationTime) {
