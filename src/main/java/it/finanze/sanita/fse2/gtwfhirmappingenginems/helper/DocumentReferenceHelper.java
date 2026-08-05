@@ -64,25 +64,39 @@ public class DocumentReferenceHelper {
 		}
 
 		boolean hasP99 = false;
+		boolean hasP98 = false;
+		boolean hasP97 = false;
 		boolean hasP00 = false;
 		for (String eventCode : eventCodes) {
 			if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
 				hasP99 = true;
+				break;
+			}
+			if (EventCodeEnum.P98.getCode().equalsIgnoreCase(eventCode)) {
+				hasP98 = true;
+				break;
+			}
+			if (EventCodeEnum.P97.getCode().equalsIgnoreCase(eventCode)) {
+				hasP97 = true;
+				break;
 			}
 			if (EventCodeEnum.P00.getCode().equalsIgnoreCase(eventCode)) {
 				hasP00 = true;
+				break;
 			}
 		}
 
-		if (hasP99) {
+		EventCodeEnum matchedCode = hasP99 ? EventCodeEnum.P99 : hasP98 ? EventCodeEnum.P98 : hasP97 ? EventCodeEnum.P97 : null;
+
+		if (matchedCode != null) {
 			CodeableConcept cc = new CodeableConcept();
 			List<Coding> cods = new ArrayList<>();
-			cods.add(new Coding(EventCodeEnum.OID, EventCodeEnum.P99.getCode(), EventCodeEnum.P99.getDescription()));
+			cods.add(new Coding(EventCodeEnum.OID, matchedCode.getCode(), matchedCode.getDescription()));
 			cc.setCoding(cods);
 			dr.setSecurityLabel(Arrays.asList(cc));
 		} else if (hasP00) {
 			dr.setSecurityLabel(null);
-		}
+}
 	}
 
 	private static void addCreationTime(DocumentReference dr, Date creationTime) {
