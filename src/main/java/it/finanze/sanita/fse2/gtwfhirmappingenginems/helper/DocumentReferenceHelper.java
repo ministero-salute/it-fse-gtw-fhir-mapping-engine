@@ -47,6 +47,7 @@ public class DocumentReferenceHelper {
 	private static final String FACILITY_TYPE_CODE_SYSTEM = "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.1";
 	private static final String PRACTICE_SETTINGCODE_SYSTEM = "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.2";
 	private static final String TIPODOC_LIVALTO_SYSTEM = "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.5";
+	private static final String URN_OID_PREFIX = "urn:oid:";
 
 	private DocumentReferenceHelper() {}
 
@@ -172,7 +173,8 @@ public class DocumentReferenceHelper {
 
 	    if (masterIdentifier != null && masterIdentifier.contains("^")) {
 	        String[] masterIdentifierSplit = masterIdentifier.split("\\^");
-	        mid.setSystem(masterIdentifierSplit[0]);
+	        String oid = masterIdentifierSplit[0];
+	        mid.setSystem(oid.startsWith(URN_OID_PREFIX) ? oid : URN_OID_PREFIX + oid);
 	        mid.setValue(masterIdentifierSplit[1]);
 	    } else {
 	        mid.setSystem("urn:uuid:" + StringUtility.generateUUID());
