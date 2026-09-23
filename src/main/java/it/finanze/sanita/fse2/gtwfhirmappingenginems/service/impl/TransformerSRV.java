@@ -480,8 +480,8 @@ public class TransformerSRV implements ITransformerSRV {
 			for(String atticlinici : newDocumentReference.getEventCode()) {
 				events.add(new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.3", atticlinici, null)));
 			}
-			drcc.setEvent(events);
 		}
+		drcc.setEvent(events.isEmpty() ? null : events);
 
 		drcc.setPracticeSetting(new CodeableConcept(new Coding("urn:oid:2.16.840.1.113883.2.9.3.3.6.1.2", newDocumentReference.getPracticeSettingCode(), null)));
 

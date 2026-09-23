@@ -60,34 +60,31 @@ public class DocumentReferenceHelper {
 	 */
 	public static void setSecurityLabel(DocumentReference dr, List<String> eventCodes) {
 
-		if (dr == null || eventCodes == null || eventCodes.isEmpty()) {
+		if (dr == null) {
 			return;
 		}
 
-		boolean hasP99 = false;
-		boolean hasP98 = false;
-		boolean hasP97 = false;
-		boolean hasP00 = false;
-		for (String eventCode : eventCodes) {
-			if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
-				hasP99 = true;
-				break;
-			}
-			if (EventCodeEnum.P98.getCode().equalsIgnoreCase(eventCode)) {
-				hasP98 = true;
-				break;
-			}
-			if (EventCodeEnum.P97.getCode().equalsIgnoreCase(eventCode)) {
-				hasP97 = true;
-				break;
-			}
-			if (EventCodeEnum.P00.getCode().equalsIgnoreCase(eventCode)) {
-				hasP00 = true;
-				break;
+		EventCodeEnum matchedCode = null;
+		if (eventCodes != null) {
+			for (String eventCode : eventCodes) {
+				if (EventCodeEnum.P99.getCode().equalsIgnoreCase(eventCode)) {
+					matchedCode = EventCodeEnum.P99;
+					break;
+				}
+				if (EventCodeEnum.P98.getCode().equalsIgnoreCase(eventCode)) {
+					matchedCode = EventCodeEnum.P98;
+					break;
+				}
+				if (EventCodeEnum.P97.getCode().equalsIgnoreCase(eventCode)) {
+					matchedCode = EventCodeEnum.P97;
+					break;
+				}
+				if (EventCodeEnum.P00.getCode().equalsIgnoreCase(eventCode)) {
+					matchedCode = EventCodeEnum.P00;
+					break;
+				}
 			}
 		}
-
-		EventCodeEnum matchedCode = hasP99 ? EventCodeEnum.P99 : hasP98 ? EventCodeEnum.P98 : hasP97 ? EventCodeEnum.P97 : null;
 
 		if (matchedCode != null) {
 			CodeableConcept cc = new CodeableConcept();
@@ -95,9 +92,10 @@ public class DocumentReferenceHelper {
 			cods.add(new Coding(EventCodeEnum.OID, matchedCode.getCode(), matchedCode.getDescription()));
 			cc.setCoding(cods);
 			dr.setSecurityLabel(Arrays.asList(cc));
-		} else if (hasP00) {
+		} else {
+			// nessuno fra P99/P98/P97/P00 (lista vuota compresa): svuota la security label
 			dr.setSecurityLabel(null);
-}
+		}
 	}
 
 	private static void addCreationTime(DocumentReference dr, Date creationTime) {
@@ -154,7 +152,8 @@ public class DocumentReferenceHelper {
 			    }
 			}
 
-			drcc.setEvent(events);
+			// se non arriva nessun event code (ne' administrative request) il campo event resta vuoto
+			drcc.setEvent(events.isEmpty() ? null : events);
 
 			setSecurityLabel(dr, contextDTO.getEventsCode());
 
