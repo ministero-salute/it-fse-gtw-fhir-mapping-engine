@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -32,14 +33,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityValidationResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,20 +59,28 @@ public class TransformerCTL implements ITransformerCTL {
 	private ITransformerSRV service;
     @Autowired
     private IConverterSRV converterService;
+    @Autowired
+    private IValidateSRV validateService;
 
 	@Override
-	public TransformResDTO convertCDAToBundle(FhirResourceDTO dto, HttpServletRequest request) {
-		log.debug("Invoked transform controller");
+	public TransformResDTO convertCDAToBundle(List<ValidationType> validations, FhirResourceDTO dto, HttpServletRequest request) {
+		log.debug("Invoked transform controller with validations: {}", validations);
 		TransformResDTO out = new TransformResDTO();
-		if(dto.getCda()!=null){
+		if (dto != null && dto.getCda() != null) {
 			try {
-				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
+				String cdaString = new String(dto.getCda().getBytes(), StandardCharsets.UTF_8);
 
 				String cdaTrasformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
+
+				if (validations != null && !validations.isEmpty()) {
+					DataQualityValidationResponseDTO validationResponse = validateService.validate(cdaTrasformed, validations);
+					out.setValidationResponse(validationResponse);
+				}
+
 				Document doc = Document.parse(cdaTrasformed);
 				out.setJson(doc);
-			} catch(Throwable tr) {
-				log.error("Sono nel catch del convert cda to bundle",tr);
+			} catch (Throwable tr) {
+				log.error("Sono nel catch del convert cda to bundle", tr);
 				out.setErrorMessage(tr.getMessage());
 			}
 		} else {

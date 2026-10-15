@@ -25,6 +25,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.DOCUMENTS_MAPPER;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.bson.Document;
 import org.springframework.http.MediaType;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,10 +51,11 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * 
+ *
  *
  *	Controller di trasformazione clinical document.
  */
@@ -61,13 +64,17 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface ITransformerCTL {
   
 	@PostMapping(API_TRANSFORM_BY_OBJ)
-	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
+	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine con validazione opzionale", description = "Generazione bundle tramite FHIR Mapping Engine con esecuzione opzionale delle validazioni specificate.")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-	TransformResDTO convertCDAToBundle(@RequestBody FhirResourceDTO fhirResourceDTO,HttpServletRequest request);
+	TransformResDTO convertCDAToBundle(
+			@Parameter(description = "Lista opzionale di tipi di validazione da eseguire sul bundle generato (NORMATIVE_R4, TRAVERSABILITY)", required = false)
+			@RequestParam(name = "validations", required = false) List<ValidationType> validations,
+			@RequestBody FhirResourceDTO fhirResourceDTO,
+			HttpServletRequest request);
 
     @PostMapping(
             value = API_TRANSFORM_STATELESS_BY_OBJ,

@@ -19,23 +19,36 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
 import org.bson.Document;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 
- *
- *	DTO used to return document reference creation result.
+ * DTO used to return transformation result and optional validation results.
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TransformResDTO {
 	
 	@Size(min = 0, max = 1000)
+	@Schema(description = "Messaggio di errore in caso di fallimento della trasformazione", example = "")
 	private String errorMessage;
 	
-	@Size(min = 0, max = 1000)
+	@Schema(description = "Bundle FHIR trasformato in formato BSON Document")
 	private Document json;
+
+	@Schema(description = "Esiti delle validazioni richieste sul bundle generato")
+	private DataQualityValidationResponseDTO validationResponse;
+
+	public TransformResDTO(String errorMessage, Document json) {
+		this.errorMessage = errorMessage;
+		this.json = json;
+	}
 	
 }

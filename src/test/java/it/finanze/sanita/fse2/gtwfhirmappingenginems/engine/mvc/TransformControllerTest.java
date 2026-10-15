@@ -90,7 +90,31 @@ public class TransformControllerTest extends AbstractEngineTest {
         ).andExpectAll(
             status().is2xxSuccessful(),
             jsonPath("$.json").isNotEmpty(),
-            jsonPath("$.errorMessage").doesNotExist()
+            jsonPath("$.errorMessage").doesNotExist(),
+            jsonPath("$.validationResponse").doesNotExist()
+        );
+    }
+
+    @Test
+    void transformWithValidationTraversabilityOk() throws Exception {
+        awaitUntilEnginesSpawned();
+        mvc.perform(
+            transform(
+                new FhirResourceDTO(
+                    null,
+                    LAB.read(),
+                    LAB_ENGINE.transformId(),
+                    LAB_ENGINE.engineId()
+                ),
+                "TRAVERSABILITY"
+            )
+        ).andExpectAll(
+            status().is2xxSuccessful(),
+            jsonPath("$.json").isNotEmpty(),
+            jsonPath("$.errorMessage").doesNotExist(),
+            jsonPath("$.validationResponse").isNotEmpty(),
+            jsonPath("$.validationResponse.results").isArray(),
+            jsonPath("$.validationResponse.results[0].type").value("TRAVERSABILITY")
         );
     }
 

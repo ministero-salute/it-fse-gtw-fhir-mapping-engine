@@ -30,12 +30,24 @@ import java.util.concurrent.Executor;
 public class EngineCFG {
 
     public static final String ENGINE_EXECUTOR = "single-thread-exe";
+    public static final String VALIDATOR_EXECUTOR = "validator-executor";
 
     @Bean(ENGINE_EXECUTOR)
     public Executor singleThreadExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setMaxPoolSize(1);
         executor.setQueueCapacity(0);
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(VALIDATOR_EXECUTOR)
+    public Executor validatorExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(1);
+        executor.setQueueCapacity(2);
+        executor.setThreadNamePrefix("validator-initializer-");
         executor.initialize();
         return executor;
     }
