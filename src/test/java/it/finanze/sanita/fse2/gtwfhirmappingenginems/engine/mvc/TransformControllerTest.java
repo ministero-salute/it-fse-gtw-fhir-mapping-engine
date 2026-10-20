@@ -19,6 +19,7 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.mvc;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base.AbstractEngineTest;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.validator.NormativeR4ValidationRule;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,6 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.CDA.LAB;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
@@ -34,6 +36,7 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockReques
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.http.MockRequests.transformStateless;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Profile.TEST;
 import static org.apache.http.HttpStatus.SC_SERVICE_UNAVAILABLE;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -48,6 +51,9 @@ public class TransformControllerTest extends AbstractEngineTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private NormativeR4ValidationRule normativeR4ValidationRule;
 
     @BeforeAll
     void setup() throws IOException {
@@ -115,6 +121,31 @@ public class TransformControllerTest extends AbstractEngineTest {
             jsonPath("$.validationResponse").isNotEmpty(),
             jsonPath("$.validationResponse.results").isArray(),
             jsonPath("$.validationResponse.results[0].type").value("TRAVERSABILITY")
+        );
+    }
+
+    @Test
+    void transformWithValidationNormativeR4Ok() throws Exception {
+        awaitUntilEnginesSpawned();
+        // Wait until the async initialization of NormativeR4ValidationRule completes
+        await().atMost(5, TimeUnit.MINUTES).until(normativeR4ValidationRule::isInitialized);
+        mvc.perform(
+            transform(
+                new FhirResourceDTO(
+                    null,
+                    LAB.read(),
+                    LAB_ENGINE.transformId(),
+                    LAB_ENGINE.engineId()
+                ),
+                "NORMATIVE_R4"
+            )
+        ).andExpectAll(
+            status().is2xxSuccessful(),
+            jsonPath("$.json").isNotEmpty(),
+            jsonPath("$.errorMessage").doesNotExist(),
+            jsonPath("$.validationResponse").isNotEmpty(),
+            jsonPath("$.validationResponse.results").isArray(),
+            jsonPath("$.validationResponse.results[0].type").value("NORMATIVE_R4")
         );
     }
 

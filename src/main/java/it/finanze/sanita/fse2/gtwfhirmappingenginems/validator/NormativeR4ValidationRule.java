@@ -6,15 +6,16 @@ import java.util.List;
 
 import org.hl7.fhir.r5.elementmodel.Manager.FhirFormat;
 import org.hl7.fhir.r5.model.OperationOutcome.IssueSeverity;
-import org.hl7.fhir.utilities.TimeTracker;
 import org.hl7.fhir.validation.ValidationEngine;
-import org.hl7.fhir.validation.cli.model.CliContext;
-import org.hl7.fhir.validation.cli.services.ValidationService;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.TARGET_CLASS)
 @RequiredArgsConstructor
 @Slf4j
 public class NormativeR4ValidationRule implements ValidationRule {
@@ -61,11 +63,7 @@ public class NormativeR4ValidationRule implements ValidationRule {
 		initializing = true;
 		initialized = false;
 		try {
-			CliContext context = new CliContext();
-			context.setSv("4.0");
-			context.setTxServer(null);
-			engine = new ValidationService().initializeValidator(
-					context, "hl7.fhir.r4.core#4.0.1", new TimeTracker());
+			engine = new CdaMappingEngine.CdaMappingEngineBuilder().getCdaEngineR4();
 			initialized = true;
 			log.info("Normative R4 validation engine initialization completed");
 		} catch (Exception exception) {

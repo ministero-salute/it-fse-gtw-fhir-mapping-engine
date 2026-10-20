@@ -117,20 +117,8 @@
             <artifactId>hapi-fhir-structures-r4</artifactId>
             <version>6.4.1</version>
         </dependency>
-		
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-validation-resources-r4</artifactId>
-			<version>6.4.1</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>org.hl7.fhir.validation</artifactId>
-			<version>6.5.5</version>
-		</dependency>
 
-  <!-- Poi aggiungi una versione specifica -->
+		<!-- Poi aggiungi una versione specifica -->
 		<!--https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>

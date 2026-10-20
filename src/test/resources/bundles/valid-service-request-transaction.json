@@ -1,0 +1,427 @@
+{
+  "resourceType": "Bundle",
+  "id": "e6a8d844-ad27-4aab-9699-381f5d79e5bf",
+  "identifier": {
+    "system": "urn:oid:2.16.840.1.113883.2.9.4.3.9",
+    "value": "1500A4005917694",
+    "assigner": {
+      "display": "MEF"
+    }
+  },
+  "type": "transaction",
+  "timestamp": "2026-09-11T09:07:52+00:00",
+  "entry": [
+    {
+      "fullUrl": "https://example/Organization/a27e11d694c8f6a6dc601ca2cf07227dd39bda2710becb51dc805edbd9c6b321",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "a27e11d694c8f6a6dc601ca2cf07227dd39bda2710becb51dc805edbd9c6b321",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.2.9.4.1.2",
+            "value": "201",
+            "assigner": {
+              "display": "Ministero della Salute"
+            }
+          }
+        ],
+        "name": "MEDICO DI PROVA"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Organization/a27e11d694c8f6a6dc601ca2cf07227dd39bda2710becb51dc805edbd9c6b321"
+      }
+    },
+    {
+      "fullUrl": "https://example/Practitioner/90ab7c8d9f78b77d96a87ef55069554753b2ae72555e69ab4d1371c63acc69cc",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "90ab7c8d9f78b77d96a87ef55069554753b2ae72555e69ab4d1371c63acc69cc",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+            "value": "RSSCNZ92S19L259C",
+            "assigner": {
+              "display": "MEF"
+            }
+          }
+        ],
+        "name": [
+          {
+            "family": "PRO",
+            "given": [
+              "VA"
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Practitioner/90ab7c8d9f78b77d96a87ef55069554753b2ae72555e69ab4d1371c63acc69cc"
+      }
+    },
+    {
+      "fullUrl": "https://example/Encounter/e1fc74f6-cac9-4dea-9cb9-1272651b5435",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "e1fc74f6-cac9-4dea-9cb9-1272651b5435",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.2.9.4.1.2",
+            "value": "ENC001"
+          }
+        ],
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "subject": {
+          "reference": "https://example/Patient/d85167df-2098-497e-bc00-7e5b145bf385"
+        },
+        "period": {
+          "start": "2026-09-11T10:03:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "https://example/Location/b2c8b34d48a3ab250d4d30fc8c955100a7da248b9269da91aa3e44e807fddf61"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Encounter"
+      }
+    },
+    {
+      "fullUrl": "https://example/Coverage/3f499f0b-90d9-4b72-8fe8-e8803f7190a8",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "3f499f0b-90d9-4b72-8fe8-e8803f7190a8",
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.2.9.6.1.22",
+              "code": "048"
+            }
+          ]
+        },
+        "beneficiary": {
+          "reference": "https://example/Patient/d85167df-2098-497e-bc00-7e5b145bf385"
+        },
+        "payor": [
+          {
+            "reference": "https://example/Patient/d85167df-2098-497e-bc00-7e5b145bf385"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Coverage"
+      }
+    },
+    {
+      "fullUrl": "https://example/ServiceRequest/090198a6-c3b0-400e-99e7-482b1afaec31",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "090198a6-c3b0-400e-99e7-482b1afaec31",
+        "status": "unknown",
+        "intent": "order",
+        "code": {
+          "coding": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.2.9.2.70.6.11",
+              "code": "89.52",
+              "display": "ELETTROCARDIOGRAMMA. NON ASSOCIABILE A PRIMA VISITA CARDIOLOGICA (89.7A.3), VISITA CARDIOLOGICA DI CONTROLLO (89.01.3)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "https://example/Patient/d85167df-2098-497e-bc00-7e5b145bf385"
+        },
+        "encounter": {
+          "reference": "https://example/Encounter/e1fc74f6-cac9-4dea-9cb9-1272651b5435"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-9",
+                "code": "002",
+                "display": "febbre tifoide e paratifoide"
+              }
+            ]
+          }
+        ],
+        "insurance": [
+          {
+            "reference": "https://example/Coverage/3f499f0b-90d9-4b72-8fe8-e8803f7190a8"
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "ServiceRequest"
+      }
+    },
+    {
+      "fullUrl": "https://example/Location/b2c8b34d48a3ab250d4d30fc8c955100a7da248b9269da91aa3e44e807fddf61",
+      "resource": {
+        "resourceType": "Location",
+        "id": "b2c8b34d48a3ab250d4d30fc8c955100a7da248b9269da91aa3e44e807fddf61",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.2.9.4.1.2",
+            "value": "AMB",
+            "assigner": {
+              "display": "Ministero della Salute"
+            }
+          }
+        ],
+        "managingOrganization": {
+          "reference": "https://example/Organization/a27e11d694c8f6a6dc601ca2cf07227dd39bda2710becb51dc805edbd9c6b321"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Location/b2c8b34d48a3ab250d4d30fc8c955100a7da248b9269da91aa3e44e807fddf61"
+      }
+    },
+    {
+      "fullUrl": "https://example/Patient/d85167df-2098-497e-bc00-7e5b145bf385",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "d85167df-2098-497e-bc00-7e5b145bf385",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.2.9.4.3.2",
+            "value": "RSSCNZ92S19L259C"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient?identifier=RSSCNZ92S19L259C"
+      }
+    },
+    {
+      "fullUrl": "https://example/Organization/346d45bc5c4eb0fcf1ea99a89bb5dd37613412aeaea42f4ce38ec9e793fd380d",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "346d45bc5c4eb0fcf1ea99a89bb5dd37613412aeaea42f4ce38ec9e793fd380d",
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.2.9.4.1.2",
+            "value": "150",
+            "assigner": {
+              "display": "Ministero della Salute"
+            }
+          }
+        ],
+        "name": "Regione Campania"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Organization/346d45bc5c4eb0fcf1ea99a89bb5dd37613412aeaea42f4ce38ec9e793fd380d"
+      }
+    },
+    {
+      "fullUrl": "https://example/DocumentReference/5effb4b4-5794-444d-94ab-18fc9d4db177",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "5effb4b4-5794-444d-94ab-18fc9d4db177",
+        "masterIdentifier": {
+          "system": "urn:oid:2.16.840.1.113883.2.9.4.3.10",
+          "value": "1500A4005917694_PRESPEC"
+        },
+        "identifier": [
+          {
+            "id": "Document00"
+          }
+        ],
+        "status": "current",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.5",
+                "code": "PRS"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "https://example/Patient/d85167df-2098-497e-bc00-7e5b145bf385"
+        },
+        "date": "2026-09-11T09:07:52.084+00:00",
+        "author": [
+          {
+            "reference": "https://example/Practitioner/90ab7c8d9f78b77d96a87ef55069554753b2ae72555e69ab4d1371c63acc69cc"
+          }
+        ],
+        "custodian": {
+          "reference": "https://example/Organization/346d45bc5c4eb0fcf1ea99a89bb5dd37613412aeaea42f4ce38ec9e793fd380d"
+        },
+        "content": [
+          {
+            "attachment": {
+              "language": "it-IT",
+              "url": "2.16.840.1.113883.2.9.2.0.4.5.2"
+            }
+          }
+        ],
+        "context": {
+          "period": {
+            "start": "2026-09-11T08:03:29+00:00",
+            "end": "2026-09-11T08:03:29+00:00"
+          },
+          "facilityType": {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.1",
+                "code": "SistemaTS"
+              }
+            ]
+          },
+          "practiceSetting": {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.2.9.3.3.6.1.2",
+                "code": "AD_PSC130"
+              }
+            ]
+          },
+          "related": [
+            {
+              "reference": "https://example/Composition/2e458de0-9c0b-441a-9853-47508d107602"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "DocumentReference"
+      }
+    },
+    {
+      "fullUrl": "https://example/Composition/2e458de0-9c0b-441a-9853-47508d107602",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "2e458de0-9c0b-441a-9853-47508d107602",
+        "language": "it-IT",
+        "identifier": {
+          "system": "urn:oid:2.16.840.1.113883.2.9.2.120.4.4",
+          "value": "1500A4005917694",
+          "assigner": {
+            "display": "MEF"
+          }
+        },
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "57832-8",
+              "display": "Prescrizione Specialistica"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "https://example/Patient/d85167df-2098-497e-bc00-7e5b145bf385"
+        },
+        "encounter": {
+          "reference": "https://example/Encounter/e1fc74f6-cac9-4dea-9cb9-1272651b5435"
+        },
+        "date": "2026-09-11T10:03:00Z",
+        "author": [
+          {
+            "reference": "https://example/PractitionerRole/1d26579a-8b1e-4cf2-9f4a-33cf0227421d"
+          }
+        ],
+        "title": "Prescrizione Specialistica",
+        "confidentiality": "N",
+        "custodian": {
+          "reference": "https://example/Organization/346d45bc5c4eb0fcf1ea99a89bb5dd37613412aeaea42f4ce38ec9e793fd380d"
+        },
+        "section": [
+          {
+            "title": "Esenzioni",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "57827-8"
+                }
+              ]
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Esenzioni presenti: 048</div>"
+            },
+            "entry": [
+              {
+                "reference": "https://example/ServiceRequest/090198a6-c3b0-400e-99e7-482b1afaec31"
+              }
+            ]
+          },
+          {
+            "title": "Prescrizioni",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "57828-6",
+                  "display": "Prescrizioni"
+                }
+              ]
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Prescrizioni presenti: ELETTROCARDIOGRAMMA. NON ASSOCIABILE A PRIMA VISITA CARDIOLOGICA (89.7A.3), VISITA CARDIOLOGICA DI CONTROLLO (89.01.3),  Diagnosi: febbre tifoide e paratifoide</div>"
+            },
+            "entry": [
+              {
+                "reference": "https://example/ServiceRequest/090198a6-c3b0-400e-99e7-482b1afaec31"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "Composition"
+      }
+    },
+    {
+      "fullUrl": "https://example/PractitionerRole/1d26579a-8b1e-4cf2-9f4a-33cf0227421d",
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "1d26579a-8b1e-4cf2-9f4a-33cf0227421d",
+        "practitioner": {
+          "reference": "https://example/Practitioner/90ab7c8d9f78b77d96a87ef55069554753b2ae72555e69ab4d1371c63acc69cc"
+        },
+        "organization": {
+          "reference": "https://example/Organization/a27e11d694c8f6a6dc601ca2cf07227dd39bda2710becb51dc805edbd9c6b321"
+        },
+        "code": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.2.9.5.1.111",
+                "code": "MMG",
+                "display": "Medico di Medicina Generale"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "PractitionerRole"
+      }
+    }
+  ]
+}
