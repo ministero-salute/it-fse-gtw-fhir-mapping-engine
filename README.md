@@ -93,6 +93,62 @@ jq -n \
     --data-binary @-
 ```
 
+### Bundle post-processing
+
+`TransformerSRV.transform` generates the Bundle, makes a deep copy, delegates to
+`BundlePostProcessor.process`, and serializes its result. The `process` method in
+`src/main/java/it/finanze/sanita/fse2/gtwfhirmappingenginems/postprocessing/BundlePostProcessor.java`
+explicitly lists the steps in execution order:
+
+1. `IdReferenceNormalizer.normalize`: normalize IDs and update references,
+   preserving the existing Patient exception.
+2. `ResourceDeduplicator.deduplicate`: retain one resource per type/ID using
+   the configured strategy.
+3. `DocumentReferenceEnricher.enrich`: enrich the first existing DocumentReference
+   when metadata is supplied; do not create one on the transformation path.
+4. `ScoringTagCleaner.removeScoringTags`: remove internal scoring tags after
+   deduplication has consumed them; preserve FHIR signatures.
+5. `PruningWarningNormalizer.normalize`: currently a no-op, described below.
+
+This extraction intentionally preserves existing behavior and limitations:
+deduplication is parallel and unordered (including ties), drops entries without
+resources, and can collapse ID-less OperationOutcomes. `KEEP_LONGER` retains its
+observed Java 21 Gson reflection failure. Reference-traversal errors retain their
+existing handling. These require separate behavior-changing fixes.
+
+The separate add-DocumentReference operation reuses only scoring-tag cleanup,
+not this full pipeline. Copying, serialization, and optional validation remain
+outside the post-processor.
+
+### Pruning-warning normalization (implementation pending)
+
+Pruning-warning normalization is transformation post-processing, not an optional
+validation. The normalizer is called for both JSON and multipart transformations,
+before serialization and any optional validation. It accepts a Bundle and returns
+a `NormalizationResult` containing the Bundle and diagnostics; the current
+placeholder returns the input unchanged with an empty issues list.
+
+The JSON endpoint returns these diagnostics in `normalizationIssues`, independently
+of optional `validationResponse` results. An empty `normalizationIssues` array
+means no diagnostics were reported by normalization; warnings do not constitute
+a transformation failure. Optional validations check the final normalized JSON.
+The multipart endpoint retains its bare-Bundle response and does not expose a
+separate diagnostics field.
+
+During transformation, some problematic resources may be removed. An
+`OperationOutcome` is added to the generated Bundle for each removed resource
+to describe the warning. Because a Bundle containing these entries cannot be
+uploaded to the target system, the normalizer will preserve their warning content in
+the `Composition` narrative and remove the corresponding `OperationOutcome`
+entries. It does not restore the removed resources.
+
+The implementation TODO is in
+`src/main/java/it/finanze/sanita/fse2/gtwfhirmappingenginems/normalizer/PruningWarningNormalizer.java`,
+in the `normalize` method. Until implemented, the placeholder leaves surviving
+`OperationOutcome` entries unchanged; the preceding deduplication can already
+collapse entries with matching or missing IDs. The placeholder does not make
+these Bundles upload-ready.
+
 ## Related repositories
 
 - [it-fse-support](https://github.com/ministero-salute/it-fse-support) — FSE 2.0 support

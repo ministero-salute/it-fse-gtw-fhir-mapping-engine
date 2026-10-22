@@ -55,9 +55,10 @@ class TransformTest extends AbstractEngineTest {
 
     @Test
     void transformLAB() throws FHIRException, IOException {
-        String json = service.transform(LAB.read(), LAB_ENGINE.engineId(), LAB_ENGINE.transformId(), null);
+        var result = service.transform(LAB.read(), LAB_ENGINE.engineId(), LAB_ENGINE.transformId(), null);
 
-        assertNotNull(json);
+        assertNotNull(result.json());
+        assertNotNull(result.normalizationIssues());
     }
 	
 }

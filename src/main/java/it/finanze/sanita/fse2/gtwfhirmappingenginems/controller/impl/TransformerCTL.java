@@ -1,19 +1,13 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
  * 
- * Copyright 2023 Ministero della Salute
+ * Copyright (C) 2023 Ministero della Salute
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
@@ -38,6 +32,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformationResult;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
@@ -64,21 +59,24 @@ public class TransformerCTL implements ITransformerCTL {
 
 	@Override
 	public TransformResDTO convertCDAToBundle(List<ValidationType> validations, FhirResourceDTO dto, HttpServletRequest request) {
-		log.debug("Invoked transform controller with validations: {}", validations);
-		TransformResDTO out = new TransformResDTO();
-		if (dto != null && dto.getCda() != null) {
-			try {
-				String cdaString = new String(dto.getCda().getBytes(), StandardCharsets.UTF_8);
 
-				String cdaTrasformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
+		TransformResDTO out = new TransformResDTO();
+
+		if (dto != null && dto.getCda() != null) {
+
+			try {
+
+				String cdaString = new String(dto.getCda().getBytes(), StandardCharsets.UTF_8);
+				TransformationResult transformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
 
 				if (validations != null && !validations.isEmpty()) {
-					DataQualityValidationResponseDTO validationResponse = validateService.validate(cdaTrasformed, validations);
+					DataQualityValidationResponseDTO validationResponse = validateService.validate(transformed.json(), validations);
 					out.setValidationResponse(validationResponse);
 				}
 
-				Document doc = Document.parse(cdaTrasformed);
+				Document doc = Document.parse(transformed.json());
 				out.setJson(doc);
+				out.setNormalizationIssues(transformed.normalizationIssues());
 			} catch (Throwable tr) {
 				log.error("Sono nel catch del convert cda to bundle", tr);
 				out.setErrorMessage(tr.getMessage());
@@ -93,8 +91,8 @@ public class TransformerCTL implements ITransformerCTL {
 	@Override
 	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file) throws IOException {
 		log.debug("Invoked transform controller");
-		String bundle = service.transform(getCDA(file), engineId, objectId, documentReferenceDTO);
-		Document doc = Document.parse(bundle);
+		TransformationResult transformed = service.transform(getCDA(file), engineId, objectId, documentReferenceDTO);
+		Document doc = Document.parse(transformed.json());
 		log.debug("Conversion of CDA completed");
 		return doc;
 	}

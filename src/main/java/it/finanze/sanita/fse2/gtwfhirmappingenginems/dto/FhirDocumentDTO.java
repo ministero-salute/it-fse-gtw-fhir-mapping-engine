@@ -17,8 +17,6 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
-import com.mongodb.lang.Nullable;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
