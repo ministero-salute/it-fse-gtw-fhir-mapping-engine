@@ -11,18 +11,20 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.postprocessing;
 
+import java.util.List;
+
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.NormalizationResult;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.PruningWarningNormalizer;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.ResourceRemovalNarrativeNormalizer;
 import lombok.RequiredArgsConstructor;
 
 /**
  * Applies ID/reference normalization, deduplication, DocumentReference enrichment,
- * scoring-tag cleanup, and pruning-warning normalization in explicit order.
+ * scoring-tag cleanup, and optional resource removal reporting in explicit order.
  * Processes a caller-owned Bundle without copying or serializing it and returns
  * the resulting Bundle with diagnostics.
  */
@@ -34,10 +36,11 @@ public class BundlePostProcessor {
     private final ResourceDeduplicator resourceDeduplicator;
     private final DocumentReferenceEnricher documentReferenceEnricher;
     private final ScoringTagCleaner scoringTagCleaner;
-    private final PruningWarningNormalizer pruningWarningNormalizer;
+    private final ResourceRemovalNarrativeNormalizer resourceRemovalNarrativeNormalizer;
     private final FhirTransformCFG configuration;
 
-    public PostProcessingResult process(Bundle bundle, DocumentReferenceDTO metadata, String objectId) {
+    public PostProcessingResult process(Bundle bundle, DocumentReferenceDTO metadata, String objectId,
+            boolean includeRemovalReport) {
 
         bundle = idReferenceNormalizer.normalize(bundle);
         bundle = resourceDeduplicator.deduplicate(bundle, configuration.getAlgToRemoveDuplicate());
@@ -46,9 +49,12 @@ public class BundlePostProcessor {
         // Deduplication must consume scoring tags before they are removed.
         bundle = scoringTagCleaner.removeScoringTags(bundle);
 
-        NormalizationResult normalized = pruningWarningNormalizer.normalize(bundle);
+        if (includeRemovalReport) {
+            NormalizationResult normalized = resourceRemovalNarrativeNormalizer.normalize(bundle);
+            return new PostProcessingResult(normalized.bundle(), normalized.issues());
+        }
 
-        return new PostProcessingResult(normalized.bundle(), normalized.issues());
+        return new PostProcessingResult(bundle, List.of());
     }
 
 }

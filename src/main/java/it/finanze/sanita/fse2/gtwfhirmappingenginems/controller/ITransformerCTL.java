@@ -73,6 +73,8 @@ public interface ITransformerCTL {
 	TransformResDTO convertCDAToBundle(
 			@Parameter(description = "Lista opzionale di tipi di validazione da eseguire sul bundle generato (NORMATIVE_R4, TRAVERSABILITY)", required = false)
 			@RequestParam(name = "validations", required = false) List<ValidationType> validations,
+			@Parameter(description = "Report removed resources in the Composition narrative and remove all OperationOutcome entries (currently a no-op)", schema = @Schema(defaultValue = "false"))
+			@RequestParam(name = "includeRemovalReport", defaultValue = "false") boolean includeRemovalReport,
 			@RequestBody FhirResourceDTO fhirResourceDTO,
 			HttpServletRequest request);
 
@@ -94,7 +96,9 @@ public interface ITransformerCTL {
             @RequestPart(name = "documentReference", required = false) DocumentReferenceDTO documentReferenceDTO,
             @PathVariable(API_ENGINE_ID_VAR) String engineId,
             @PathVariable(API_OBJECT_ID_VAR) String objectId,
-            @RequestPart("file") MultipartFile file
+            @RequestPart("file") MultipartFile file,
+            @Parameter(description = "Report removed resources in the Composition narrative and remove all OperationOutcome entries (currently a no-op)", schema = @Schema(defaultValue = "false"))
+            @RequestParam(name = "includeRemovalReport", defaultValue = "false") boolean includeRemovalReport
             ) throws IOException;
     
     @PostMapping(API_TRANSFORM_UPDATE)

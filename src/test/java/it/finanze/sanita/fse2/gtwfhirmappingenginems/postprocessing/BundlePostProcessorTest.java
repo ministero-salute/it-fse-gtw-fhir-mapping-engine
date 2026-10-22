@@ -18,7 +18,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.NormalizationResult;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.PruningWarningNormalizer;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.ResourceRemovalNarrativeNormalizer;
 
 @ExtendWith(MockitoExtension.class)
 class BundlePostProcessorTest {
@@ -26,7 +26,7 @@ class BundlePostProcessorTest {
     @Mock private ResourceDeduplicator duplicates;
     @Mock private DocumentReferenceEnricher documents;
     @Mock private ScoringTagCleaner scoring;
-    @Mock private PruningWarningNormalizer pruning;
+    @Mock private ResourceRemovalNarrativeNormalizer removalReport;
     @Mock private FhirTransformCFG configuration;
     @InjectMocks private BundlePostProcessor processor;
 
@@ -46,17 +46,17 @@ class BundlePostProcessorTest {
         when(duplicates.deduplicate(normalized, TransformALGEnum.KEEP_PRIOR)).thenReturn(deduplicated);
         when(documents.enrich(deduplicated, metadata, "map")).thenReturn(enriched);
         when(scoring.removeScoringTags(enriched)).thenReturn(cleaned);
-        when(pruning.normalize(cleaned)).thenReturn(new NormalizationResult(finalBundle, issues));
+        when(removalReport.normalize(cleaned)).thenReturn(new NormalizationResult(finalBundle, issues));
 
-        PostProcessingResult result = processor.process(generated, metadata, "map");
+        PostProcessingResult result = processor.process(generated, metadata, "map", true);
 
-        var order = inOrder(ids, configuration, duplicates, documents, scoring, pruning);
+        var order = inOrder(ids, configuration, duplicates, documents, scoring, removalReport);
         order.verify(ids).normalize(generated);
         order.verify(configuration).getAlgToRemoveDuplicate();
         order.verify(duplicates).deduplicate(normalized, TransformALGEnum.KEEP_PRIOR);
         order.verify(documents).enrich(deduplicated, metadata, "map");
         order.verify(scoring).removeScoringTags(enriched);
-        order.verify(pruning).normalize(cleaned);
+        order.verify(removalReport).normalize(cleaned);
         order.verifyNoMoreInteractions();
         assertSame(finalBundle, result.bundle());
         assertSame(issues, result.issues());
@@ -69,8 +69,25 @@ class BundlePostProcessorTest {
         when(ids.normalize(bundle)).thenThrow(failure);
 
         assertSame(failure, assertThrows(IllegalStateException.class,
-            () -> processor.process(bundle, null, "map")));
-        verifyNoInteractions(configuration, duplicates, documents, scoring, pruning);
+            () -> processor.process(bundle, null, "map", false)));
+        verifyNoInteractions(configuration, duplicates, documents, scoring, removalReport);
+    }
+
+    @Test
+    void skipsOnlyRemovalReportWhenDisabled() {
+        Bundle generated = new Bundle();
+        Bundle cleaned = new Bundle();
+        when(ids.normalize(generated)).thenReturn(generated);
+        when(configuration.getAlgToRemoveDuplicate()).thenReturn(TransformALGEnum.KEEP_PRIOR);
+        when(duplicates.deduplicate(generated, TransformALGEnum.KEEP_PRIOR)).thenReturn(generated);
+        when(documents.enrich(generated, null, "map")).thenReturn(generated);
+        when(scoring.removeScoringTags(generated)).thenReturn(cleaned);
+
+        PostProcessingResult result = processor.process(generated, null, "map", false);
+
+        assertSame(cleaned, result.bundle());
+        assertTrue(result.issues().isEmpty());
+        verifyNoInteractions(removalReport);
     }
 
     @Test
@@ -79,7 +96,7 @@ class BundlePostProcessorTest {
         config.setAlgToRemoveDuplicate(TransformALGEnum.KEEP_PRIOR);
         BundlePostProcessor real = new BundlePostProcessor(new IdReferenceNormalizer(),
             new ResourceDeduplicator(), new DocumentReferenceEnricher(), new ScoringTagCleaner(),
-            new PruningWarningNormalizer(), config);
+            new ResourceRemovalNarrativeNormalizer(), config);
         Bundle bundle = new Bundle();
         Organization lower = new Organization();
         lower.setId("org");
@@ -90,7 +107,7 @@ class BundlePostProcessorTest {
         bundle.addEntry().setResource(lower);
         bundle.addEntry().setResource(higher);
 
-        PostProcessingResult result = real.process(bundle, null, "map");
+        PostProcessingResult result = real.process(bundle, null, "map", false);
 
         assertSame(bundle, result.bundle());
         assertEquals(1, bundle.getEntry().size());

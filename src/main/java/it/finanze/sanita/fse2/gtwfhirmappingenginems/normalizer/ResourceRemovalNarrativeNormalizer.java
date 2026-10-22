@@ -17,26 +17,27 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
 /**
- * Post-processes warnings about resources removed during transformation.
- * Intended to preserve pruning OperationOutcome content in the Composition
- * narrative before removing the corresponding entries from the Bundle.
+ * Builds a narrative report of resources removed during transformation.
+ * Intended to preserve all OperationOutcome content in the Composition narrative
+ * before removing all OperationOutcome entries from the Bundle.
  */
 @Component
-public class PruningWarningNormalizer {
+public class ResourceRemovalNarrativeNormalizer {
 
     /**
      * Returns the normalized Bundle and diagnostics about earlier resource removals.
      * May modify and return the same Bundle instance. Currently leaves it unchanged.
      */
     public NormalizationResult normalize(Bundle bundle) {
-        // TODO Implement pruning-warning normalization:
-        // 1. Identify OperationOutcome entries describing removed resources.
-        // 2. Preserve their warning content in the Composition narrative, retaining
+        // TODO Implement the resource removal report:
+        // 1. Collect all OperationOutcome entries describing transformation errors
+        //    and removed resources.
+        // 2. Preserve all their content in the Composition narrative, retaining
         //    existing content and generating safe, valid FHIR XHTML.
-        // 3. Remove the corresponding entries only after preserving their content.
-        //    Fail without losing warnings if the required Composition is missing.
-        // 4. Preserve unrelated OperationOutcome errors and diagnostics, and avoid
-        //    duplicating narrative warnings if normalization is run again.
+        // 3. Remove all OperationOutcome entries only after preserving their content.
+        //    Fail without losing diagnostics if the required Composition is missing
+        //    or narrative conversion fails.
+        // 4. Avoid duplicating report content if normalization is run again.
         return new NormalizationResult(bundle, List.of());
     }
 }

@@ -42,7 +42,7 @@ class TransformerPostProcessingTest {
             "WARNING", "PROCESSING", List.of(), "Test diagnostic"));
         when(engine.manager()).thenReturn(manager);
         when(manager.transform("cda", "engine", "map")).thenReturn(generated);
-        when(processor.process(any(Bundle.class), same(metadata), eq("map"))).thenAnswer(invocation -> {
+        when(processor.process(any(Bundle.class), same(metadata), eq("map"), eq(true))).thenAnswer(invocation -> {
             Bundle copy = invocation.getArgument(0);
             assertNotSame(generated, copy);
             assertNotSame(organization, copy.getEntryFirstRep().getResource());
@@ -50,7 +50,7 @@ class TransformerPostProcessingTest {
             return new PostProcessingResult(finalBundle, issues);
         });
 
-        var result = service.transform("cda", "engine", "map", metadata);
+        var result = service.transform("cda", "engine", "map", metadata, true);
 
         assertEquals("original", organization.getId());
         assertEquals(new JsonParser().composeString(finalBundle), result.json());
@@ -63,10 +63,10 @@ class TransformerPostProcessingTest {
         when(engine.manager()).thenReturn(manager);
         when(manager.transform("cda", "engine", "map")).thenReturn(new Bundle());
         IllegalStateException failure = new IllegalStateException("processing failed");
-        when(processor.process(any(Bundle.class), isNull(), eq("map"))).thenThrow(failure);
+        when(processor.process(any(Bundle.class), isNull(), eq("map"), eq(false))).thenThrow(failure);
 
         assertSame(failure, assertThrows(IllegalStateException.class,
-            () -> service.transform("cda", "engine", "map", null)));
+            () -> service.transform("cda", "engine", "map", null, false)));
     }
 
     @Test

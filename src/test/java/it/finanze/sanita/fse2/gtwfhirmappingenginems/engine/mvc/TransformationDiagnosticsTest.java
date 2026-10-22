@@ -1,11 +1,11 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.mvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 
@@ -14,12 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl.TransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityValidationResponseDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformationResult;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
@@ -41,34 +42,42 @@ class TransformationDiagnosticsTest {
     void normalizationWarningsAreReturnedWithoutRequestingValidation() throws Exception {
         List<DataQualityIssueDTO> issues = List.of(new DataQualityIssueDTO(
             "WARNING", "PROCESSING", List.of("Observation/removed"), "Resource removed during transformation"));
-        when(service.transform("<cda/>", "engine", "map", null))
+        when(service.transform("<cda/>", "engine", "map", null, true))
             .thenReturn(new TransformationResult(JSON, issues));
 
-        TransformResDTO response = controller.convertCDAToBundle(null, request(), null);
-
-        assertSame(issues, response.getNormalizationIssues());
-        assertEquals("Bundle", response.getJson().getString("resourceType"));
-        assertNull(response.getErrorMessage());
-        assertNull(response.getValidationResponse());
+        MockMvcBuilders.standaloneSetup(controller).build()
+            .perform(request().param("includeRemovalReport", "true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.normalizationIssues[0].message").value("Resource removed during transformation"))
+            .andExpect(jsonPath("$.json.resourceType").value("Bundle"))
+            .andExpect(jsonPath("$.errorMessage").doesNotExist())
+            .andExpect(jsonPath("$.validationResponse").doesNotExist());
+        verify(service).transform("<cda/>", "engine", "map", null, true);
         verifyNoInteractions(validator);
     }
 
     @Test
-    void validationUsesFinalJsonAndEmptyNormalizationIssuesAreReturned() throws Exception {
+    void removalReportDefaultsToFalseAndValidationUsesFinalJson() throws Exception {
         List<ValidationType> types = List.of(ValidationType.TRAVERSABILITY);
         DataQualityValidationResponseDTO validation = new DataQualityValidationResponseDTO(List.of());
-        when(service.transform("<cda/>", "engine", "map", null))
+        when(service.transform("<cda/>", "engine", "map", null, false))
             .thenReturn(new TransformationResult(JSON, List.of()));
         when(validator.validate(JSON, types)).thenReturn(validation);
 
-        TransformResDTO response = controller.convertCDAToBundle(types, request(), null);
-
-        assertEquals(List.of(), response.getNormalizationIssues());
-        assertSame(validation, response.getValidationResponse());
+        MockMvcBuilders.standaloneSetup(controller).build()
+            .perform(request().param("validations", "TRAVERSABILITY"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.normalizationIssues").isEmpty())
+            .andExpect(jsonPath("$.validationResponse.results").isEmpty());
+        verify(service).transform("<cda/>", "engine", "map", null, false);
         verify(validator).validate(JSON, types);
     }
 
-    private FhirResourceDTO request() {
-        return new FhirResourceDTO(null, "<cda/>", "map", "engine");
+    private MockHttpServletRequestBuilder request() {
+        return post("/v1/documents/transform")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {"cda":"<cda/>","engineId":"engine","objectId":"map"}
+                """);
     }
 }

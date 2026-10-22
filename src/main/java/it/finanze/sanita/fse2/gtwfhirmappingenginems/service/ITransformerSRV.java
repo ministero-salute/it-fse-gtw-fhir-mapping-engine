@@ -26,7 +26,7 @@ import java.io.IOException;
 
 public interface ITransformerSRV {
 
-	TransformationResult transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref) throws FHIRException, IOException;
+	TransformationResult transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref, boolean includeRemovalReport) throws FHIRException, IOException;
 
 	String mergeDocumentReferenceForUpdate(String oldDocumentReference, DocumentReferenceDTO newDocumentReference);
 

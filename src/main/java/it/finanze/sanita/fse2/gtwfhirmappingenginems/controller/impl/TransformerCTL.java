@@ -58,7 +58,8 @@ public class TransformerCTL implements ITransformerCTL {
     private IValidateSRV validateService;
 
 	@Override
-	public TransformResDTO convertCDAToBundle(List<ValidationType> validations, FhirResourceDTO dto, HttpServletRequest request) {
+	public TransformResDTO convertCDAToBundle(List<ValidationType> validations, boolean includeRemovalReport,
+            FhirResourceDTO dto, HttpServletRequest request) {
 
 		TransformResDTO out = new TransformResDTO();
 
@@ -67,7 +68,8 @@ public class TransformerCTL implements ITransformerCTL {
 			try {
 
 				String cdaString = new String(dto.getCda().getBytes(), StandardCharsets.UTF_8);
-				TransformationResult transformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
+				TransformationResult transformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(),
+                        dto.getDocumentReferenceDTO(), includeRemovalReport);
 
 				if (validations != null && !validations.isEmpty()) {
 					DataQualityValidationResponseDTO validationResponse = validateService.validate(transformed.json(), validations);
@@ -89,9 +91,9 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 
 	@Override
-	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file) throws IOException {
+	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file, boolean includeRemovalReport) throws IOException {
 		log.debug("Invoked transform controller");
-		TransformationResult transformed = service.transform(getCDA(file), engineId, objectId, documentReferenceDTO);
+		TransformationResult transformed = service.transform(getCDA(file), engineId, objectId, documentReferenceDTO, includeRemovalReport);
 		Document doc = Document.parse(transformed.json());
 		log.debug("Conversion of CDA completed");
 		return doc;
