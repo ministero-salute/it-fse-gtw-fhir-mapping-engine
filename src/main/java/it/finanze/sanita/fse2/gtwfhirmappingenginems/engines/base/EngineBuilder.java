@@ -27,6 +27,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.ITransformRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.sub.EngineMap;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FhirEngineFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.StructureDefinition;
@@ -43,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static ch.ahdis.matchbox.engine.CdaMappingEngine.CdaMappingEngineBuilder;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.config.Constants.Logs.*;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -154,9 +154,7 @@ public class EngineBuilder {
     private CdaMappingEngine createEngine() throws EngineBuilderException {
         CdaMappingEngine engine;
         try {
-        	engine = new CdaMappingEngineBuilder().getCdaEngineR4();
-            // Preload default packages
-//            engine = new CdaMappingEngineBuilder().getEngine();
+            engine = FhirEngineFactory.createR4();
         } catch (IOException | URISyntaxException e) {
             throw new EngineBuilderException(ERR_BLD_ENGINE_UNAVAILALE, e);
         }

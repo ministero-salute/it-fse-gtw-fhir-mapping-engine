@@ -15,11 +15,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import ch.ahdis.matchbox.engine.CdaMappingEngine;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FhirEngineFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +63,7 @@ public class NormativeR4ValidationRule implements ValidationRule {
 		initializing = true;
 		initialized = false;
 		try {
-			engine = new CdaMappingEngine.CdaMappingEngineBuilder().getCdaEngineR4();
+			engine = FhirEngineFactory.createR4();
 			initialized = true;
 			log.info("Normative R4 validation engine initialization completed");
 		} catch (Exception exception) {

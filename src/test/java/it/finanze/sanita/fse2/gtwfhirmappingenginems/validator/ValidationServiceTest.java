@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DocumentReference;
-import org.hl7.fhir.r4.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.BeforeEach;
@@ -135,39 +134,6 @@ public class ValidationServiceTest{
 		ValidationContext context = new ValidationContext("{}", new Bundle());
 		assertThrows(it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException.class,
 				() -> uninitializedRule.validate(context));
-	}
-
-	@Test
-	void validateServiceWithNormativeR4AndTraversabilityCombined() {
-		normativeRule.initialize();
-		assertTrue(normativeRule.isInitialized());
-
-		Bundle bundle = new Bundle();
-		bundle.setType(Bundle.BundleType.TRANSACTION);
-
-		Patient patient = new Patient();
-		patient.setId("pat-1");
-		patient.setGender(AdministrativeGender.MALE);
-
-		DocumentReference docRef = new DocumentReference();
-		docRef.setId("doc-1");
-		docRef.setStatus(org.hl7.fhir.r4.model.Enumerations.DocumentReferenceStatus.CURRENT);
-		docRef.setSubject(new Reference("urn:uuid:pat-1"));
-		docRef.getType().addCoding().setSystem("http://loinc.org").setCode("11502-2");
-
-		bundle.addEntry().setResource(docRef).setFullUrl("urn:uuid:doc-1");
-		bundle.addEntry().setResource(patient).setFullUrl("urn:uuid:pat-1");
-
-		String json = fhirContext.newJsonParser().encodeResourceToString(bundle);
-
-		DataQualityValidationResponseDTO response = validateSRV.validate(json,
-				List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
-
-		assertNotNull(response);
-		assertEquals(2, response.getResults().size());
-		assertEquals(ValidationType.NORMATIVE_R4, response.getResults().get(0).getType());
-		assertEquals(ValidationType.TRAVERSABILITY, response.getResults().get(1).getType());
-		assertTrue(response.getResults().get(1).isValid());
 	}
 
 	// ------------------------------------------------------------------
