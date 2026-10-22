@@ -23,6 +23,8 @@ import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_STATELESS_BY_OBJ;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_UPDATE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.DOCUMENTS_MAPPER;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.RouteUtility.API_TRANSFORM_BY_OBJ_NO_ENGINE;
+
 
 import java.io.IOException;
 
@@ -46,6 +48,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceNoEngineDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
@@ -59,6 +62,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping(path = DOCUMENTS_MAPPER)
 @Tag(name = "Servizio trasformazione clinical document")
 public interface ITransformerCTL {
+
+        String SYSTEM_TYPE_HEADER = "X-System-Type";
   
 	@PostMapping(API_TRANSFORM_BY_OBJ)
 	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
@@ -138,5 +143,14 @@ public interface ITransformerCTL {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(@RequestBody FhirDocumentDTO fhirDocumentDTO) throws IOException;
+
+    @PostMapping(API_TRANSFORM_BY_OBJ_NO_ENGINE)
+	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
+	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+	TransformResDTO convertCDAToBundleWithoutEngine(@RequestBody FhirResourceNoEngineDTO fhirResourceDTO,HttpServletRequest request);
 
 }
