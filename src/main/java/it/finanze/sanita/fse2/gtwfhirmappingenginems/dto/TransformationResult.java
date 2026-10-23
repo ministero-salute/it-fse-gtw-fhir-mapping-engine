@@ -14,4 +14,4 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 import java.util.List;
 
 /** Internal service result containing the final Bundle JSON and normalization diagnostics. */
-public record TransformationResult(String json, List<DataQualityIssueDTO> normalizationIssues) {}
+public record TransformationResult(String json, List<ValidationIssueDTO> normalizationIssues) {}

@@ -27,7 +27,7 @@ import org.hl7.fhir.r5.model.OperationOutcome.IssueType;
 import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.context.FhirContext;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +43,7 @@ public class TraversabilityValidationRule implements ValidationRule {
 	}
 
 	@Override
-	public List<DataQualityIssueDTO> validate(ValidationContext context) {
+	public List<ValidationIssueDTO> validate(ValidationContext context) {
 
 		if (context == null || context.bundle() == null) {
 			return List.of(issue("Bundle", "No bundle available to validate"));
@@ -68,7 +68,7 @@ public class TraversabilityValidationRule implements ValidationRule {
 			});
 		}
 
-		List<DataQualityIssueDTO> issues = new ArrayList<>();
+		List<ValidationIssueDTO> issues = new ArrayList<>();
 		if (context.bundle().getEntry() != null) {
 			for (Bundle.BundleEntryComponent entry : context.bundle().getEntry()) {
 
@@ -106,8 +106,8 @@ public class TraversabilityValidationRule implements ValidationRule {
 		return resources;
 	}
 
-	private DataQualityIssueDTO issue(String path, String message) {
-		return new DataQualityIssueDTO(IssueSeverity.ERROR.toCode().toUpperCase(),
+	private ValidationIssueDTO issue(String path, String message) {
+		return new ValidationIssueDTO(IssueSeverity.ERROR.toCode().toUpperCase(),
 				IssueType.NOTFOUND.toCode().toUpperCase(), List.of(path), message);
 	}
 

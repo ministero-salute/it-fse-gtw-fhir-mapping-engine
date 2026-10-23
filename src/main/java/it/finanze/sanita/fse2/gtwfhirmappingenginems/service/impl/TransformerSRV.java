@@ -64,7 +64,8 @@ public class TransformerSRV implements ITransformerSRV {
 			final DocumentReferenceDTO documentReferenceDTO, final boolean includeRemovalReport) throws FHIRException, IOException {
 
 		Bundle originalBundle = engineSRV.manager().transform(cda, engineId, objectId);
-		PostProcessingResult processed = postProcessor.process(originalBundle.copy(), documentReferenceDTO, objectId, includeRemovalReport);
+		PostProcessingResult processed = postProcessor.process(originalBundle.copy(), documentReferenceDTO, objectId,
+                includeRemovalReport);
 
 		return new TransformationResult(JsonParserHolder.get().composeString(processed.bundle()), processed.issues());
 	}

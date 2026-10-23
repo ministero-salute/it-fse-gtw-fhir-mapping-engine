@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityValidationResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
@@ -76,7 +76,7 @@ public class TransformerCTL implements ITransformerCTL {
 
 				if (validations != null && !validations.isEmpty()) {
 					log.debug("Validating transformed Bundle; validations={}", validations);
-					DataQualityValidationResponseDTO validationResponse = validateService.validate(transformed.json(), validations);
+					FhirValidationResponseDTO validationResponse = validateService.validate(transformed.json(), validations);
 					out.setValidationResponse(validationResponse);
 				}
 

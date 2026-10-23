@@ -25,7 +25,7 @@ import org.hl7.fhir.utilities.xhtml.XhtmlNode;
 import org.hl7.fhir.utilities.xhtml.XhtmlParser;
 import org.springframework.stereotype.Component;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,6 +42,7 @@ public class ResourceRemovalNarrativeNormalizer {
      * Modifies and returns the same Bundle instance on successful reporting.
      */
     public NormalizationResult normalize(Bundle bundle) {
+
         List<OperationOutcome> outcomes = bundle.getEntry().stream()
             .map(Bundle.BundleEntryComponent::getResource)
             .filter(OperationOutcome.class::isInstance)
@@ -64,7 +65,7 @@ public class ResourceRemovalNarrativeNormalizer {
         }
 
         Narrative narrative;
-        List<DataQualityIssueDTO> issues = new ArrayList<>();
+        List<ValidationIssueDTO> issues = new ArrayList<>();
 
         try {
             narrative = composition.hasText() ? composition.getText().copy() : new Narrative();
@@ -130,7 +131,7 @@ public class ResourceRemovalNarrativeNormalizer {
                         addField(detail, "Posizione", path.getValue());
                     });
 
-                    issues.add(new DataQualityIssueDTO(
+                    issues.add(new ValidationIssueDTO(
                         issue.hasSeverity() ? issue.getSeverity().name() : null,
                         issue.hasCode() ? issue.getCode().name() : null,
                         paths, String.join("\n", messages)));

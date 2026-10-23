@@ -34,7 +34,7 @@ public class ValidationResultDTO {
 
 	@Schema(description = "Reportable diagnostics. An empty array means no reportable issue was found.",
 			requiredMode = Schema.RequiredMode.REQUIRED)
-	private List<DataQualityIssueDTO> issues;
+	private List<ValidationIssueDTO> issues;
 
 	@Schema(description = "False when at least one issue has ERROR or FATAL severity; warnings and informational issues do not affect validity.",
 			requiredMode = Schema.RequiredMode.REQUIRED, example = "true")

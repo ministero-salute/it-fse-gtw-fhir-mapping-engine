@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.FhirTransformCFG;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.NormalizationResult;
@@ -39,7 +39,7 @@ class BundlePostProcessorTest {
         Bundle cleaned = new Bundle();
         Bundle finalBundle = new Bundle();
         DocumentReferenceDTO metadata = new DocumentReferenceDTO();
-        List<DataQualityIssueDTO> issues = List.of(new DataQualityIssueDTO(
+        List<ValidationIssueDTO> issues = List.of(new ValidationIssueDTO(
             "WARNING", "PROCESSING", List.of("Observation/removed"), "Removed resource"));
         when(ids.normalize(generated)).thenReturn(normalized);
         when(configuration.getAlgToRemoveDuplicate()).thenReturn(TransformALGEnum.KEEP_PRIOR);

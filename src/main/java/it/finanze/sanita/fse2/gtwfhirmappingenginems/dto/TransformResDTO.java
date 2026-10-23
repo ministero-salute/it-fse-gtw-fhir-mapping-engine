@@ -40,12 +40,12 @@ public class TransformResDTO {
 	private Document json;
 
 	@Schema(description = "Diagnostics reported during normalization, including warnings about resources removed during transformation. Empty when normalization reports no issues.")
-	private List<DataQualityIssueDTO> normalizationIssues;
+	private List<ValidationIssueDTO> normalizationIssues;
 
 	@Schema(description = "Esiti delle validazioni richieste sul bundle generato")
-	private DataQualityValidationResponseDTO validationResponse;
+	private FhirValidationResponseDTO validationResponse;
 
-	public TransformResDTO(String errorMessage, Document json, DataQualityValidationResponseDTO validationResponse) {
+	public TransformResDTO(String errorMessage, Document json, FhirValidationResponseDTO validationResponse) {
 		this.errorMessage = errorMessage;
 		this.json = json;
 		this.validationResponse = validationResponse;

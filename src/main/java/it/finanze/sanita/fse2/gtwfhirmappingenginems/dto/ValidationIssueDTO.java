@@ -25,7 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(name = "DataQualityIssue", description = "A diagnostic produced during transformation, normalization or validation.")
-public class DataQualityIssueDTO {
+public class ValidationIssueDTO {
 
 	@Schema(description = "FHIR issue severity. Only ERROR and FATAL make a validation result invalid.",
 			allowableValues = { "FATAL", "ERROR", "WARNING", "INFORMATION" }, example = "WARNING",

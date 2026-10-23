@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.CdaEnginesManager;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.EngineSRV;
@@ -38,7 +38,7 @@ class TransformerPostProcessingTest {
         DocumentReferenceDTO metadata = new DocumentReferenceDTO();
         Bundle finalBundle = new Bundle();
         finalBundle.setId("processed");
-        List<DataQualityIssueDTO> issues = List.of(new DataQualityIssueDTO(
+        List<ValidationIssueDTO> issues = List.of(new ValidationIssueDTO(
             "WARNING", "PROCESSING", List.of(), "Test diagnostic"));
         when(engine.manager()).thenReturn(manager);
         when(manager.transform("cda", "engine", "map")).thenReturn(generated);

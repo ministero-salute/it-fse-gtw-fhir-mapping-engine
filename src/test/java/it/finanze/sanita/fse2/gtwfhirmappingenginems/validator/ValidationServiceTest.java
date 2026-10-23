@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityValidationResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationResultDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.ValidateSRV;
@@ -63,7 +63,7 @@ public class ValidationServiceTest{
 
 		String json = fhirContext.newJsonParser().encodeResourceToString(bundle);
 
-		DataQualityValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
+		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
 		assertTrue(response.isValid());
@@ -83,7 +83,7 @@ public class ValidationServiceTest{
 
 		String json = fhirContext.newJsonParser().encodeResourceToString(bundle);
 
-		DataQualityValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
+		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
 		assertFalse(response.isValid());
@@ -107,7 +107,7 @@ public class ValidationServiceTest{
 
 		String json = fhirContext.newJsonParser().encodeResourceToString(bundle);
 
-		DataQualityValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
+		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
 		assertFalse(response.isValid());
@@ -141,7 +141,7 @@ public class ValidationServiceTest{
     // ------------------------------------------------------------------
 	@Test
 	void executesOnlyRequestedValidation() throws IOException {
-		DataQualityValidationResponseDTO response = validateSRV.validate(
+		FhirValidationResponseDTO response = validateSRV.validate(
 				readBundle("laboratory-report-bundle.json"), List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
@@ -159,7 +159,7 @@ public class ValidationServiceTest{
 		normativeRule.initialize();
 		assertTrue(normativeRule.isInitialized());
 
-		DataQualityValidationResponseDTO response = validateSRV.validate(
+		FhirValidationResponseDTO response = validateSRV.validate(
 				readBundle("valid-service-request-transaction.json"),
 				List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
 
@@ -178,7 +178,7 @@ public class ValidationServiceTest{
 		normativeRule.initialize();
 		assertTrue(normativeRule.isInitialized());
 
-		DataQualityValidationResponseDTO response = validateSRV.validate(
+		FhirValidationResponseDTO response = validateSRV.validate(
 				readBundle("invalid-normative-service-request-transaction.json"),
 				List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
 
@@ -199,7 +199,7 @@ public class ValidationServiceTest{
 		normativeRule.initialize();
 		assertTrue(normativeRule.isInitialized());
 
-		DataQualityValidationResponseDTO response = validateSRV.validate(
+		FhirValidationResponseDTO response = validateSRV.validate(
 				readBundle("untraversable-service-request-transaction.json"),
 				List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
 
@@ -217,7 +217,7 @@ public class ValidationServiceTest{
 
 	@Test
 	void duplicateValidationTypesAreExecutedOnce() throws IOException {
-		DataQualityValidationResponseDTO response = validateSRV.validate(
+		FhirValidationResponseDTO response = validateSRV.validate(
 				readBundle("laboratory-report-bundle.json"),
 				List.of(ValidationType.TRAVERSABILITY, ValidationType.TRAVERSABILITY));
 

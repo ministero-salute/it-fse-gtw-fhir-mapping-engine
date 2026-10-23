@@ -27,7 +27,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DataQualityIssueDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FhirEngineFactory;
@@ -73,7 +73,7 @@ public class NormativeR4ValidationRule implements ValidationRule {
 	}
 
 	@Override
-	public List<DataQualityIssueDTO> validate(ValidationContext context) {
+	public List<ValidationIssueDTO> validate(ValidationContext context) {
 
 		if (!initialized) {
 			throw new EngineInitException("The normative R4 validation engine is not ready");
