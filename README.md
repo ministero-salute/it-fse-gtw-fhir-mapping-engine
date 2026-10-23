@@ -109,7 +109,7 @@ explicitly lists the steps in execution order:
 4. `ScoringTagCleaner.removeScoringTags`: remove internal scoring tags after
    deduplication has consumed them; preserve FHIR signatures.
 5. `ResourceRemovalNarrativeNormalizer.normalize`: optionally include a resource
-   removal report in the narrative; currently a no-op, described below.
+   removal report in `Composition.text`, described below.
 
 This extraction intentionally preserves existing behavior and limitations:
 deduplication is parallel and unordered (including ties), drops entries without
@@ -121,7 +121,7 @@ The separate add-DocumentReference operation reuses only scoring-tag cleanup,
 not this full pipeline. Copying, serialization, and optional validation remain
 outside the post-processor.
 
-### Resource removal report — Risorse soppresse (implementation pending)
+### Resource removal report — Risorse soppresse
 
 Resource removal reporting is transformation post-processing, not an optional
 validation. Both JSON and multipart transformation endpoints accept the boolean
@@ -132,8 +132,8 @@ All other post-processing steps run regardless of this flag.
 
 When enabled, the normalizer runs before serialization and any optional validation.
 It accepts a Bundle and returns
-a `NormalizationResult` containing the Bundle and diagnostics; the current
-placeholder returns the input unchanged with an empty issues list.
+a `NormalizationResult` containing the Bundle and one diagnostic per reported issue.
+With no OperationOutcome entries, the Bundle is left unchanged.
 
 The JSON endpoint returns these diagnostics in `normalizationIssues`, independently
 of optional `validationResponse` results. An empty `normalizationIssues` array
@@ -145,19 +145,27 @@ separate diagnostics field.
 During transformation, some problematic resources may be removed. An
 `OperationOutcome` is added to the generated Bundle for each removed resource
 to describe the warning. Because a Bundle containing these entries cannot be
-uploaded to the target system, the normalizer will preserve all OperationOutcome
-content in the `Composition` narrative and remove every `OperationOutcome` entry.
-This report describes removed resources; it does not restore them. If the required
-Composition is missing or narrative conversion fails, the enabled operation must
-fail rather than silently discard diagnostics or return a Bundle still containing
-OperationOutcomes.
+uploaded to the target system, the normalizer appends a **Risorse soppresse** block
+to `Composition.text.div`, preserving the existing narrative's children and
+attributes. It reports every issue's severity, code, diagnostics, details text and
+codings, expressions, and legacy locations, plus the OperationOutcome ID and plain
+text narrative when present. It does not archive arbitrary extensions, resource
+metadata, or transaction request information. Diagnostic strings are inserted as
+escaped text, not interpreted as markup.
 
-The implementation TODO is in
-`src/main/java/it/finanze/sanita/fse2/gtwfhirmappingenginems/normalizer/ResourceRemovalNarrativeNormalizer.java`,
-in the `normalize` method. Until implemented, the placeholder leaves surviving
-`OperationOutcome` entries unchanged; the preceding deduplication can already
-collapse entries with matching or missing IDs. The placeholder does not make
-these Bundles upload-ready.
+After successfully preparing the report, it sets narrative status to
+`additional` and removes every OperationOutcome entry. The report describes removed
+resources; it does not restore them. This is best effort: missing Composition or
+unusable narrative is logged, and the narrative and OperationOutcomes are left
+unchanged. Such a Bundle can still fail upload. Existing narrative content is not
+revalidated or repaired by this step; FHIR conformance checks remain the
+responsibility of validation or the receiving system.
+
+The implementation is in
+`src/main/java/it/finanze/sanita/fse2/gtwfhirmappingenginems/normalizer/ResourceRemovalNarrativeNormalizer.java`.
+The preceding deduplication can already collapse OperationOutcome entries with
+matching or missing IDs; this first version does not change that algorithm or
+guarantee that the Bundle is upload-ready.
 
 ## Related repositories
 
