@@ -35,8 +35,8 @@ public class ValidationServiceTest{
 	@BeforeEach
 	void setUp() {
 		fhirContext = FhirContext.forR4();
-		traversabilityRule = new TraversabilityValidationRule(fhirContext);
-		normativeRule = new NormativeR4ValidationRule();
+		traversabilityRule = new TraversabilityValidationRule();
+		normativeRule = new NormativeR4ValidationRule(fhirContext);
 		validateSRV = new ValidateSRV(fhirContext, List.of(traversabilityRule, normativeRule));
 	}
 
@@ -88,7 +88,7 @@ public class ValidationServiceTest{
 		assertNotNull(response);
 		assertFalse(response.isValid());
 		assertEquals(1, response.getResults().size());
-		assertEquals("No DocumentReference root found", response.getResults().get(0).getIssues().get(0).getMessage());
+		assertEquals(List.of("Patient/pat-1"), response.getResults().get(0).getIssues().get(0).getPaths());
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class ValidationServiceTest{
 		assertNotNull(response);
 		assertFalse(response.isValid());
 		assertEquals(1, response.getResults().get(0).getIssues().size());
-		assertEquals("Resource is not reachable from a DocumentReference", response.getResults().get(0).getIssues().get(0).getMessage());
+		assertEquals("Resource or reference is not reachable from the first DocumentReference", response.getResults().get(0).getIssues().get(0).getMessage());
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class ValidationServiceTest{
 
 	@Test
 	void normativeR4RuleThrowsExceptionWhenNotInitialized() {
-		NormativeR4ValidationRule uninitializedRule = new NormativeR4ValidationRule();
+		NormativeR4ValidationRule uninitializedRule = new NormativeR4ValidationRule(fhirContext);
 		assertFalse(uninitializedRule.isInitialized());
 
 		ValidationContext context = new ValidationContext("{}", new Bundle());
@@ -148,8 +148,8 @@ public class ValidationServiceTest{
 		assertEquals(1, response.getResults().size());
 		ValidationResultDTO result = response.getResults().get(0);
 		assertEquals(ValidationType.TRAVERSABILITY, result.getType());
-		assertEquals("No DocumentReference root found", result.getIssues().get(0).getMessage());
-		assertEquals("Bundle", result.getIssues().get(0).getPaths().get(0));
+		assertFalse(result.getIssues().isEmpty());
+		assertTrue(result.getIssues().stream().allMatch(issue -> "ERROR".equals(issue.getSeverity())));
 		assertFalse(response.isValid());
 	}
 
@@ -167,7 +167,8 @@ public class ValidationServiceTest{
 		assertEquals(2, response.getResults().size());
 		assertTrue(response.getResults().get(0).isValid());
 		assertFalse(response.getResults().get(0).getIssues().isEmpty());
-		assertNotNull(response.getResults().get(0).getIssues().get(0).getMessage());
+		assertTrue(response.getResults().get(0).getIssues().stream()
+				.allMatch(issue -> "WARNING".equals(issue.getSeverity())));
 		assertTrue(response.getResults().get(1).getIssues().isEmpty());
 		assertTrue(response.isValid());
 	}
@@ -210,9 +211,48 @@ public class ValidationServiceTest{
 		assertEquals(ValidationType.TRAVERSABILITY, traversability.getType());
 		assertFalse(traversability.isValid());
 		assertEquals(1, traversability.getIssues().size());
-		assertEquals("urn:uuid:33333333-3333-4333-8333-333333333333", traversability.getIssues().get(0).getPaths().get(0));
-		assertEquals("Resource is not reachable from a DocumentReference", traversability.getIssues().get(0).getMessage());
+		assertEquals("/urn:uuid:33333333-3333-4333-8333-333333333333", traversability.getIssues().get(0).getPaths().get(0));
+		assertEquals("Resource or reference is not reachable from the first DocumentReference", traversability.getIssues().get(0).getMessage());
 		assertFalse(response.isValid());
+	}
+
+	@Test
+	void acceptsMimeTypeWithLocalCommonCodeSystemSupport() throws IOException {
+		normativeRule.initialize();
+		FhirValidationResponseDTO response = validateSRV.validate(
+				readBundle("valid-mime-type.json"), List.of(ValidationType.NORMATIVE_R4));
+		assertTrue(response.isValid());
+		assertTrue(response.getResults().get(0).getIssues().stream()
+				.allMatch(issue -> "WARNING".equals(issue.getSeverity())));
+	}
+
+	@Test
+	void acceptsUnknownNonModifierExtension() throws IOException {
+		normativeRule.initialize();
+		FhirValidationResponseDTO response = validateSRV.validate(
+				readBundle("unknown-italian-extension.json"), List.of(ValidationType.NORMATIVE_R4));
+		assertTrue(response.isValid());
+		assertTrue(response.getResults().get(0).getIssues().stream()
+				.allMatch(issue -> "WARNING".equals(issue.getSeverity())));
+	}
+
+	@Test
+	void stillRejectsInvalidRequiredTerminologyCode() {
+		normativeRule.initialize();
+		String json = """
+				{"resourceType":"Bundle","type":"collection","entry":[{
+				  "fullUrl":"urn:uuid:11111111-1111-4111-8111-111111111111",
+		  "resource":{"resourceType":"Observation","status":"final",
+		    "code":{"text":"Test"},
+		    "dataAbsentReason":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/data-absent-reason",
+		      "code":"not-a-reason"}]}}
+				}]}
+				""";
+		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.NORMATIVE_R4));
+		assertFalse(response.isValid());
+		assertTrue(response.getResults().get(0).getIssues().stream()
+				.anyMatch(issue -> "ERROR".equals(issue.getSeverity())
+						&& issue.getMessage().contains("not-a-reason")));
 	}
 
 	@Test

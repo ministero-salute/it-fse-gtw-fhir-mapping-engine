@@ -11,13 +11,12 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.validator;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.hl7.fhir.r5.elementmodel.Manager.FhirFormat;
-import org.hl7.fhir.r5.model.OperationOutcome.IssueSeverity;
-import org.hl7.fhir.validation.ValidationEngine;
+import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService;
+import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport;
+import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain;
+import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.annotation.Scope;
@@ -26,11 +25,14 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
+import ca.uhn.fhir.validation.FhirValidator;
+import ca.uhn.fhir.validation.ResultSeverityEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.FhirEngineFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class NormativeR4ValidationRule implements ValidationRule {
 
-	private volatile ValidationEngine engine;
+	private final FhirContext fhirContext;
+	private volatile FhirValidator validator;
 	@Getter
 
 	private volatile boolean initializing;
@@ -61,11 +64,17 @@ public class NormativeR4ValidationRule implements ValidationRule {
 		initializing = true;
 		initialized = false;
 		try {
-			engine = FhirEngineFactory.createR4();
+			ValidationSupportChain supportChain = new ValidationSupportChain(
+					new DefaultProfileValidationSupport(fhirContext),
+					new InMemoryTerminologyServerValidationSupport(fhirContext),
+					new CommonCodeSystemsTerminologyService(fhirContext));
+			FhirValidator r4Validator = fhirContext.newValidator();
+			r4Validator.registerValidatorModule(new FhirInstanceValidator(supportChain));
+			validator = r4Validator;
 			initialized = true;
 			log.info("Normative R4 validation engine initialization completed");
 		} catch (Exception exception) {
-			engine = null;
+			validator = null;
 			log.error("Unable to initialize the normative R4 validation engine", exception);
 		} finally {
 			initializing = false;
@@ -79,12 +88,16 @@ public class NormativeR4ValidationRule implements ValidationRule {
 			throw new EngineInitException("The normative R4 validation engine is not ready");
 		}
 
-		try (ByteArrayInputStream input = new ByteArrayInputStream(context.json().getBytes(StandardCharsets.UTF_8))) {
-			return ValidationOutcomeMapper.toDataQualityIssues(engine.validate(FhirFormat.JSON, input, null)).stream()
-					.filter(issue -> issue.getSeverity() != null
-							&& !IssueSeverity.INFORMATION.name().equals(issue.getSeverity())
-							&& !IssueSeverity.SUCCESS.name().equals(issue.getSeverity())
-							&& !IssueSeverity.NULL.name().equals(issue.getSeverity()))
+		try {
+			// Retain warnings for diagnostics; only ERROR and FATAL affect validity.
+			return validator.validateWithResult(context.json()).getMessages().stream()
+					.filter(message -> message.getSeverity() == ResultSeverityEnum.WARNING
+							|| message.getSeverity() == ResultSeverityEnum.ERROR
+							|| message.getSeverity() == ResultSeverityEnum.FATAL)
+					.map(message -> new ValidationIssueDTO(message.getSeverity().name(),
+							"INVALID",
+							message.getLocationString() == null ? List.of() : List.of(message.getLocationString()),
+							message.getMessage()))
 					.toList();
 		} catch (Exception exception) {
 			throw new IllegalStateException("Unable to perform normative R4 validation", exception);
