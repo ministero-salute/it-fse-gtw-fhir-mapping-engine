@@ -43,9 +43,9 @@ public class TransformResDTO {
 	private List<ValidationIssueDTO> normalizationIssues;
 
 	@Schema(description = "Esiti delle validazioni richieste sul bundle generato")
-	private FhirValidationResponseDTO validationResponse;
+	private FhirValidationDTO validationResponse;
 
-	public TransformResDTO(String errorMessage, Document json, FhirValidationResponseDTO validationResponse) {
+	public TransformResDTO(String errorMessage, Document json, FhirValidationDTO validationResponse) {
 		this.errorMessage = errorMessage;
 		this.json = json;
 		this.validationResponse = validationResponse;

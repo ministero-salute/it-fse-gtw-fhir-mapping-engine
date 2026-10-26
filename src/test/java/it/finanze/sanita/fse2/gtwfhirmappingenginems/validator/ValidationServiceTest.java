@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationResultDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.ValidateSRV;
@@ -63,7 +63,7 @@ public class ValidationServiceTest{
 
 		String json = fhirContext.newJsonParser().encodeResourceToString(bundle);
 
-		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
+		FhirValidationDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
 		assertTrue(response.isValid());
@@ -83,7 +83,7 @@ public class ValidationServiceTest{
 
 		String json = fhirContext.newJsonParser().encodeResourceToString(bundle);
 
-		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
+		FhirValidationDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
 		assertFalse(response.isValid());
@@ -107,7 +107,7 @@ public class ValidationServiceTest{
 
 		String json = fhirContext.newJsonParser().encodeResourceToString(bundle);
 
-		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
+		FhirValidationDTO response = validateSRV.validate(json, List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
 		assertFalse(response.isValid());
@@ -141,7 +141,7 @@ public class ValidationServiceTest{
     // ------------------------------------------------------------------
 	@Test
 	void executesOnlyRequestedValidation() throws IOException {
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("laboratory-report-bundle.json"), List.of(ValidationType.TRAVERSABILITY));
 
 		assertNotNull(response);
@@ -159,7 +159,7 @@ public class ValidationServiceTest{
 		normativeRule.initialize();
 		assertTrue(normativeRule.isInitialized());
 
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("valid-service-request-transaction.json"),
 				List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
 
@@ -179,7 +179,7 @@ public class ValidationServiceTest{
 		normativeRule.initialize();
 		assertTrue(normativeRule.isInitialized());
 
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("invalid-normative-service-request-transaction.json"),
 				List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
 
@@ -201,7 +201,7 @@ public class ValidationServiceTest{
 		normativeRule.initialize();
 		assertTrue(normativeRule.isInitialized());
 
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("untraversable-service-request-transaction.json"),
 				List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
 
@@ -220,7 +220,7 @@ public class ValidationServiceTest{
 	@Test
 	void acceptsMimeTypeWithLocalCommonCodeSystemSupport() throws IOException {
 		normativeRule.initialize();
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("valid-mime-type.json"), List.of(ValidationType.NORMATIVE_R4));
 		assertTrue(response.isValid());
 		assertTrue(response.getResults().get(0).getIssues().stream()
@@ -230,7 +230,7 @@ public class ValidationServiceTest{
 	@Test
 	void acceptsUnknownNonModifierExtension() throws IOException {
 		normativeRule.initialize();
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("unknown-italian-extension.json"), List.of(ValidationType.NORMATIVE_R4));
 		assertTrue(response.isValid());
 		assertTrue(response.getResults().get(0).getIssues().stream()
@@ -240,7 +240,7 @@ public class ValidationServiceTest{
 	@Test
 	void stillRejectsInvalidRequiredTerminologyCode() throws IOException {
 		normativeRule.initialize();
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("invalid-required-terminology.json"), List.of(ValidationType.NORMATIVE_R4));
 		assertFalse(response.isValid());
 		assertEquals(List.of("ERROR: Unknown code 'http://terminology.hl7.org/CodeSystem/data-absent-reason#not-a-reason'"),
@@ -249,7 +249,7 @@ public class ValidationServiceTest{
 
 	@Test
 	void duplicateValidationTypesAreExecutedOnce() throws IOException {
-		FhirValidationResponseDTO response = validateSRV.validate(
+		FhirValidationDTO response = validateSRV.validate(
 				readBundle("laboratory-report-bundle.json"),
 				List.of(ValidationType.TRAVERSABILITY, ValidationType.TRAVERSABILITY));
 

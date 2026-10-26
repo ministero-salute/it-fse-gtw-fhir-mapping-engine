@@ -23,8 +23,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(name = "DataQualityValidationResponse", description = "Ordered validation results and their aggregate validity.")
-public class FhirValidationResponseDTO {
+@Schema(description = "Ordered validation results and their aggregate validity.", implementation = FhirValidationDTO.class)
+public class FhirValidationDTO {
 
 	@Schema(description = "One result for each requested validation, in request order.", requiredMode = Schema.RequiredMode.REQUIRED)
 	private List<ValidationResultDTO> results;

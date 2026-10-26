@@ -19,7 +19,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Service;
 
 import ca.uhn.fhir.context.FhirContext;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationResultDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
@@ -38,7 +38,7 @@ public class ValidateSRV implements IValidateSRV {
 	}
 
 	@Override
-	public FhirValidationResponseDTO validate(String json, List<ValidationType> validationTypes) {
+	public FhirValidationDTO validate(String json, List<ValidationType> validationTypes) {
 
 		if (validationTypes == null || validationTypes.isEmpty()) {
 			return null;
@@ -55,7 +55,7 @@ public class ValidateSRV implements IValidateSRV {
 			return new ValidationResultDTO(type, rule.validate(context));
 		}).toList();
 
-		return new FhirValidationResponseDTO(results);
+		return new FhirValidationDTO(results);
 	}
 
 }

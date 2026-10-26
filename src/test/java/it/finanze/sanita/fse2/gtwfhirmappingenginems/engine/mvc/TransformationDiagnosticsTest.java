@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl.TransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationResponseDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformationResult;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
@@ -59,7 +59,7 @@ class TransformationDiagnosticsTest {
     @Test
     void removalReportDefaultsToFalseAndValidationUsesFinalJson() throws Exception {
         List<ValidationType> types = List.of(ValidationType.TRAVERSABILITY);
-        FhirValidationResponseDTO validation = new FhirValidationResponseDTO(List.of());
+        FhirValidationDTO validation = new FhirValidationDTO(List.of());
         when(service.transform("<cda/>", "engine", "map", null, false))
             .thenReturn(new TransformationResult(JSON, List.of()));
         when(validator.validate(JSON, types)).thenReturn(validation);
