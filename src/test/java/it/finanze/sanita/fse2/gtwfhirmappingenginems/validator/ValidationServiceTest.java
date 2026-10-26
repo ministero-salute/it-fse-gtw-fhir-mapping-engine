@@ -186,8 +186,9 @@ public class ValidationServiceTest{
 		assertNotNull(response);
 		assertEquals(ValidationType.NORMATIVE_R4, response.getResults().get(0).getType());
 		assertFalse(response.getResults().get(0).isValid());
-		assertTrue(response.getResults().get(0).getIssues().stream()
-				.anyMatch(issue -> "ERROR".equals(issue.getSeverity())));
+		assertEquals(List.of("ERROR: DocumentReference.status: minimum required = 1, but only found 0 "
+				+ "(from http://hl7.org/fhir/StructureDefinition/DocumentReference|4.0.1)"),
+				blockingFindings(response.getResults().get(0)));
 		assertEquals(ValidationType.TRAVERSABILITY, response.getResults().get(1).getType());
 		assertTrue(response.getResults().get(1).isValid());
 		assertTrue(response.getResults().get(1).getIssues().isEmpty());
@@ -237,22 +238,13 @@ public class ValidationServiceTest{
 	}
 
 	@Test
-	void stillRejectsInvalidRequiredTerminologyCode() {
+	void stillRejectsInvalidRequiredTerminologyCode() throws IOException {
 		normativeRule.initialize();
-		String json = """
-				{"resourceType":"Bundle","type":"collection","entry":[{
-				  "fullUrl":"urn:uuid:11111111-1111-4111-8111-111111111111",
-		  "resource":{"resourceType":"Observation","status":"final",
-		    "code":{"text":"Test"},
-		    "dataAbsentReason":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/data-absent-reason",
-		      "code":"not-a-reason"}]}}
-				}]}
-				""";
-		FhirValidationResponseDTO response = validateSRV.validate(json, List.of(ValidationType.NORMATIVE_R4));
+		FhirValidationResponseDTO response = validateSRV.validate(
+				readBundle("invalid-required-terminology.json"), List.of(ValidationType.NORMATIVE_R4));
 		assertFalse(response.isValid());
-		assertTrue(response.getResults().get(0).getIssues().stream()
-				.anyMatch(issue -> "ERROR".equals(issue.getSeverity())
-						&& issue.getMessage().contains("not-a-reason")));
+		assertEquals(List.of("ERROR: Unknown code 'http://terminology.hl7.org/CodeSystem/data-absent-reason#not-a-reason'"),
+				blockingFindings(response.getResults().get(0)));
 	}
 
 	@Test
@@ -263,6 +255,14 @@ public class ValidationServiceTest{
 
 		assertNotNull(response);
 		assertEquals(1, response.getResults().size());
+	}
+
+	private static List<String> blockingFindings(ValidationResultDTO result) {
+		return result.getIssues().stream()
+				.filter(issue -> "ERROR".equals(issue.getSeverity()) || "FATAL".equals(issue.getSeverity()))
+				.map(issue -> issue.getSeverity() + ": " + issue.getMessage())
+				.sorted()
+				.toList();
 	}
 
 	private static String readBundle(String fixture) throws IOException {
