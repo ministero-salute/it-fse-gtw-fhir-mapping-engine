@@ -95,26 +95,11 @@ public class TransformerCTL implements ITransformerCTL {
 	}
 
 	@Override
-<<<<<<< HEAD
-	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file) throws IOException {
-		Long startTime = System.currentTimeMillis();
-		log.info("START CONVERSION");
-		String bundle = service.transformBenchmark(getCDA(file), engineId, objectId, documentReferenceDTO);
-		Long endTime = System.currentTimeMillis() - startTime;
-		log.info("END CONVERSION: "+endTime);
-		
-		Long startTimeParse = System.currentTimeMillis();
-		log.info("START PARSE");
-		Document doc = Document.parse(bundle);
-		Long endTimeParse = System.currentTimeMillis() - startTimeParse;
-		log.info("END PARSE: "+endTimeParse);
-=======
 	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file, boolean includeRemovalReport) throws IOException {
 		log.debug("Starting CDA-to-Bundle conversion from multipart request; includeRemovalReport={}", includeRemovalReport);
 		TransformationResult transformed = service.transform(getCDA(file), engineId, objectId, documentReferenceDTO, includeRemovalReport);
 		Document doc = Document.parse(transformed.json());
 		log.debug("CDA-to-Bundle conversion from multipart request completed successfully");
->>>>>>> develop
 		return doc;
 	}
 

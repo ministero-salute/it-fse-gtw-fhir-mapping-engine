@@ -19,10 +19,12 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformationResult;
+
+import java.io.IOException;
+
 import org.bson.Document;
 import org.hl7.fhir.exceptions.FHIRException;
 
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 
 public interface ITransformerSRV {
 
