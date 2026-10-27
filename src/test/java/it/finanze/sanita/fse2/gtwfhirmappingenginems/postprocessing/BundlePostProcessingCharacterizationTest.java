@@ -103,7 +103,7 @@ class BundlePostProcessingCharacterizationTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = TransformALGEnum.class, names = {"KEEP_LONGER"}, mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(TransformALGEnum.class)
     void deduplicationGroupsByTypeAndIdDropsEmptyEntriesAndKeepsDistinctTypes(TransformALGEnum strategy) {
         Bundle bundle = new Bundle();
         Patient patient = new Patient();
@@ -133,12 +133,28 @@ class BundlePostProcessingCharacterizationTest {
         bundle.addEntry().setResource(shortPatient);
         bundle.addEntry().setResource(longerPatient);
 
-        // Intended contract: the known Java 21 Gson bug must remain visible as a failing test.
         Bundle result = deduplicate(bundle, TransformALGEnum.KEEP_LONGER);
 
         assertSame(bundle, result);
         assertEquals(1, result.getEntry().size());
         assertSame(longerPatient, result.getEntryFirstRep().getResource());
+    }
+
+    @Test
+    void longerStrategySerializesDateFieldsAsFhirJson() {
+        Bundle bundle = new Bundle();
+        Patient shortPatient = new Patient();
+        shortPatient.setId("pat");
+        Patient longerPatient = shortPatient.copy();
+        longerPatient.setBirthDateElement(new DateType("2000-01-01"));
+        bundle.addEntry().setResource(shortPatient);
+        bundle.addEntry().setResource(longerPatient);
+
+        deduplicate(bundle, TransformALGEnum.KEEP_LONGER);
+
+        assertEquals(1, bundle.getEntry().size());
+        assertSame(longerPatient, bundle.getEntryFirstRep().getResource());
+        assertEquals("2000-01-01", longerPatient.getBirthDateElement().getValueAsString());
     }
 
     @ParameterizedTest

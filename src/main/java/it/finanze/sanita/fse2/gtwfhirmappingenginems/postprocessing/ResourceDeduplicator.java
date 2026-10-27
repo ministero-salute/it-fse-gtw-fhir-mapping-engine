@@ -23,7 +23,8 @@ import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Property;
 import org.hl7.fhir.r4.model.Resource;
 import org.springframework.stereotype.Component;
-import com.google.gson.Gson;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
 
@@ -90,7 +91,7 @@ public class ResourceDeduplicator {
 
         switch (transfAlg) {
             case KEEP_LONGER:
-                return GsonHolder.get().toJson(resource).length();
+                return JsonParserHolder.get().encodeResourceToString(resource).length();
 
             case KEEP_RICHER_UP:
             case KEEP_RICHER_DOWN:
@@ -124,13 +125,16 @@ public class ResourceDeduplicator {
     }
 
     /**
-     * Provides a Gson instance per thread for resource-size comparisons.
+     * Shares the thread-safe FHIR context, with a separate parser per thread
+     * for resource-size comparisons using FHIR JSON rather than model internals.
      */
-    private static class GsonHolder {
-        private static final ThreadLocal<Gson> GSON = ThreadLocal.withInitial(Gson::new);
+    private static class JsonParserHolder {
+        private static final FhirContext CONTEXT = FhirContext.forR4();
+        private static final ThreadLocal<IParser> PARSER =
+                ThreadLocal.withInitial(() -> CONTEXT.newJsonParser().setPrettyPrint(false));
 
-        public static Gson get() {
-            return GSON.get();
+        public static IParser get() {
+            return PARSER.get();
         }
     }
 
