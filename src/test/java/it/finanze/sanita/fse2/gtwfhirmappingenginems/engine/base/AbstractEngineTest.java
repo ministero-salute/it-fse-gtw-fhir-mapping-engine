@@ -17,7 +17,7 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.engine.base;
 
-import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.REMOVABLE;
+import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.Engine.LAB_ENGINE;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw.Fixtures.ENGINES;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.base.raw.Fixtures.TRANSFORM;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY.FIELD_ID;
@@ -89,8 +89,8 @@ public abstract class AbstractEngineTest {
     }
 
     protected void dropUselessEngine() {
-        EngineETY e = mongo.findAndRemove(new Query(where(FIELD_ID).is(REMOVABLE.engineId())), EngineETY.class);
-        if(e == null) throw new IllegalStateException("Useless engine already removed");
+        EngineETY e = mongo.findAndRemove(new Query(where(FIELD_ID).is(LAB_ENGINE.engineId())), EngineETY.class);
+        if(e == null) throw new IllegalStateException("Test engine already removed");
     }
     protected void resetDb() {
         mongo.dropCollection(TransformETY.class);

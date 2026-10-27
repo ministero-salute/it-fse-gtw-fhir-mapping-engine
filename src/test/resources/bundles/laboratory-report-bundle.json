@@ -1,0 +1,1089 @@
+{
+  "resourceType": "Bundle",
+  "id": "Bundle-Lab-Esempio",
+  "meta": {
+    "profile": [
+      "http://hl7.it/fhir/lab-report/StructureDefinition/bundle-it-lab"
+    ]
+  },
+  "identifier": {
+    "system": "urn:ietf:rfc:39861",
+    "value": "urn:uuid:bfcf00e2-e2bb-4a7d-adaa-3de9d419d27e"
+  },
+  "type": "document",
+  "timestamp": "2023-02-25T14:30:00+01:00",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:2ae95a5c-9094-41a3-a437-ce6d34c55a54",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "2ae95a5c-9094-41a3-a437-ce6d34c55a54",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/composition-it-lab"
+          ]
+        },
+        "language": "it-IT",
+        "text": {
+          "status": "extensions",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"it-IT\" lang=\"it-IT\"><a name=\"Composition_2ae95a5c-9094-41a3-a437-ce6d34c55a54\"> </a><p><b>Generated Narrative: Composition</b><a name=\"2ae95a5c-9094-41a3-a437-ce6d34c55a54\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Composition &quot;2ae95a5c-9094-41a3-a437-ce6d34c55a54&quot;  (Language &quot;it-IT&quot;) </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-composition-it-lab.html\">Composition - Lab Report</a></p></div><blockquote><p><b>DataEnterer</b></p><blockquote><p><b>url</b></p><code>dataEnterer</code></blockquote><p><b>value</b>: <a href=\"#Practitioner_dc5842a1-83b6-43c7-b063-75ae989b803d\">See above (urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803d)</a></p><blockquote><p><b>url</b></p><a href=\"StructureDefinition-dataEnterer-time.html\">TempoCompilazione</a></blockquote><p><b>value</b>: 2023-02-25 10:45:00+0100</p></blockquote><p><b>identifier</b>: urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3 (use: OFFICIAL)</p><p><b>status</b>: final</p><p><b>type</b>: Referto di laboratorio <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#11502-2 &quot;Laboratory report&quot;)</span></p><p><b>category</b>: Hematology studies (set) <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#18723-7)</span></p><p><b>encounter</b>: <a href=\"#Encounter_7b06368c-7089-4f66-acc8-29e1fcbd31f6\">See above (urn:uuid:7b06368c-7089-4f66-acc8-29e1fcbd31f6)</a></p><p><b>date</b>: 2022-03-30 11:24:26+0100</p><p><b>author</b>: <a href=\"#PractitionerRole_dc5842a1-83b6-43c7-b063-75ae989b803c\">See above (urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c)</a></p><p><b>title</b>: Referto di Laboratorio</p><p><b>confidentiality</b>: N</p><h3>Attesters</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Mode</b></td><td><b>Time</b></td><td><b>Party</b></td></tr><tr><td style=\"display: none\">*</td><td>legal</td><td>2023-02-25 12:45:00+0100</td><td><a href=\"#PractitionerRole_dc5842a1-83b6-43c7-b063-75ae989b803c\">See above (urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c)</a></td></tr></table><p><b>custodian</b>: <a href=\"#Organization_5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8\">See above (urn:uuid:5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8)</a></p></div>"
+        },
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "dataEnterer",
+                "valueReference": {
+                  "reference": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803d"
+                }
+              },
+              {
+                "url": "http://hl7.it/fhir/StructureDefinition/dataEnterer-time",
+                "valueDateTime": "2023-02-25T10:45:00+01:00"
+              }
+            ],
+            "url": "http://hl7.it/fhir/StructureDefinition/composition-dataenterer-it"
+          }
+        ],
+        "identifier": {
+          "use": "official",
+          "value": "urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3",
+          "assigner": {
+            "display": "Regione Lazio"
+          }
+        },
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "11502-2",
+              "display": "Laboratory report"
+            }
+          ],
+          "text": "Referto di laboratorio"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "18723-7",
+                "display": "Hematology studies (set)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5"
+        },
+        "encounter": {
+          "reference": "urn:uuid:7b06368c-7089-4f66-acc8-29e1fcbd31f6"
+        },
+        "date": "2022-03-30T11:24:26+01:00",
+        "author": [
+          {
+            "reference": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c"
+          }
+        ],
+        "title": "Referto di Laboratorio",
+        "confidentiality": "N",
+        "attester": [
+          {
+            "mode": "legal",
+            "time": "2023-02-25T12:45:00+01:00",
+            "party": {
+              "reference": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c"
+            }
+          }
+        ],
+        "custodian": {
+          "reference": "urn:uuid:5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8"
+        },
+        "section": [
+          {
+            "title": "Laboratory studies (set)",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "26436-6",
+                  "display": "Laboratory studies (set)"
+                }
+              ]
+            },
+            "section": [
+              {
+                "title": "Esame del sangue",
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://loinc.org",
+                      "code": "18723-7",
+                      "display": "Hematology studies (set)"
+                    }
+                  ]
+                },
+                "text": {
+                  "status": "generated",
+                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><ul><li><table id=\"nota1\"><thead><tr><th>Esame</th><th>Metodo utilizzato per l'esame</th><th>Materiale utilizzato per l'esame</th><th>Risultato dell'esame</th><th>Commenti e note</th><th>Unità di Misura</th><th>Range di Riferimento</th><th>Criteri per il range di riferimento</th><th>Interpretazione</th><th>Allegati multimediali</th></tr></thead><tbody><tr><td>Microalbumina massa/volume in urine</td><td/><td>Urine</td><td>20</td><td/><td>mg/L</td><td>0 - 20</td><td/><td>N</td><td/></tr></tbody></table></li></ul></div>"
+                },
+                "entry": [
+                  {
+                    "reference": "urn:uuid:7e2f354b-de83-4472-bd07-1571cdb50fde"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:56f19992-e73e-45b5-bbdd-6d9aeb60b15a",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "56f19992-e73e-45b5-bbdd-6d9aeb60b15a",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/diagnosticreport-it-lab"
+          ]
+        },
+        "text": {
+          "status": "extensions",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"DiagnosticReport_56f19992-e73e-45b5-bbdd-6d9aeb60b15a\"> </a><p><b>Generated Narrative: DiagnosticReport</b><a name=\"56f19992-e73e-45b5-bbdd-6d9aeb60b15a\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource DiagnosticReport &quot;56f19992-e73e-45b5-bbdd-6d9aeb60b15a&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-diagnosticreport-it-lab.html\">DiagnosticReport - Lab Report</a></p></div><p><b>Extension Definition for DiagnosticReport.composition for Version 5.0</b>: <a href=\"#Composition_2ae95a5c-9094-41a3-a437-ce6d34c55a54\">See above (urn:uuid:2ae95a5c-9094-41a3-a437-ce6d34c55a54)</a></p><p><b>identifier</b>: urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3 (use: OFFICIAL)</p><p><b>basedOn</b>: <a href=\"#ServiceRequest_463ae6fe-60d4-4b38-84b3-1008e0925678\">See above (urn:uuid:463ae6fe-60d4-4b38-84b3-1008e0925678)</a></p><p><b>status</b>: final</p><p><b>category</b>: Hematology studies (set) <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#18723-7)</span></p><p><b>code</b>: Laboratory report <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#11502-2)</span></p><p><b>subject</b>: <a href=\"#Patient_8472931c-fbd0-437b-9ed1-4f66472c78b5\">See above (urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5)</a></p><p><b>encounter</b>: <a href=\"#Encounter_7b06368c-7089-4f66-acc8-29e1fcbd31f6\">See above (urn:uuid:7b06368c-7089-4f66-acc8-29e1fcbd31f6)</a></p><p><b>effective</b>: 2023-02-25 11:45:00+0100 --&gt; 2023-02-25 12:45:00+0100</p><p><b>issued</b>: 25 feb 2023, 12:45:00</p><p><b>performer</b>: <a href=\"#PractitionerRole_dc5842a1-83b6-43c7-b063-75ae989b803c\">See above (urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c)</a></p><p><b>specimen</b>: <a href=\"#Specimen_168d4960-0a0b-43af-8025-180f0965f325\">See above (urn:uuid:168d4960-0a0b-43af-8025-180f0965f325)</a></p><p><b>result</b>: <a href=\"#Observation_7e2f354b-de83-4472-bd07-1571cdb50fde\">See above (urn:uuid:7e2f354b-de83-4472-bd07-1571cdb50fde)</a></p><p><b>conclusionCode</b>: Blood glucose normal <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#166921001)</span></p></div>"
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/5.0/StructureDefinition/extension-DiagnosticReport.composition",
+            "valueReference": {
+              "reference": "urn:uuid:2ae95a5c-9094-41a3-a437-ce6d34c55a54"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "use": "official",
+            "value": "urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3"
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "urn:uuid:463ae6fe-60d4-4b38-84b3-1008e0925678"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "18723-7",
+                "display": "Hematology studies (set)"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "11502-2",
+              "display": "Laboratory report"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5"
+        },
+        "encounter": {
+          "reference": "urn:uuid:7b06368c-7089-4f66-acc8-29e1fcbd31f6"
+        },
+        "effectivePeriod": {
+          "start": "2023-02-25T11:45:00+01:00",
+          "end": "2023-02-25T12:45:00+01:00"
+        },
+        "issued": "2023-02-25T12:45:00+01:00",
+        "performer": [
+          {
+            "reference": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c"
+          }
+        ],
+        "specimen": [
+          {
+            "reference": "urn:uuid:168d4960-0a0b-43af-8025-180f0965f325"
+          }
+        ],
+        "result": [
+          {
+            "reference": "urn:uuid:7e2f354b-de83-4472-bd07-1571cdb50fde"
+          }
+        ],
+        "conclusionCode": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "166921001",
+                "display": "Blood glucose normal"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:7e2f354b-de83-4472-bd07-1571cdb50fde",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "7e2f354b-de83-4472-bd07-1571cdb50fde",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/observation-doc-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Observation_7e2f354b-de83-4472-bd07-1571cdb50fde\"> </a><p><b>Generated Narrative: Observation</b><a name=\"7e2f354b-de83-4472-bd07-1571cdb50fde\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;7e2f354b-de83-4472-bd07-1571cdb50fde&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-observation-doc-it-lab.html\">Observation Document - Lab Report</a></p></div><p><b>status</b>: final</p><p><b>category</b>: Laboratory <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.3.0/CodeSystem-observation-category.html\">Observation Category Codes</a>#laboratory)</span></p><p><b>code</b>: Hematology studies (set) <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#18723-7)</span></p><p><b>subject</b>: <a href=\"#Patient_8472931c-fbd0-437b-9ed1-4f66472c78b5\">See above (urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5)</a></p><p><b>encounter</b>: <a href=\"#Encounter_7b06368c-7089-4f66-acc8-29e1fcbd31f6\">See above (urn:uuid:7b06368c-7089-4f66-acc8-29e1fcbd31f6)</a></p><p><b>effective</b>: 2022-10-25 13:35:00+0100</p><p><b>performer</b>: <a href=\"#PractitionerRole_dc5842a1-83b6-43c7-b063-75ae989b803c\">See above (urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c)</a></p><p><b>value</b>: 70 mg/dL<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM code mg/dL = 'mg/dL')</span></p><p><b>specimen</b>: <a href=\"#Specimen_168d4960-0a0b-43af-8025-180f0965f325\">See above (urn:uuid:168d4960-0a0b-43af-8025-180f0965f325)</a></p><p><b>device</b>: <a href=\"#Device_168d4960-0a0b-43af-8025-180f0965f324\">See above (urn:uuid:168d4960-0a0b-43af-8025-180f0965f324)</a></p><p><b>derivedFrom</b>: <a href=\"#Media_059927b1-7e17-409e-ae60-68cc3c0b3aea\">See above (urn:uuid:059927b1-7e17-409e-ae60-68cc3c0b3aea)</a></p></div>"
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "18723-7",
+              "display": "Hematology studies (set)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5"
+        },
+        "encounter": {
+          "reference": "urn:uuid:7b06368c-7089-4f66-acc8-29e1fcbd31f6"
+        },
+        "effectiveDateTime": "2022-10-25T13:35:00+01:00",
+        "performer": [
+          {
+            "reference": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c"
+          }
+        ],
+        "valueQuantity": {
+          "value": 70,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        },
+        "specimen": {
+          "reference": "urn:uuid:168d4960-0a0b-43af-8025-180f0965f325"
+        },
+        "device": {
+          "reference": "urn:uuid:168d4960-0a0b-43af-8025-180f0965f324"
+        },
+        "derivedFrom": [
+          {
+            "reference": "urn:uuid:059927b1-7e17-409e-ae60-68cc3c0b3aea"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "8472931c-fbd0-437b-9ed1-4f66472c78b5",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/patient-it-lab"
+          ]
+        },
+        "text": {
+          "status": "extensions",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Patient_8472931c-fbd0-437b-9ed1-4f66472c78b5\"> </a><p><b>Generated Narrative: Patient</b><a name=\"8472931c-fbd0-437b-9ed1-4f66472c78b5\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Patient &quot;8472931c-fbd0-437b-9ed1-4f66472c78b5&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-patient-it-lab.html\">Patient - Lab Report</a></p></div><p><b>Birth Place</b>: Via della Vittoria, 1 Milano 20100 IT </p><p><b>Professione del paziente</b>: Dirigenti della magistratura <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"CodeSystem-istat-professioni.html\">ISTAT - Classificazione delle professioni</a>#1.1.3)</span></p><p><b>Titolo di Studio del paziente</b>: Giuridico economico aziendale <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"CodeSystem-istat-ctsi03.html\">ISTAT - Classificazione dei titoli di studio italiani</a>#40205013)</span></p><p><b>Codice comune e/o stato di nascita</b>: Italia <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"CodeSystem-istat-unitaAmministrativeTerritorialiEstere.html\">ISTAT - Unita Amministrative Territoriali Estere</a>#100)</span></p><p><b>identifier</b>: <code>http://hl7.it/sid/codiceFiscale</code>/RSSMRA71E01F205E</p><p><b>name</b>: Maria Rossi </p><p><b>telecom</b>: ph: 3331245678, <a href=\"mailto:maria.rossi@mail.com\">maria.rossi@mail.com</a></p><p><b>gender</b>: female</p><p><b>birthDate</b>: 1971-05-01</p><p><b>address</b>: Via della Libertà, 52 Milano 20100 IT (HOME)</p><blockquote><p><b>contact</b></p><p><b>relationship</b>: Emergency Contact <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.3.0/CodeSystem-v2-0131.html\">contactRole2</a>#C)</span></p><p><b>name</b>: Luigi Rossi </p><p><b>telecom</b>: ph: 3312345567</p></blockquote><blockquote><p><b>contact</b></p><p><b>relationship</b>: Emergency Contact <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.3.0/CodeSystem-v2-0131.html\">contactRole2</a>#C)</span></p><p><b>name</b>: Maria Bianchi </p><p><b>telecom</b>: ph: 3311234598</p></blockquote><p><b>generalPractitioner</b>: <a href=\"#Organization_ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8\">See above (urn:uuid:ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8)</a></p></div>"
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+            "valueAddress": {
+              "line": [
+                "Via della Vittoria, 1"
+              ],
+              "_line": [
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                      "valueString": "Via della Vittoria"
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                      "valueString": "1"
+                    }
+                  ]
+                }
+              ],
+              "city": "Milano",
+              "postalCode": "20100",
+              "country": "IT"
+            }
+          },
+          {
+            "url": "http://hl7.it/fhir/StructureDefinition/patient-occupation-it",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://hl7.it/fhir/lab-report/CodeSystem/istat-professioni",
+                  "code": "1.1.3",
+                  "display": "Dirigenti della magistratura"
+                }
+              ]
+            }
+          },
+          {
+            "url": "http://hl7.it/fhir/StructureDefinition/patient-qualification-it",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://hl7.it/fhir/lab-report/CodeSystem/istat-ctsi03",
+                  "code": "40205013",
+                  "display": "Giuridico economico aziendale"
+                }
+              ]
+            }
+          },
+          {
+            "url": "http://hl7.it/fhir/StructureDefinition/patient-codeableBirthPlace",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://hl7.it/fhir/lab-report/CodeSystem/istat-unitaAmministrativeTerritorialiEstere",
+                  "code": "100",
+                  "display": "Italia"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "extension": [
+              {
+                "extension": [
+                  {
+                    "url": "when",
+                    "valueDateTime": "2022-05-01"
+                  }
+                ],
+                "url": "http://hl7.it/fhir/StructureDefinition/recordCertification"
+              }
+            ],
+            "system": "http://hl7.it/sid/codiceFiscale",
+            "value": "RSSMRA71E01F205E"
+          }
+        ],
+        "name": [
+          {
+            "family": "Rossi",
+            "given": [
+              "Maria"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "3331245678"
+          },
+          {
+            "system": "email",
+            "value": "maria.rossi@mail.com"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1971-05-01",
+        "address": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.it/fhir/lab-report/StructureDefinition/address-official",
+                "valueBoolean": true
+              }
+            ],
+            "use": "home",
+            "line": [
+              "Via della Libertà, 52"
+            ],
+            "_line": [
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.it/fhir/StructureDefinition/address-dug",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "system": "http://hl7.it/fhir/lab-report/CodeSystem/dug",
+                          "code": "67",
+                          "display": "via"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ],
+            "city": "Milano",
+            "postalCode": "20100",
+            "country": "IT"
+          }
+        ],
+        "contact": [
+          {
+            "relationship": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+                    "code": "C",
+                    "display": "Emergency Contact"
+                  }
+                ]
+              }
+            ],
+            "name": {
+              "family": "Rossi",
+              "given": [
+                "Luigi"
+              ]
+            },
+            "telecom": [
+              {
+                "system": "phone",
+                "value": "3312345567"
+              }
+            ]
+          },
+          {
+            "relationship": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+                    "code": "C",
+                    "display": "Emergency Contact"
+                  }
+                ]
+              }
+            ],
+            "name": {
+              "family": "Bianchi",
+              "given": [
+                "Maria"
+              ]
+            },
+            "telecom": [
+              {
+                "system": "phone",
+                "value": "3311234598"
+              }
+            ]
+          }
+        ],
+        "generalPractitioner": [
+          {
+            "reference": "urn:uuid:ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:7b06368c-7089-4f66-acc8-29e1fcbd31f6",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "7b06368c-7089-4f66-acc8-29e1fcbd31f6",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/encounter-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Encounter_7b06368c-7089-4f66-acc8-29e1fcbd31f6\"> </a><p><b>Generated Narrative: Encounter</b><a name=\"7b06368c-7089-4f66-acc8-29e1fcbd31f6\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Encounter &quot;7b06368c-7089-4f66-acc8-29e1fcbd31f6&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-encounter-it-lab.html\">Encounter - Lab Report</a></p></div><p><b>status</b>: finished</p><p><b>class</b>: ambulatory (Details: http://terminology.hl7.org/CodeSystem/v3-ActCode code AMB = 'ambulatory', stated as 'ambulatory')</p><p><b>subject</b>: <a href=\"#Patient_8472931c-fbd0-437b-9ed1-4f66472c78b5\">See above (urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5)</a></p><p><b>basedOn</b>: <a href=\"#ServiceRequest_463ae6fe-60d4-4b38-84b3-1008e0925678\">See above (urn:uuid:463ae6fe-60d4-4b38-84b3-1008e0925678)</a></p><h3>Participants</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Type</b></td><td><b>Individual</b></td></tr><tr><td style=\"display: none\">*</td><td>Secondary performer <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.3.0/CodeSystem-v3-ParticipationType.html\">ParticipationType</a>#SPRF)</span></td><td><a href=\"#Practitioner_134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c\">See above (urn:uuid:134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c)</a></td></tr></table><p><b>period</b>: 2023-02-25 11:45:00+0100 --&gt; 2023-02-25 12:45:00+0100</p><h3>Locations</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Location</b></td></tr><tr><td style=\"display: none\">*</td><td><a href=\"#Location_f148e54a-2046-4534-b9e9-54e7e9632224\">See above (urn:uuid:f148e54a-2046-4534-b9e9-54e7e9632224)</a></td></tr></table></div>"
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "subject": {
+          "reference": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5"
+        },
+        "basedOn": [
+          {
+            "reference": "urn:uuid:463ae6fe-60d4-4b38-84b3-1008e0925678"
+          }
+        ],
+        "participant": [
+          {
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                    "code": "SPRF",
+                    "display": "Secondary performer"
+                  }
+                ]
+              }
+            ],
+            "individual": {
+              "reference": "urn:uuid:134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c"
+            }
+          }
+        ],
+        "period": {
+          "start": "2023-02-25T11:45:00+01:00",
+          "end": "2023-02-25T12:45:00+01:00"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "urn:uuid:f148e54a-2046-4534-b9e9-54e7e9632224"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:168d4960-0a0b-43af-8025-180f0965f325",
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "168d4960-0a0b-43af-8025-180f0965f325",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/specimen-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Specimen_168d4960-0a0b-43af-8025-180f0965f325\"> </a><p><b>Generated Narrative: Specimen</b><a name=\"168d4960-0a0b-43af-8025-180f0965f325\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Specimen &quot;168d4960-0a0b-43af-8025-180f0965f325&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-specimen-it-lab.html\">Specimen - Lab Report</a></p></div><p><b>type</b>: Whole blood <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.3.0/CodeSystem-v3-SpecimenType.html\">SpecimenType</a>#BLD)</span></p><p><b>subject</b>: <a href=\"#Patient_8472931c-fbd0-437b-9ed1-4f66472c78b5\">See above (urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5)</a></p><h3>Collections</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>BodySite</b></td></tr><tr><td style=\"display: none\">*</td><td>Anterior surface of arm <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#7311008)</span></td></tr></table><h3>Containers</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Type</b></td></tr><tr><td style=\"display: none\">*</td><td>Evacuated blood collection tube <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#706052002)</span></td></tr></table></div>"
+        },
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-SpecimenType",
+              "code": "BLD",
+              "display": "Whole blood"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5"
+        },
+        "collection": {
+          "bodySite": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "7311008",
+                "display": "Anterior surface of arm"
+              }
+            ]
+          }
+        },
+        "container": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "706052002",
+                  "display": "Evacuated blood collection tube"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:463ae6fe-60d4-4b38-84b3-1008e0925678",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "463ae6fe-60d4-4b38-84b3-1008e0925678",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/servicerequest-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"ServiceRequest_463ae6fe-60d4-4b38-84b3-1008e0925678\"> </a><p><b>Generated Narrative: ServiceRequest</b><a name=\"463ae6fe-60d4-4b38-84b3-1008e0925678\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource ServiceRequest &quot;463ae6fe-60d4-4b38-84b3-1008e0925678&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-servicerequest-it-lab.html\">ServiceRequest - Lab Report</a></p></div><p><b>identifier</b>: 12345 (period: 2023-03-15 --&gt; 2023-04-15)</p><p><b>requisition</b>: 1300A4000000248</p><p><b>status</b>: completed</p><p><b>intent</b>: order</p><p><b>category</b>: Laboratory procedure <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#108252007)</span></p><p><b>priority</b>: routine</p><p><b>code</b>: Leukocyte poor blood preparation <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#5357009)</span></p><p><b>subject</b>: <a href=\"#Patient_8472931c-fbd0-437b-9ed1-4f66472c78b5\">See above (urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5)</a></p><p><b>authoredOn</b>: 2023-03-15</p><p><b>reasonCode</b>: Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class F <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#4307007)</span></p><p><b>specimen</b>: <a href=\"#Specimen_168d4960-0a0b-43af-8025-180f0965f325\">See above (urn:uuid:168d4960-0a0b-43af-8025-180f0965f325)</a></p></div>"
+        },
+        "identifier": [
+          {
+            "value": "12345",
+            "period": {
+              "start": "2023-03-15",
+              "end": "2023-04-15"
+            }
+          }
+        ],
+        "requisition": {
+          "value": "1300A4000000248"
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "108252007",
+                "display": "Laboratory procedure"
+              }
+            ]
+          }
+        ],
+        "priority": "routine",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "5357009",
+              "display": "Leukocyte poor blood preparation"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5"
+        },
+        "authoredOn": "2023-03-15",
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "4307007",
+                "display": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class F"
+              }
+            ]
+          }
+        ],
+        "specimen": [
+          {
+            "reference": "urn:uuid:168d4960-0a0b-43af-8025-180f0965f325"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c",
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "dc5842a1-83b6-43c7-b063-75ae989b803c",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/practitionerrole-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"PractitionerRole_dc5842a1-83b6-43c7-b063-75ae989b803c\"> </a><p><b>Generated Narrative: PractitionerRole</b><a name=\"dc5842a1-83b6-43c7-b063-75ae989b803c\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource PractitionerRole &quot;dc5842a1-83b6-43c7-b063-75ae989b803c&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-practitionerrole-it-lab.html\">PractitionerRole - Lab Report</a></p></div><p><b>identifier</b>: <code>http://esempio_policlinico.it/codiceEmatologo</code>/12345 (use: OFFICIAL)</p><p><b>active</b>: true</p><p><b>practitioner</b>: <a href=\"#Practitioner_dc5842a1-83b6-43c7-b063-75ae989b803d\">See above (urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803d)</a></p><p><b>organization</b>: <a href=\"#Organization_5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8\">See above (urn:uuid:5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8)</a></p><p><b>code</b>: Generalist Medical Practitioners <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (unknown#2211)</span></p><p><b>specialty</b>: Clinical hematology <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#394803006)</span></p></div>"
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "http://esempio_policlinico.it/codiceEmatologo",
+            "value": "12345"
+          }
+        ],
+        "active": true,
+        "practitioner": {
+          "reference": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803d"
+        },
+        "organization": {
+          "reference": "urn:uuid:5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8"
+        },
+        "code": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.2.9.6.2.7",
+                "code": "2211",
+                "display": "Generalist Medical Practitioners"
+              }
+            ]
+          }
+        ],
+        "specialty": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "394803006",
+                "display": "Clinical hematology"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803d",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "dc5842a1-83b6-43c7-b063-75ae989b803d",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/practitioner-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Practitioner_dc5842a1-83b6-43c7-b063-75ae989b803d\"> </a><p><b>Generated Narrative: Practitioner</b><a name=\"dc5842a1-83b6-43c7-b063-75ae989b803d\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Practitioner &quot;dc5842a1-83b6-43c7-b063-75ae989b803d&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-practitioner-it-lab.html\">Practitioner - Lab Report</a></p></div><p><b>identifier</b>: <code>http://hl7.it/sid/codiceFiscale</code>/MDCPRV80A01H501G (use: OFFICIAL)</p><p><b>name</b>: Prova Medico </p><p><b>telecom</b>: <a href=\"mailto:medico.prova@policlinico.it\">medico.prova@policlinico.it</a>, ph: 331793423(WORK)</p><p><b>gender</b>: male</p></div>"
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "http://hl7.it/sid/codiceFiscale",
+            "value": "MDCPRV80A01H501G"
+          }
+        ],
+        "name": [
+          {
+            "use": "usual",
+            "family": "Medico",
+            "given": [
+              "Prova"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "email",
+            "value": "medico.prova@policlinico.it",
+            "use": "work",
+            "rank": 1
+          },
+          {
+            "system": "phone",
+            "value": "331793423",
+            "use": "work",
+            "rank": 2
+          }
+        ],
+        "gender": "male"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/practitioner-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Practitioner_134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c\"> </a><p><b>Generated Narrative: Practitioner</b><a name=\"134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Practitioner &quot;134a0bb1-aa0a-46b9-aa1e-a5d0e379e77c&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-practitioner-it-lab.html\">Practitioner - Lab Report</a></p></div><p><b>identifier</b>: <code>http://hl7.it/sid/codiceFiscale</code>/NFRPRV80A01H501G (use: OFFICIAL)</p><p><b>name</b>: Prova Infermiere </p><p><b>telecom</b>: <a href=\"mailto:infermiere.prova@policlinico.it\">infermiere.prova@policlinico.it</a>, ph: 331793553(WORK)</p><p><b>gender</b>: male</p></div>"
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "http://hl7.it/sid/codiceFiscale",
+            "value": "NFRPRV80A01H501G"
+          }
+        ],
+        "name": [
+          {
+            "use": "usual",
+            "family": "Infermiere",
+            "given": [
+              "Prova"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "email",
+            "value": "infermiere.prova@policlinico.it",
+            "use": "work",
+            "rank": 1
+          },
+          {
+            "system": "phone",
+            "value": "331793553",
+            "use": "work",
+            "rank": 2
+          }
+        ],
+        "gender": "male"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/organization-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Organization_5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8\"> </a><p><b>Generated Narrative: Organization</b><a name=\"5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Organization &quot;5fd3f1a6-b2c8-44cb-8237-0b5f0a81f2a8&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-organization-it-lab.html\">Organization - Lab Report</a></p></div><p><b>identifier</b>: <code>http://hl7.it/sid/fls</code>/120201, <code>http://hl7.it/sid/vda/asl</code>/201</p><p><b>active</b>: true</p><p><b>type</b>: Azienda Sanitaria Locale <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"CodeSystem-it-tipoEntita.html\">HL7 Italia - Tipo di Entità</a>#asl)</span></p><p><b>name</b>: Azienda Sanitara Locale Roma 1</p><h3>Contacts</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Telecom</b></td></tr><tr><td style=\"display: none\">*</td><td>ph: 06 123456</td></tr></table></div>"
+        },
+        "identifier": [
+          {
+            "system": "http://hl7.it/sid/fls",
+            "value": "120201"
+          },
+          {
+            "system": "http://hl7.it/sid/vda/asl",
+            "value": "201"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.it/fhir/lab-report/CodeSystem/it-tipoEntita",
+                "code": "asl",
+                "display": "Azienda Sanitaria Locale"
+              }
+            ]
+          }
+        ],
+        "name": "Azienda Sanitara Locale Roma 1",
+        "contact": [
+          {
+            "telecom": [
+              {
+                "system": "phone",
+                "value": "06 123456"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/organizationOperatore-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Organization_ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8\"> </a><p><b>Generated Narrative: Organization</b><a name=\"ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Organization &quot;ae0365ea-d8a1-45e0-a39d-f14fac4ccfe8&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-organizationOperatore-it-lab.html\">Organization operatore sanitario/socio sanitario - Lab Report</a></p></div><p><b>identifier</b>: <code>http://hl7.it/sid/fls</code>/020101</p><p><b>active</b>: true</p><p><b>type</b>: Azienda Sanitaria Locale <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"CodeSystem-it-tipoEntita.html\">HL7 Italia - Tipo di Entità</a>#asl)</span></p><p><b>name</b>: AZIENDA U.S.L. VALLE D'AOSTA</p><p><b>telecom</b>: ph: (0165) 5431, fax: (0165) 544587, <a href=\"mailto:protocollo@pec.ausl.vda.it\">protocollo@pec.ausl.vda.it</a>, <a href=\"http://www.ausl.vda.it\">http://www.ausl.vda.it</a></p><p><b>address</b>: VIA GUIDO REY 1 AOSTA VALLE D'AOSTA 11100 IT </p></div>"
+        },
+        "identifier": [
+          {
+            "system": "http://hl7.it/sid/fls",
+            "value": "020101"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.it/fhir/lab-report/CodeSystem/it-tipoEntita",
+                "code": "asl",
+                "display": "Azienda Sanitaria Locale"
+              }
+            ]
+          }
+        ],
+        "name": "AZIENDA U.S.L. VALLE D'AOSTA",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "(0165) 5431"
+          },
+          {
+            "system": "fax",
+            "value": "(0165) 544587"
+          },
+          {
+            "system": "email",
+            "value": "protocollo@pec.ausl.vda.it"
+          },
+          {
+            "system": "url",
+            "value": "http://www.ausl.vda.it"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "VIA GUIDO REY 1"
+            ],
+            "city": "AOSTA",
+            "_city": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/iso21090-SC-coding",
+                  "valueCoding": {
+                    "system": "http://hl7.it/fhir/lab-report/CodeSystem/istat-unitaAmministrativeTerritoriali",
+                    "code": "007003",
+                    "display": "AOSTA"
+                  }
+                }
+              ]
+            },
+            "district": "AO",
+            "state": "VALLE D'AOSTA",
+            "_state": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/iso21090-SC-coding",
+                  "valueCoding": {
+                    "system": "http://hl7.it/fhir/lab-report/CodeSystem/minsan-regione",
+                    "code": "020",
+                    "display": "VALLE D'AOSTA"
+                  }
+                }
+              ]
+            },
+            "postalCode": "11100",
+            "country": "IT"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:f148e54a-2046-4534-b9e9-54e7e9632224",
+      "resource": {
+        "resourceType": "Location",
+        "id": "f148e54a-2046-4534-b9e9-54e7e9632224",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/location-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Location_f148e54a-2046-4534-b9e9-54e7e9632224\"> </a><p><b>Generated Narrative: Location</b><a name=\"f148e54a-2046-4534-b9e9-54e7e9632224\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Location &quot;f148e54a-2046-4534-b9e9-54e7e9632224&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-location-it-lab.html\">Location - Lab Report</a></p></div><p><b>identifier</b>: 123456 (use: USUAL)</p><p><b>status</b>: active</p><p><b>name</b>: Policlinico di Roma</p><p><b>alias</b>: Poliambulatorio di Roma, Ospedale universitario di Roma</p><p><b>type</b>: Hospital <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.3.0/CodeSystem-v3-RoleCode.html\">RoleCode</a>#HOSP)</span></p><p><b>telecom</b>: ph: 33324567</p><p><b>address</b>: ROMA 00144 </p></div>"
+        },
+        "identifier": [
+          {
+            "use": "usual",
+            "value": "123456"
+          }
+        ],
+        "status": "active",
+        "name": "Policlinico di Roma",
+        "alias": [
+          "Poliambulatorio di Roma",
+          "Ospedale universitario di Roma"
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                "code": "HOSP",
+                "display": "Hospital"
+              }
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "33324567"
+          }
+        ],
+        "address": {
+          "type": "physical",
+          "city": "ROMA",
+          "postalCode": "00144"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:168d4960-0a0b-43af-8025-180f0965f324",
+      "resource": {
+        "resourceType": "Device",
+        "id": "168d4960-0a0b-43af-8025-180f0965f324",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/device-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Device_168d4960-0a0b-43af-8025-180f0965f324\"> </a><p><b>Generated Narrative: Device</b><a name=\"168d4960-0a0b-43af-8025-180f0965f324\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Device &quot;168d4960-0a0b-43af-8025-180f0965f324&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-device-it-lab.html\">Device - Lab Report</a></p></div><h3>DeviceNames</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Name</b></td><td><b>Type</b></td></tr><tr><td style=\"display: none\">*</td><td>Analizzatore Automatico</td><td>other</td></tr></table></div>"
+        },
+        "deviceName": [
+          {
+            "name": "Analizzatore Automatico",
+            "type": "other"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:059927b1-7e17-409e-ae60-68cc3c0b3aea",
+      "resource": {
+        "resourceType": "Media",
+        "id": "059927b1-7e17-409e-ae60-68cc3c0b3aea",
+        "meta": {
+          "profile": [
+            "http://hl7.it/fhir/lab-report/StructureDefinition/media-it-lab"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Media_059927b1-7e17-409e-ae60-68cc3c0b3aea\"> </a><p><b>Generated Narrative: Media</b><a name=\"059927b1-7e17-409e-ae60-68cc3c0b3aea\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Media &quot;059927b1-7e17-409e-ae60-68cc3c0b3aea&quot; </p><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-media-it-lab.html\">Media - Lab Report</a></p></div><p><b>status</b>: completed</p><p><b>type</b>: Image <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://hl7.org/fhir/R4/codesystem-media-type.html\">Media Type</a>#image)</span></p><p><b>subject</b>: <a href=\"#Patient_8472931c-fbd0-437b-9ed1-4f66472c78b5\">See above (urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5)</a></p><p><b>created</b>: 2023-06-21</p><p><b>issued</b>: 21 giu 2023, 16:56:18</p><p><b>operator</b>: <a href=\"#PractitionerRole_dc5842a1-83b6-43c7-b063-75ae989b803c\">See above (urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c)</a></p><p><b>height</b>: 128</p><p><b>width</b>: 128</p><blockquote><p><b>content</b></p><blockquote><p><b>id</b></p>a1</blockquote><p><b>contentType</b>: image/png</p><p><b>data</b>: (base64 data - 4040 bytes)</p><p><b>creation</b>: 2023-06-21</p></blockquote></div>"
+        },
+        "status": "completed",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/media-type",
+              "code": "image",
+              "display": "Image"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "urn:uuid:8472931c-fbd0-437b-9ed1-4f66472c78b5"
+        },
+        "createdDateTime": "2023-06-21",
+        "issued": "2023-06-21T14:56:18Z",
+        "operator": {
+          "reference": "urn:uuid:dc5842a1-83b6-43c7-b063-75ae989b803c"
+        },
+        "height": 128,
+        "width": 128,
+        "content": {
+          "id": "a1",
+          "contentType": "image/png",
+          "data": "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",
+          "creation": "2023-06-21"
+        }
+      }
+    }
+  ]
+}

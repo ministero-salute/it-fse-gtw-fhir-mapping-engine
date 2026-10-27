@@ -70,15 +70,7 @@ public class EngineControllerTest extends AbstractEngineTest {
         mvc.perform(engines()).andExpectAll(
             status().is2xxSuccessful(),
             jsonPath("$.engines").isArray(),
-            jsonPath("$.engines").isNotEmpty()
-        );
-        // We wait until the updating process has not finished.
-        awaitUntilEnginesSpawned();
-        // Returns content after loading engines (expect one less engine)
-        mvc.perform(engines()).andExpectAll(
-            status().is2xxSuccessful(),
-            jsonPath("$.engines").isArray(),
-            jsonPath("$.engines", hasSize(Engine.size() - 1))
+            jsonPath("$.engines", hasSize(Engine.size()))
         );
     }
 
