@@ -1,19 +1,13 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
  * 
- * Copyright 2023 Ministero della Salute
+ * Copyright (C) 2023 Ministero della Salute
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  * 
- * http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl;
 
@@ -21,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -32,14 +27,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformationResult;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,30 +54,48 @@ public class TransformerCTL implements ITransformerCTL {
 	private ITransformerSRV service;
     @Autowired
     private IConverterSRV converterService;
+    @Autowired
+    private IValidateSRV validateService;
 
 	@Override
-	public TransformResDTO convertCDAToBundle(FhirResourceDTO dto, HttpServletRequest request) {
-		log.debug("Invoked transform controller");
-		TransformResDTO out = new TransformResDTO();
-		if(dto.getCda()!=null){
-			try {
-				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
+	public TransformResDTO convertCDAToBundle(List<ValidationType> validations, boolean includeRemovalReport,
+            FhirResourceDTO dto, HttpServletRequest request) {
 
-				String cdaTrasformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(), dto.getDocumentReferenceDTO());
-				Document doc = Document.parse(cdaTrasformed);
+		log.debug("Starting CDA-to-Bundle conversion from JSON request; validations={}, includeRemovalReport={}",
+                validations, includeRemovalReport);
+
+		TransformResDTO out = new TransformResDTO();
+
+		if (dto != null && dto.getCda() != null) {
+
+			try {
+
+				String cdaString = new String(dto.getCda().getBytes(), StandardCharsets.UTF_8);
+				TransformationResult transformed = service.transform(cdaString, dto.getEngineId(), dto.getObjectId(),
+                        dto.getDocumentReferenceDTO(), includeRemovalReport);
+
+				if (validations != null && !validations.isEmpty()) {
+					log.debug("Validating transformed Bundle; validations={}", validations);
+					FhirValidationDTO validationResponse = validateService.validate(transformed.json(), validations);
+					out.setValidationResponse(validationResponse);
+				}
+
+				Document doc = Document.parse(transformed.json());
 				out.setJson(doc);
-			} catch(Throwable tr) {
-				log.error("Sono nel catch del convert cda to bundle",tr);
+				out.setNormalizationIssues(transformed.normalizationIssues());
+				log.debug("CDA-to-Bundle conversion from JSON request completed successfully");
+			} catch (Throwable tr) {
+				log.error("CDA-to-Bundle conversion from JSON request failed", tr);
 				out.setErrorMessage(tr.getMessage());
 			}
 		} else {
-			log.error("Il cda in input è vuoto");
+			log.error("Cannot convert CDA to Bundle: request body or CDA content is missing");
 		}
-		log.debug("Conversion of CDA completed");
 		return out;
 	}
 
 	@Override
+<<<<<<< HEAD
 	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file) throws IOException {
 		Long startTime = System.currentTimeMillis();
 		log.info("START CONVERSION");
@@ -91,22 +108,35 @@ public class TransformerCTL implements ITransformerCTL {
 		Document doc = Document.parse(bundle);
 		Long endTimeParse = System.currentTimeMillis() - startTimeParse;
 		log.info("END PARSE: "+endTimeParse);
+=======
+	public Document convertCDAToBundleStateless(DocumentReferenceDTO documentReferenceDTO, String engineId, String objectId, MultipartFile file, boolean includeRemovalReport) throws IOException {
+		log.debug("Starting CDA-to-Bundle conversion from multipart request; includeRemovalReport={}", includeRemovalReport);
+		TransformationResult transformed = service.transform(getCDA(file), engineId, objectId, documentReferenceDTO, includeRemovalReport);
+		Document doc = Document.parse(transformed.json());
+		log.debug("CDA-to-Bundle conversion from multipart request completed successfully");
+>>>>>>> develop
 		return doc;
 	}
 
     @Override
     public ResponseEntity<TransformResDTO> convertDocumentToTransaction(FhirDocumentDTO dto, HttpServletRequest request)  throws IOException {
 
+        log.debug("Starting document-to-transaction Bundle conversion");
+
         Document transactionBundleJson =
             converterService.convertDocumentToTransactionJson(dto.getBundleJson());
         TransformResDTO resDTO = new TransformResDTO();
         resDTO.setJson(transactionBundleJson);
+        log.debug("Document-to-transaction Bundle conversion completed successfully");
         return ResponseEntity.ok(resDTO);
     }
 
 	protected String getCDA(final MultipartFile file) {
 		try {
-			if (file == null || file.getBytes().length == 0) return null;
+			if (file == null || file.getBytes().length == 0) {
+				log.warn("Cannot extract CDA content: multipart file is missing or empty");
+				return null;
+			}
 			byte[] bytes = file.getBytes();
 			Charset detectedCharset = StandardCharsets.UTF_8;
 			XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -118,7 +148,7 @@ public class TransformerCTL implements ITransformerCTL {
 			return new String(bytes, detectedCharset);
 		} catch (Exception ex) {
 			String message = "Error while extracting CDA";
-			log.error(message, ex);
+			log.error("Failed to extract CDA content from multipart file", ex);
 			throw new BusinessException(message, ex);
 		}
 
@@ -126,17 +156,23 @@ public class TransformerCTL implements ITransformerCTL {
 
     @Override
     public TransformResDTO updateDocumentReference(UpdateDocumentReferenceRequestDTO updateResourceDto, HttpServletRequest request) {
+        log.debug("Starting DocumentReference update");
+
         String documentReference = service.mergeDocumentReferenceForUpdate(updateResourceDto.getOldDocumentReference(), updateResourceDto.getDocumentReferenceDTO());
         TransformResDTO response = new TransformResDTO();
         response.setJson(Document.parse(documentReference));
+        log.debug("DocumentReference update completed successfully");
         return response;
     }
 
     @Override
     public ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(FhirDocumentDTO fhirDocumentDTO) throws IOException {
+        log.debug("Starting DocumentReference addition to Bundle");
+
         Document updatedBundle = service.addDocumentReferenceToBundle(fhirDocumentDTO.getBundleJson(), fhirDocumentDTO.getDocumentReferenceDTO());
         TransformResDTO response = new TransformResDTO();
         response.setJson(updatedBundle);
+        log.debug("DocumentReference addition to Bundle completed successfully");
         return ResponseEntity.ok(response);
     }
 

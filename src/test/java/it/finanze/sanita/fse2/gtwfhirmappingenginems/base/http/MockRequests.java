@@ -39,6 +39,16 @@ public final class MockRequests {
         ).contentType(MediaType.APPLICATION_JSON);
     }
 
+    public static MockHttpServletRequestBuilder transform(FhirResourceDTO req, String... validations) throws JsonProcessingException {
+        MockHttpServletRequestBuilder builder = post(API_TRANSFORM_BY_OBJ_FULL).content(
+            new ObjectMapper().writeValueAsString(req)
+        ).contentType(MediaType.APPLICATION_JSON);
+        if (validations != null && validations.length > 0) {
+            builder.param("validations", validations);
+        }
+        return builder;
+    }
+
     public static MockHttpServletRequestBuilder transformStateless(Engine engine, CDA cda) throws IOException {
         return multipart(API_TRANSFORM_STATELESS_BY_OBJ_FULL, engine.engineId(), engine.transformId()).
             file(new MockMultipartFile(API_FILE_VAR, cda.bytes())).

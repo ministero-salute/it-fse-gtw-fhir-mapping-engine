@@ -1,0 +1,15 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [{
+    "fullUrl": "urn:uuid:11111111-1111-4111-8111-111111111111",
+    "resource": {
+      "resourceType": "Patient",
+      "id": "11111111-1111-4111-8111-111111111111",
+      "extension": [{
+        "url": "http://hl7.it/fhir/StructureDefinition/patient-occupation-it",
+        "valueCodeableConcept": { "text": "Test occupation" }
+      }]
+    }
+  }]
+}

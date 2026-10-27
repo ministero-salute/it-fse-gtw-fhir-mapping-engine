@@ -17,6 +17,8 @@
  */
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.base;
 
+import java.util.Arrays;
+
 public enum Engine {
 
     LAB_ENGINE("6877bb031e71a91de9280aff", "6877bac1c799cf749958624e"),
@@ -26,7 +28,6 @@ public enum Engine {
     RSA_ENGINE("6877bb031e71a91de9280aff", "6877658758e2f14cfcb3f9fa"),
     PSS_ENGINE("6877bb031e71a91de9280aff", "6877656758e2f14cfcb3f9f7"),
     PTO_ENGINE("6877bb031e71a91de9280aff", "6877bad4c799cf7499586253"),
-    REMOVABLE("6877a5c64afe567ca0ac23aa", "6877657258e2f14cfcb3f9f8"),
     INVALID("INVALID_ENGINE_ID", "INVALID_TRANSFORM_ID");
 
     private final String engineId;
@@ -46,7 +47,11 @@ public enum Engine {
     }
 
     public static int size() {
-        return Engine.values().length - 1;
+        return (int) Arrays.stream(values())
+            .filter(engine -> engine != INVALID)
+            .map(Engine::engineId)
+            .distinct()
+            .count();
     }
 
 }
