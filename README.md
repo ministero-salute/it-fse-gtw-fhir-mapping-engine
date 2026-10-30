@@ -57,16 +57,17 @@ operations; they do not run this full transformation workflow.
 
 ## Configuration
 
-### Isolated tests and coverage
+### Isolated tests
 
 With Java 21, run the opt-in suite without MongoDB, gtw-config, or other services:
 
 ```sh
-mvn -PISOLATION clean test
+MAVEN_OPTS=-Xmx768m mvn -PISOLATION clean test
 ```
 
 Tests in `src/test/java/it/finanze/sanita/fse2/gtwfhirmappingenginems/isolation/`
-use `@Tag("ISOLATION")`; normal `mvn test` excludes them. Context-based tests
+and selected infrastructure-free tests elsewhere use `@Tag("ISOLATION")`;
+normal `mvn test` excludes tagged tests. Context-based tests
 also use `@ActiveProfiles("ISOLATION")` and `@SpringJUnitConfig` with only the
 classes under test, not the full application. External collaborators are mocked
 with `@MockitoBean` (or Mockito for plain JUnit tests). The suite checks
@@ -74,16 +75,33 @@ configuration caching and refresh failures,
 engine initialization, Mongo queries/cleanup and database failures, and in-memory
 MVC success/error responses. Plain JUnit tests additionally exercise real Bundle
 ID/reference rewriting, deduplication, scoring-tag cleanup, and validation graph
-traversal, including disconnected resources and invalid input. Existing tests are
-unchanged. Transformation orchestration tests mock the mapping manager and check
+traversal, including disconnected resources and invalid input. Six existing test
+classes are included through tagging rather than duplicating their assertions.
+Normative-validator tests check readiness, retry/idempotent initialization,
+severity filtering, location mapping, and failure propagation with an isolated
+validator. Outcome mapping tests exercise diagnostic fallback precedence, and
+profile tests check missing environments and first-profile matching.
+Additional tests cover engine registration/unloading, resource construction and
+invalid inputs, transaction conversion, multipart decoding/upload failures, and
+metadata merging/privacy. Transformation orchestration tests mock the mapping manager and check
 deep-copy protection, serialized results, diagnostics, and dependency failures.
 
 JaCoCo reports are generated during `test`: HTML at
 `target/site/jacoco/index.html` and XML at `target/site/jacoco/jacoco.xml`.
-This is a starter suite, not 80% application-wide coverage; no 80% gate is enabled
-until the overall target is attained. Existing coverage exclusions are unchanged.
-The initial 45-test suite measures 14.21% line, 13.84% instruction, and 6.25%
-branch coverage across the application; regenerate reports after extending it.
+
+Verify the complete compiled-class inventory after a clean test:
+
+```sh
+python3 scripts/verify-jacoco-classes.py
+```
+
+Check combined line and branch coverage from the generated XML report (exits
+nonzero when the configured minimum is not met):
+
+```sh
+python3 scripts/check-combined-coverage.py
+```
+
 Extend the suite by testing real business classes with mocked dependencies; do
 not extend the full-application test bases.
 
