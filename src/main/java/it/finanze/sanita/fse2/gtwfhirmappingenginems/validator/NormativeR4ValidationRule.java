@@ -12,6 +12,7 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.validator;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService;
 import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport;
@@ -29,6 +30,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.ResultSeverityEnum;
+import ca.uhn.fhir.validation.ValidationResult;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.config.EngineCFG;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
@@ -44,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NormativeR4ValidationRule implements ValidationRule {
 
 	private final FhirContext fhirContext;
-	private volatile FhirValidator validator;
+	private final AtomicReference<FhirValidator> validator = new AtomicReference<>();
 	@Getter
 
 	private volatile boolean initializing;
@@ -59,7 +61,10 @@ public class NormativeR4ValidationRule implements ValidationRule {
 
 	@Async(EngineCFG.VALIDATOR_EXECUTOR)
 	@EventListener(ApplicationStartedEvent.class)
-	public void initialize() {
+	public synchronized void initialize() {
+		if (initialized) {
+			return;
+		}
 
 		initializing = true;
 		initialized = false;
@@ -70,11 +75,11 @@ public class NormativeR4ValidationRule implements ValidationRule {
 					new CommonCodeSystemsTerminologyService(fhirContext));
 			FhirValidator r4Validator = fhirContext.newValidator();
 			r4Validator.registerValidatorModule(new FhirInstanceValidator(supportChain));
-			validator = r4Validator;
+			validator.set(r4Validator);
 			initialized = true;
 			log.info("Normative R4 validation engine initialization completed");
 		} catch (Exception exception) {
-			validator = null;
+			validator.set(null);
 			log.error("Unable to initialize the normative R4 validation engine", exception);
 		} finally {
 			initializing = false;
@@ -84,13 +89,20 @@ public class NormativeR4ValidationRule implements ValidationRule {
 	@Override
 	public List<ValidationIssueDTO> validate(ValidationContext context) {
 
-		if (!initialized) {
+		// Read the safely published validator once; readiness and use share the same snapshot.
+		FhirValidator currentValidator = validator.get();
+		if (currentValidator == null) {
 			throw new EngineInitException("The normative R4 validation engine is not ready");
 		}
 
 		try {
+			// Atomic publication does not protect mutable state inside the validator modules.
+			ValidationResult result;
+			synchronized (currentValidator) {
+				result = currentValidator.validateWithResult(context.json());
+			}
 			// Retain warnings for diagnostics; only ERROR and FATAL affect validity.
-			return validator.validateWithResult(context.json()).getMessages().stream()
+			return result.getMessages().stream()
 					.filter(message -> message.getSeverity() == ResultSeverityEnum.WARNING
 							|| message.getSeverity() == ResultSeverityEnum.ERROR
 							|| message.getSeverity() == ResultSeverityEnum.FATAL)
