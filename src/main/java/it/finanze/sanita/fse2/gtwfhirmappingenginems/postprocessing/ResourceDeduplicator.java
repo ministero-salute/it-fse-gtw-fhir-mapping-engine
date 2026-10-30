@@ -91,7 +91,11 @@ public class ResourceDeduplicator {
 
         switch (transfAlg) {
             case KEEP_LONGER:
-                return JsonParserHolder.get().encodeResourceToString(resource).length();
+                try {
+                    return JsonParserHolder.get().encodeResourceToString(resource).length();
+                } finally {
+                    JsonParserHolder.remove();
+                }
 
             case KEEP_RICHER_UP:
             case KEEP_RICHER_DOWN:
@@ -135,6 +139,10 @@ public class ResourceDeduplicator {
 
         public static IParser get() {
             return PARSER.get();
+        }
+
+        public static void remove() {
+            PARSER.remove();
         }
     }
 
