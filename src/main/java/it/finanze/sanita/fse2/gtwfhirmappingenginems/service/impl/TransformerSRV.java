@@ -67,7 +67,11 @@ public class TransformerSRV implements ITransformerSRV {
 		PostProcessingResult processed = postProcessor.process(originalBundle.copy(), documentReferenceDTO, objectId,
                 includeRemovalReport);
 
-		return new TransformationResult(JsonParserHolder.get().composeString(processed.bundle()), processed.issues());
+		try {
+			return new TransformationResult(JsonParserHolder.get().composeString(processed.bundle()), processed.issues());
+		} finally {
+			JsonParserHolder.remove();
+		}
 	}
 
 	/**
@@ -78,6 +82,10 @@ public class TransformerSRV implements ITransformerSRV {
 
 		public static JsonParser get() {
 			return PARSER.get();
+		}
+
+		public static void remove() {
+			PARSER.remove();
 		}
 	}
 
