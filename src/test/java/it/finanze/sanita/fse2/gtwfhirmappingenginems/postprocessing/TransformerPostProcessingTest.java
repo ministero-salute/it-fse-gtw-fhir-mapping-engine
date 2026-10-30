@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.io.IOException;
 
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
@@ -22,6 +24,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.EngineSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.TransformerSRV;
 
 @ExtendWith(MockitoExtension.class)
+@org.junit.jupiter.api.Tag("ISOLATION")
 class TransformerPostProcessingTest {
     @Mock private EngineSRV engine;
     @Mock private CdaEnginesManager manager;
@@ -56,6 +59,31 @@ class TransformerPostProcessingTest {
         assertEquals(new JsonParser().composeString(finalBundle), result.json());
         assertSame(issues, result.normalizationIssues());
         verifyNoInteractions(cleaner);
+    }
+
+    @Test
+    void removesParserAfterSerializationAndOnFailure() throws Exception {
+        when(engine.manager()).thenReturn(manager);
+        when(manager.transform("cda", "engine", "map")).thenReturn(new Bundle());
+        Bundle bundle = new Bundle();
+        when(processor.process(any(Bundle.class), isNull(), eq("map"), eq(false)))
+            .thenReturn(new PostProcessingResult(bundle, List.of()));
+        Class<?> holder = Class.forName(TransformerSRV.class.getName() + "$JsonParserHolder");
+        @SuppressWarnings("unchecked")
+        ThreadLocal<JsonParser> parsers = (ThreadLocal<JsonParser>) ReflectionTestUtils.getField(holder, "PARSER");
+        JsonParser parser = mock(JsonParser.class);
+        when(parser.composeString(bundle)).thenReturn("serialized").thenThrow(new IOException("serialization failed"));
+        try {
+            parsers.set(parser);
+            assertEquals("serialized", service.transform("cda", "engine", "map", null, false).json());
+            assertNotSame(parser, parsers.get());
+
+            parsers.set(parser);
+            assertThrows(IOException.class, () -> service.transform("cda", "engine", "map", null, false));
+            assertNotSame(parser, parsers.get());
+        } finally {
+            parsers.remove();
+        }
     }
 
     @Test

@@ -33,8 +33,9 @@
 		<!-- Sonar integration -->
 		<sonar.organization>ministero-salute</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<!-- Third-party resource archive/vendor namespaces only; no application exclusions. -->
 		<sonar.exclusions>
-			src/main/java/it/finanze/sanita/fse2/ms/gtwfhirmappingenginems/config/**/*.*
+			src/main/resources/matchbox-engine.jar,**/org/hl7/**,**/ch/ahdis/**
 		</sonar.exclusions>
 		<logback.version>1.5.16</logback.version>
 	</properties>
@@ -266,6 +267,12 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<!-- Analyze every compiled class, not archives copied as resources. -->
+							<includes>
+								<include>**/*.class</include>
+							</includes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -350,6 +357,41 @@
 						<configuration>
 							<failIfNoTests>true</failIfNoTests>
 						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>isolation-coverage-check</id>
+								<phase>test</phase>
+								<goals>
+									<goal>check</goal>
+								</goals>
+								<configuration>
+									<includes>
+										<include>**/*.class</include>
+									</includes>
+									<rules>
+										<rule>
+											<element>BUNDLE</element>
+											<limits>
+												<limit>
+													<counter>LINE</counter>
+													<value>COVEREDRATIO</value>
+													<minimum>0.80</minimum>
+												</limit>
+												<limit>
+													<counter>INSTRUCTION</counter>
+													<value>COVEREDRATIO</value>
+													<minimum>0.80</minimum>
+												</limit>
+											</limits>
+										</rule>
+									</rules>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>

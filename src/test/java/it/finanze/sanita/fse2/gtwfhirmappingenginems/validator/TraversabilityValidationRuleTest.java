@@ -26,6 +26,7 @@ import ca.uhn.fhir.context.FhirContext;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 
+@org.junit.jupiter.api.Tag("ISOLATION")
 class TraversabilityValidationRuleTest {
 
 	private static final FhirContext CONTEXT = FhirContext.forR4();
