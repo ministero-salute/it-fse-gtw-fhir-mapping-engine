@@ -57,6 +57,44 @@ operations; they do not run this full transformation workflow.
 
 ## Configuration
 
+### Isolated tests and coverage
+
+With Java 21, run the opt-in suite without MongoDB, gtw-config, or other services:
+
+```sh
+mvn -PISOLATION clean test
+```
+
+Tests in `src/test/java/it/finanze/sanita/fse2/gtwfhirmappingenginems/isolation/`
+use `@Tag("ISOLATION")`; normal `mvn test` excludes them. Context-based tests
+also use `@ActiveProfiles("ISOLATION")` and `@SpringJUnitConfig` with only the
+classes under test, not the full application. External collaborators are mocked
+with `@MockitoBean` (or Mockito for plain JUnit tests). The suite checks
+configuration caching and refresh failures,
+engine initialization, Mongo queries/cleanup and database failures, and in-memory
+MVC success/error responses. Plain JUnit tests additionally exercise real Bundle
+ID/reference rewriting, deduplication, scoring-tag cleanup, and validation graph
+traversal, including disconnected resources and invalid input. Existing tests are
+unchanged. Transformation orchestration tests mock the mapping manager and check
+deep-copy protection, serialized results, diagnostics, and dependency failures.
+
+JaCoCo reports are generated during `test`: HTML at
+`target/site/jacoco/index.html` and XML at `target/site/jacoco/jacoco.xml`.
+This is a starter suite, not 80% application-wide coverage; no 80% gate is enabled
+until the overall target is attained. Existing coverage exclusions are unchanged.
+The initial 45-test suite measures 14.21% line, 13.84% instruction, and 6.25%
+branch coverage across the application; regenerate reports after extending it.
+Extend the suite by testing real business classes with mocked dependencies; do
+not extend the full-application test bases.
+
+Sonar analysis (requires your server/authentication configuration):
+
+```sh
+mvn -PISOLATION clean test sonar:sonar
+```
+
+### Runtime properties
+
 Common values are defined in `src/main/resources/application.properties`. The
 `dev` and `docker` profiles override them through `application-dev.properties`
 and `application-docker.properties`, respectively.
