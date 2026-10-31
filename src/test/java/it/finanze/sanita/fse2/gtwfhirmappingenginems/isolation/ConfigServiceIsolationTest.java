@@ -29,6 +29,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ProfileUtility;
 @TestPropertySource(properties = "ms.config.refresh-rate=900000")
 class ConfigServiceIsolationTest {
     @org.springframework.context.annotation.Configuration
+    @org.springframework.context.annotation.Profile("ISOLATION")
     @org.springframework.context.annotation.Import(ConfigSRV.class)
     static class Config {
         @org.springframework.context.annotation.Bean

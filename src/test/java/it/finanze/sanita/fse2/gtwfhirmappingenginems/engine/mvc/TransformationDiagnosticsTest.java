@@ -27,7 +27,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
 
 @ExtendWith(MockitoExtension.class)
-@org.junit.jupiter.api.Tag("ISOLATION")
+@org.junit.jupiter.api.Tag("ISOLATION_SHARED")
 class TransformationDiagnosticsTest {
 
     @Mock

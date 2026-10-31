@@ -21,7 +21,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.NormalizationRes
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.normalizer.ResourceRemovalNarrativeNormalizer;
 
 @ExtendWith(MockitoExtension.class)
-@org.junit.jupiter.api.Tag("ISOLATION")
+@org.junit.jupiter.api.Tag("ISOLATION_SHARED")
 class BundlePostProcessorTest {
     @Mock private IdReferenceNormalizer ids;
     @Mock private ResourceDeduplicator duplicates;
