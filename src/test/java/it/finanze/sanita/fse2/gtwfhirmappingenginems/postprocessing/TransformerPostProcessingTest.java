@@ -24,7 +24,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.EngineSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.TransformerSRV;
 
 @ExtendWith(MockitoExtension.class)
-@org.junit.jupiter.api.Tag("ISOLATION")
+@org.junit.jupiter.api.Tag("ISOLATION_SHARED")
 class TransformerPostProcessingTest {
     @Mock private EngineSRV engine;
     @Mock private CdaEnginesManager manager;

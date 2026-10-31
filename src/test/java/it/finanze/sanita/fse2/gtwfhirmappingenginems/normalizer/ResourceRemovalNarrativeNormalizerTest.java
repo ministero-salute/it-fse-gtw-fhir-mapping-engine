@@ -27,7 +27,7 @@ import org.hl7.fhir.utilities.xhtml.XhtmlNode;
 import org.hl7.fhir.utilities.xhtml.XhtmlParser;
 import org.junit.jupiter.api.Test;
 
-@org.junit.jupiter.api.Tag("ISOLATION")
+@org.junit.jupiter.api.Tag("ISOLATION_SHARED")
 class ResourceRemovalNarrativeNormalizerTest {
 
     @Test

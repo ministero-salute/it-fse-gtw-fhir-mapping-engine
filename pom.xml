@@ -347,7 +347,7 @@
 		<profile>
 			<id>ISOLATION</id>
 			<properties>
-				<test.groups>ISOLATION</test.groups>
+				<test.groups>ISOLATION | ISOLATION_SHARED</test.groups>
 			</properties>
 			<build>
 				<plugins>

@@ -16,7 +16,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.StringUtility;
 
 /** Captures existing behavior, including limitations; not a specification of bug fixes. */
-@org.junit.jupiter.api.Tag("ISOLATION")
+@org.junit.jupiter.api.Tag("ISOLATION_SHARED")
 class BundlePostProcessingCharacterizationTest {
     private static final String SCORING = "http://algoritmodiscoring";
     private Bundle normalizeIds(Bundle bundle) {
