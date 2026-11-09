@@ -63,12 +63,22 @@ public class TransformerSRV implements ITransformerSRV {
 	public TransformationResult transform(final String cda, final String engineId, final String objectId,
 			final DocumentReferenceDTO documentReferenceDTO, final boolean includeRemovalReport) throws FHIRException, IOException {
 
-		Bundle originalBundle = engineSRV.manager().transform(cda, engineId, objectId);
-		PostProcessingResult processed = postProcessor.process(originalBundle.copy(), documentReferenceDTO, objectId,
-                includeRemovalReport);
+        return transform(cda, engineId, objectId, documentReferenceDTO, includeRemovalReport, false);
+    }
+
+    @Override
+    public TransformationResult transform(final String cda, final String engineId, final String objectId,
+            final DocumentReferenceDTO documentReferenceDTO, final boolean includeRemovalReport,
+            final boolean includePreProcessingBundle) throws FHIRException, IOException {
 
 		try {
-			return new TransformationResult(JsonParserHolder.get().composeString(processed.bundle()), processed.issues());
+			Bundle originalBundle = engineSRV.manager().transform(cda, engineId, objectId);
+            String preProcessingJson = includePreProcessingBundle
+                    ? JsonParserHolder.get().composeString(originalBundle) : null;
+			PostProcessingResult processed = postProcessor.process(originalBundle.copy(), documentReferenceDTO, objectId,
+                    includeRemovalReport);
+			return new TransformationResult(JsonParserHolder.get().composeString(processed.bundle()), processed.issues(),
+                    preProcessingJson);
 		} finally {
 			JsonParserHolder.remove();
 		}

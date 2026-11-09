@@ -57,97 +57,75 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  *
  *
- *	Controller di trasformazione clinical document.
+ * Controller di trasformazione clinical document.
  */
 @RequestMapping(path = DOCUMENTS_MAPPER)
 @Tag(name = "Servizio trasformazione clinical document")
 public interface ITransformerCTL {
-  
-	@PostMapping(API_TRANSFORM_BY_OBJ)
-	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine con validazione opzionale", description = "Generazione bundle tramite FHIR Mapping Engine con esecuzione opzionale delle validazioni specificate.")
-	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
-			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
-			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
-			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-	TransformResDTO convertCDAToBundle(
-			@Parameter(description = "Lista opzionale di tipi di validazione da eseguire sul bundle generato (NORMATIVE_R4, TRAVERSABILITY)", required = false)
-			@RequestParam(name = "validations", required = false) List<ValidationType> validations,
-			@Parameter(description = "Best-effort report of removed resources in Composition.text; removes all OperationOutcome entries only after successful reporting", schema = @Schema(defaultValue = "false"))
-			@RequestParam(name = "includeRemovalReport", defaultValue = "false") boolean includeRemovalReport,
-			@RequestBody FhirResourceDTO fhirResourceDTO,
-			HttpServletRequest request);
 
-    @PostMapping(
-            value = API_TRANSFORM_STATELESS_BY_OBJ,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PostMapping(API_TRANSFORM_BY_OBJ)
+    @Operation(summary = "Generazione bundle tramite FHIR Mapping Engine con validazione opzionale", description = "Generazione bundle tramite FHIR Mapping Engine con esecuzione opzionale delle validazioni specificate.")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+            @ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+    TransformResDTO convertCDAToBundle(
+            @Parameter(description = "Lista opzionale di tipi di validazione da eseguire sul bundle generato (NORMATIVE_R4, TRAVERSABILITY)", required = false) @RequestParam(name = "validations", required = false) List<ValidationType> validations,
+            @Parameter(description = "Best-effort report of removed resources in Composition.text; removes all OperationOutcome entries only after successful reporting", schema = @Schema(defaultValue = "false")) @RequestParam(name = "includeRemovalReport", defaultValue = "false") boolean includeRemovalReport,
+            @RequestBody FhirResourceDTO fhirResourceDTO,
+            HttpServletRequest request);
+
+    @PostMapping(value = API_TRANSFORM_STATELESS_BY_OBJ, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
-	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
-		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
-	})
-	Document convertCDAToBundleStateless(
-            @Parameter(description = "FHIR DocumentReference as JSON", required = false,
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = DocumentReferenceDTO.class)))
-            @RequestPart(name = "documentReference", required = false) DocumentReferenceDTO documentReferenceDTO,
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    Document convertCDAToBundleStateless(
+            @Parameter(description = "FHIR DocumentReference as JSON", required = false, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = DocumentReferenceDTO.class))) @RequestPart(name = "documentReference", required = false) DocumentReferenceDTO documentReferenceDTO,
             @PathVariable(API_ENGINE_ID_VAR) String engineId,
             @PathVariable(API_OBJECT_ID_VAR) String objectId,
             @RequestPart("file") MultipartFile file,
-            @Parameter(description = "Best-effort report of removed resources in Composition.text; removes all OperationOutcome entries only after successful reporting", schema = @Schema(defaultValue = "false"))
-            @RequestParam(name = "includeRemovalReport", defaultValue = "false") boolean includeRemovalReport
-            ) throws IOException;
-    
+            @Parameter(description = "Best-effort report of removed resources in Composition.text; removes all OperationOutcome entries only after successful reporting", schema = @Schema(defaultValue = "false")) @RequestParam(name = "includeRemovalReport", defaultValue = "false") boolean includeRemovalReport)
+            throws IOException;
+
     @PostMapping(API_TRANSFORM_UPDATE)
-	@Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
-	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
-			@ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
-			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
-			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-	TransformResDTO updateDocumentReference(@RequestBody UpdateDocumentReferenceRequestDTO updateResourceDto,HttpServletRequest request);
+    @Operation(summary = "Generazione bundle tramite FHIR Mapping Engine", description = "Generazione bundle tramite FHIR Mapping Engine.")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class)))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trasformazione in bundle", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+            @ApiResponse(responseCode = "201", description = "Presa in carico eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TransformResDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+    TransformResDTO updateDocumentReference(@RequestBody UpdateDocumentReferenceRequestDTO updateResourceDto,
+            HttpServletRequest request);
 
-
-
-    @Operation(
-            summary = "Conversione Bundle DOCUMENT to TRANSACTION",
-            description =
-                    """
-                    Converte un Bundle FHIR di tipo DOCUMENT in un Bundle FHIR di tipo TRANSACTION.
-                    Il body deve contenere un Bundle FHIR valido in formato JSON, con resourceType = "Bundle" e type = "document"
-                    """ )
+    @Operation(summary = "Conversione Bundle DOCUMENT to TRANSACTION", description = """
+            Converte un Bundle FHIR di tipo DOCUMENT in un Bundle FHIR di tipo TRANSACTION.
+            Il body deve contenere un Bundle FHIR valido in formato JSON, con resourceType = "Bundle" e type = "document"
+            """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Conversione eseguita con successo. Ritorna un Bundle FHIR di tipo TRANSACTION.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Errore di validazione o formato non valido del Bundle in input.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Errore interno durante la conversione del Bundle.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @PostMapping(
-            path = "transform/document-to-transaction",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "transform/document-to-transaction", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<TransformResDTO> convertDocumentToTransaction(@RequestBody FhirDocumentDTO fhirResourceDTO,
-                                                          HttpServletRequest request) throws IOException;
+            HttpServletRequest request) throws IOException;
 
-
-
-    @Operation(
-            summary = "Aggiunge DocumentReference a Bundle",
-            description =
-                    """
-                    Aggiunge sezione DocumentReference in bundle json.
-                    """ )
+    @Operation(summary = "Aggiunge DocumentReference a Bundle", description = """
+            Aggiunge sezione DocumentReference in bundle json.
+            """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Conversione eseguita con successo. Ritorna un Bundle FHIR di tipo TRANSACTION.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Errore di validazione o formato non valido del Bundle in input.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Errore interno durante la conversione del Bundle.", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @PostMapping(
-            path = "transform/add-document-reference",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(@RequestBody FhirDocumentDTO fhirDocumentDTO) throws IOException;
+    @PostMapping(path = "transform/add-document-reference", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<TransformResDTO> addDocumentReferenceToBundle(@RequestBody FhirDocumentDTO fhirDocumentDTO)
+            throws IOException;
 
 }

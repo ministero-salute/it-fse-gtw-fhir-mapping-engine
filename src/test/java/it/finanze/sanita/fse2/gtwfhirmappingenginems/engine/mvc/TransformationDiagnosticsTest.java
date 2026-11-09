@@ -51,6 +51,7 @@ class TransformationDiagnosticsTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.normalizationIssues[0].message").value("Resource removed during transformation"))
             .andExpect(jsonPath("$.json.resourceType").value("Bundle"))
+            .andExpect(jsonPath("$.preProcessingBundle").doesNotExist())
             .andExpect(jsonPath("$.errorMessage").doesNotExist())
             .andExpect(jsonPath("$.validationResponse").doesNotExist());
         verify(service).transform("<cda/>", "engine", "map", null, true);
@@ -72,6 +73,39 @@ class TransformationDiagnosticsTest {
             .andExpect(jsonPath("$.validationResponse.results").isEmpty());
         verify(service).transform("<cda/>", "engine", "map", null, false);
         verify(validator).validate(JSON, types);
+    }
+
+    @Test
+    void publicEndpointKeepsItsOriginalValidationFailureBehavior() throws Exception {
+        List<ValidationType> types = List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY);
+        when(service.transform("<cda/>", "engine", "map", null, false))
+            .thenReturn(new TransformationResult(JSON, List.of()));
+        when(validator.validate(JSON, types)).thenThrow(new IllegalStateException("Validation failed"));
+
+        MockMvcBuilders.standaloneSetup(controller).build()
+            .perform(request().param("includePreProcessingBundle", "true")
+                .param("validations", "NORMATIVE_R4", "TRAVERSABILITY"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.preProcessingBundle").doesNotExist())
+            .andExpect(jsonPath("$.json").doesNotExist())
+            .andExpect(jsonPath("$.normalizationIssues").doesNotExist())
+            .andExpect(jsonPath("$.errorMessage").value("Validation failed"));
+        verify(service).transform("<cda/>", "engine", "map", null, false);
+        verify(validator).validate(JSON, types);
+    }
+
+    @Test
+    void publicEndpointDoesNotExposeSnapshotsEvenWhenRequested() throws Exception {
+        when(service.transform("<cda/>", "engine", "map", null, false))
+            .thenReturn(new TransformationResult(JSON, List.of(), JSON));
+
+        MockMvcBuilders.standaloneSetup(controller).build()
+            .perform(request().param("includePreProcessingBundle", "true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.json.resourceType").value("Bundle"))
+            .andExpect(jsonPath("$.preProcessingBundle").doesNotExist());
+        verify(service).transform("<cda/>", "engine", "map", null, false);
+        verifyNoInteractions(validator);
     }
 
     private MockHttpServletRequestBuilder request() {

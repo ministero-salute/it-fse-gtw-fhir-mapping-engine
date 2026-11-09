@@ -177,6 +177,34 @@ jq -n \
 
 ## Bundle post-processing
 
+### Diagnostic snapshots
+
+`POST /v1/documents/transform/diagnostics` accepts a multipart request with a CDA
+`file` part and optional `documentReference` JSON part, with no query parameters:
+
+```bash
+curl http://localhost:9080/v1/documents/transform/diagnostics \
+  -F 'file=@sample.xml;type=application/xml' \
+  -F 'documentReference=@metadata.json;type=application/json'
+```
+
+Omit the `documentReference` part to use sample metadata. The CDA file is decoded
+using its XML encoding (UTF-8 by default).
+
+The mapping is selected from the document-level `templateId/@root` values using
+the latest available engine by `last_sync`, like `it-fse-gtw-validator`. Engine
+and map IDs are not required. If metadata is omitted or null, synthetic metadata
+matching the validator's `SampleDocumentReferenceFactory` is used (including
+placeholder attachment size/hash and document identifiers, **not publication data**).
+Supplied metadata is used as-is, without merging sample defaults.
+
+The response contains only `preProcessingBundle` (raw mapping output) and
+`postProcessingBundle` (after ID/reference normalization, deduplication,
+DocumentReference enrichment and scoring-tag cleanup). Both come from a single
+mapping invocation. Validation and optional removal reporting are not run.
+Metadata enrichment modifies an existing DocumentReference; it does not create one.
+Mapping or post-processing failures return an error rather than partial bundles.
+
 This stage prepares and modifies the mapped Bundle before serialization and
 before any optional checks. It runs on both JSON and multipart transformations,
 regardless of whether `NORMATIVE_R4` or `TRAVERSABILITY` is requested.

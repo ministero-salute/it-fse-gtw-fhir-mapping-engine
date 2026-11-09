@@ -30,6 +30,9 @@ public interface ITransformerSRV {
 
 	TransformationResult transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref, boolean includeRemovalReport) throws FHIRException, IOException;
 
+    TransformationResult transform(String cda, String engineId, String objectId, DocumentReferenceDTO ref,
+            boolean includeRemovalReport, boolean includePreProcessingBundle) throws FHIRException, IOException;
+
 	String mergeDocumentReferenceForUpdate(String oldDocumentReference, DocumentReferenceDTO newDocumentReference);
 
     Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto) throws IOException;

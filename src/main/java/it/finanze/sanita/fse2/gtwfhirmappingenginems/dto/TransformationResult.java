@@ -13,5 +13,10 @@ package it.finanze.sanita.fse2.gtwfhirmappingenginems.dto;
 
 import java.util.List;
 
-/** Internal service result containing the final Bundle JSON and normalization diagnostics. */
-public record TransformationResult(String json, List<ValidationIssueDTO> normalizationIssues) {}
+/** Internal service result containing the final Bundle, normalization diagnostics and an optional raw snapshot. */
+public record TransformationResult(String json, List<ValidationIssueDTO> normalizationIssues,
+        String preProcessingJson) {
+    public TransformationResult(String json, List<ValidationIssueDTO> normalizationIssues) {
+        this(json, normalizationIssues, null);
+    }
+}

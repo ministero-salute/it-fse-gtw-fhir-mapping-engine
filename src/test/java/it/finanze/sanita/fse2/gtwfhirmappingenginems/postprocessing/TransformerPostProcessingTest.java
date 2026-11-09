@@ -11,6 +11,7 @@ import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Organization;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -24,7 +25,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.EngineSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.TransformerSRV;
 
 @ExtendWith(MockitoExtension.class)
-@org.junit.jupiter.api.Tag("ISOLATION_SHARED")
+@Tag("ISOLATION_SHARED")
 class TransformerPostProcessingTest {
     @Mock private EngineSRV engine;
     @Mock private CdaEnginesManager manager;
@@ -58,6 +59,7 @@ class TransformerPostProcessingTest {
         assertEquals("original", organization.getId());
         assertEquals(new JsonParser().composeString(finalBundle), result.json());
         assertSame(issues, result.normalizationIssues());
+        assertNull(result.preProcessingJson());
         verifyNoInteractions(cleaner);
     }
 
@@ -84,6 +86,26 @@ class TransformerPostProcessingTest {
         } finally {
             parsers.remove();
         }
+    }
+
+    @Test
+    void rawSnapshotIsCapturedBeforePostProcessingMutatesItsCopy() throws Exception {
+        Bundle generated = new Bundle();
+        generated.setId("raw");
+        when(engine.manager()).thenReturn(manager);
+        when(manager.transform("cda", "engine", "map")).thenReturn(generated);
+        when(processor.process(any(Bundle.class), isNull(), eq("map"), eq(false))).thenAnswer(invocation -> {
+            Bundle copy = invocation.getArgument(0);
+            copy.setId("processed");
+            return new PostProcessingResult(copy, List.of());
+        });
+
+        var result = service.transform("cda", "engine", "map", null, false, true);
+
+        assertEquals(new JsonParser().composeString(generated), result.preProcessingJson());
+        assertEquals("raw", generated.getId());
+        assertEquals("processed", ((Bundle) new JsonParser().parse(result.json())).getIdElement().getIdPart());
+        verify(manager).transform("cda", "engine", "map");
     }
 
     @Test
