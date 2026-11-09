@@ -193,9 +193,11 @@ using its XML encoding (UTF-8 by default).
 
 The mapping is selected from the document-level `templateId/@root` values using
 the latest available engine by `last_sync`, like `it-fse-gtw-validator`. Engine
-and map IDs are not required. If metadata is omitted or null, synthetic metadata
-matching the validator's `SampleDocumentReferenceFactory` is used (including
-placeholder attachment size/hash and document identifiers, **not publication data**).
+and map IDs are not required. If metadata is omitted or null, diagnostic defaults
+are used: `Ospedale`, `Medicina Generale`, `REF`, `SSN`, and an empty event-code
+list (no default obscuration code). A complete JSON example matching the defaults
+is available for the `documentReference` part in Swagger. Attachment size/hash
+and document/repository identifiers are synthetic test values, **not publication data**.
 Supplied metadata is used as-is, without merging sample defaults.
 
 The response contains only `preProcessingBundle` (raw mapping output) and

@@ -32,17 +32,26 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DocumentReferenceDTO {
 
+	@Schema(description = "Attachment size in bytes; example is a synthetic diagnostic value", example = "1")
 	private Integer size;
-	private String hash;      
+	@Schema(description = "Attachment hash; example is a synthetic diagnostic value", example = "0000000000000000000000000000000000000000")
+	private String hash;
+	@Schema(example = "Ospedale")
 	private String facilityTypeCode;
+	@Schema(example = "[]")
 	private List<String> eventCode;
+	@Schema(example = "Medicina Generale")
 	private String practiceSettingCode;
+	@Schema(example = "REF")
 	private String tipoDocumentoLivAlto;
+	@Schema(description = "Repository OID; example is a synthetic diagnostic identifier", example = "2.16.840.1.113883.2.9.2.0.0")
 	private String repositoryUniqueID;
-    @Schema(example = "yyyyMMddHHmmss")
+    @Schema(description = "Service start time in yyyyMMddHHmmss format", example = "20260101120000")
     private String serviceStartTime;
-    @Schema(example = "yyyyMMddHHmmss")
+    @Schema(description = "Service stop time in yyyyMMddHHmmss format", example = "20260101130000")
 	private String serviceStopTime;
+	@Schema(description = "Document identifier in OID^identifier format; example is synthetic", example = "2.16.840.1.113883.2.9.2.0.0^diagnostic-sample")
 	private String identificativoDoc;
+	@Schema(example = "[\"SSN\"]")
 	private List<AdministrativeReqEnum> administrativeRequestEnum;
 }

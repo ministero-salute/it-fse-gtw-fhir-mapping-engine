@@ -25,7 +25,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.SampleDocumentReferenceFactory;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -52,7 +52,20 @@ public class TransformationDiagnosticsSRV {
 
         var metadata = documentReference != null
                 ? documentReference
-                : SampleDocumentReferenceFactory.create();
+                : DocumentReferenceDTO.builder()
+                        // Synthetic attachment metadata, not the size/hash of a published document.
+                        .size(1)
+                        .hash("0000000000000000000000000000000000000000")
+                        .facilityTypeCode("Ospedale")
+                        .eventCode(List.of())
+                        .practiceSettingCode("Medicina Generale")
+                        .tipoDocumentoLivAlto("REF")
+                        .repositoryUniqueID("2.16.840.1.113883.2.9.2.0.0")
+                        .serviceStartTime("20260101120000")
+                        .serviceStopTime("20260101130000")
+                        .identificativoDoc("2.16.840.1.113883.2.9.2.0.0^diagnostic-sample")
+                        .administrativeRequestEnum(List.of(AdministrativeReqEnum.SSN))
+                        .build();
 
         // Match the default public transformation pipeline; removal reporting is not enabled.
         var result = transformer.transform(cda, latest.getId(), map.getOid().toHexString(),

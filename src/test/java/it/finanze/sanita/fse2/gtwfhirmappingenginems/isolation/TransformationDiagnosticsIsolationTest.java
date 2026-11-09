@@ -37,7 +37,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.En
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.sub.EngineMap;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.TransformationDiagnosticsSRV;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.SampleDocumentReferenceFactory;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
 
 @Tag("ISOLATION")
 @ActiveProfiles("ISOLATION")
@@ -69,7 +69,7 @@ class TransformationDiagnosticsIsolationTest {
     void multipartReturnsBothSnapshotsUsingLatestAvailableEngineAndSampleMetadata() throws Exception {
         when(engines.find()).thenReturn(List.of(engine("old", 1, true, "document"),
                 engine("latest", 2, true, "document"), engine("unavailable", 3, false, "document")));
-        var metadata = SampleDocumentReferenceFactory.create();
+        var metadata = defaultMetadata();
         when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true)).thenReturn(RESULT);
 
         mvc.perform(multipart(PATH).file(file(CDA)))
@@ -95,6 +95,21 @@ class TransformationDiagnosticsIsolationTest {
     }
 
     @Test
+    void octetStreamCdaFileIsAcceptedWithJsonMetadata() throws Exception {
+        when(engines.find()).thenReturn(List.of(engine("latest", 1, true, "document")));
+        var metadata = DocumentReferenceDTO.builder().identificativoDoc("custom").build();
+        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true)).thenReturn(RESULT);
+
+        mvc.perform(multipart(PATH).file(new MockMultipartFile("file", "sample.xml",
+                MediaType.APPLICATION_OCTET_STREAM_VALUE, CDA.getBytes(StandardCharsets.UTF_8)))
+                .file(new MockMultipartFile("documentReference", "metadata.json", MediaType.APPLICATION_JSON_VALUE,
+                        "{\"identificativoDoc\":\"custom\"}".getBytes(StandardCharsets.UTF_8))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postProcessingBundle.id").value("processed"));
+        verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true);
+    }
+
+    @Test
     void multipartRespectsXmlDeclaredEncoding() throws Exception {
         String cda = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + CDA.replace("<component>", "<component>città");
         when(engines.find()).thenReturn(List.of(engine("latest", 1, true, "document")));
@@ -104,7 +119,7 @@ class TransformationDiagnosticsIsolationTest {
         mvc.perform(multipart(PATH).file(new MockMultipartFile("file", "sample.xml",
                 MediaType.APPLICATION_XML_VALUE, cda.getBytes(StandardCharsets.ISO_8859_1))))
                 .andExpect(status().isOk());
-        verify(transformer).transform(cda, "latest", MAP_ID.toHexString(), SampleDocumentReferenceFactory.create(), false, true);
+        verify(transformer).transform(cda, "latest", MAP_ID.toHexString(), defaultMetadata(), false, true);
     }
 
     @Test
@@ -136,6 +151,17 @@ class TransformationDiagnosticsIsolationTest {
     private MockMultipartFile file(String cda) {
         return new MockMultipartFile("file", "sample.xml", MediaType.APPLICATION_XML_VALUE,
                 cda.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private DocumentReferenceDTO defaultMetadata() {
+        return DocumentReferenceDTO.builder()
+                .size(1).hash("0000000000000000000000000000000000000000")
+                .facilityTypeCode("Ospedale").eventCode(List.of())
+                .practiceSettingCode("Medicina Generale").tipoDocumentoLivAlto("REF")
+                .repositoryUniqueID("2.16.840.1.113883.2.9.2.0.0")
+                .serviceStartTime("20260101120000").serviceStopTime("20260101130000")
+                .identificativoDoc("2.16.840.1.113883.2.9.2.0.0^diagnostic-sample")
+                .administrativeRequestEnum(List.of(AdministrativeReqEnum.SSN)).build();
     }
 
     private EngineETY engine(String id, long timestamp, boolean available, String template) {
