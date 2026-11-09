@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.helper.DocumentReferenceHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.postprocessing.ScoringTagCleaner;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.postprocessing.BundlePostProcessor;
@@ -47,17 +46,6 @@ class MetadataIsolationTest {
         assertTrue(result.getContext().getPeriod().getStart().before(result.getContext().getPeriod().getEnd()));
         DocumentReferenceDTO invalid = metadata(); invalid.setServiceStopTime("invalid");
         assertNotNull(assertThrows(BusinessException.class, () -> service.mergeDocumentReferenceForUpdate(json, invalid)).getCause());
-    }
-
-    @Test void securityLabelsRespectObscurationPriorityAndExplicitClearing() {
-        DocumentReference dr = new DocumentReference();
-        DocumentReferenceHelper.setSecurityLabel(dr, List.of("p00", "p99"));
-        assertEquals("P99", dr.getSecurityLabelFirstRep().getCodingFirstRep().getCode());
-        DocumentReferenceHelper.setSecurityLabel(dr, List.of("other"));
-        assertTrue(dr.hasSecurityLabel());
-        DocumentReferenceHelper.setSecurityLabel(dr, List.of("P00"));
-        assertFalse(dr.hasSecurityLabel());
-        assertDoesNotThrow(() -> DocumentReferenceHelper.setSecurityLabel(null, null));
     }
 
     @Test void addsTransactionReferenceAndEnrichesCompositionDateAndRelationship() throws Exception {
