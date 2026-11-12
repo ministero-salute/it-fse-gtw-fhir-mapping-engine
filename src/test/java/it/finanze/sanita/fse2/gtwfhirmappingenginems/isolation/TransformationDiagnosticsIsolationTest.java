@@ -31,11 +31,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.impl.InternalTransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformationResult;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationResultDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ValidationIssueDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.sub.EngineMap;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.impl.TransformationDiagnosticsSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
 
@@ -58,6 +63,7 @@ class TransformationDiagnosticsIsolationTest {
     @Autowired private TransformationDiagnosticsSRV service;
     @MockitoBean private IEngineRepo engines;
     @MockitoBean private ITransformerSRV transformer;
+    @MockitoBean private IValidateSRV validator;
     private MockMvc mvc;
 
     @BeforeEach
@@ -66,19 +72,49 @@ class TransformationDiagnosticsIsolationTest {
     }
 
     @Test
-    void multipartReturnsBothSnapshotsUsingLatestAvailableEngineAndSampleMetadata() throws Exception {
+    void multipartReturnsBothSnapshotsAndValidatesFinalBundleUsingLatestEngine() throws Exception {
         when(engines.find()).thenReturn(List.of(engine("old", 1, true, "document"),
                 engine("latest", 2, true, "document"), engine("unavailable", 3, false, "document")));
         var metadata = defaultMetadata();
         when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true)).thenReturn(RESULT);
+        when(validator.validate(RESULT.json(), List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY)))
+                .thenReturn(new FhirValidationDTO(List.of(
+                        new ValidationResultDTO(ValidationType.NORMATIVE_R4, List.of()),
+                        new ValidationResultDTO(ValidationType.TRAVERSABILITY, List.of()))));
 
         mvc.perform(multipart(PATH).file(file(CDA)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.preProcessingBundle.id").value("raw"))
                 .andExpect(jsonPath("$.postProcessingBundle.id").value("processed"))
                 .andExpect(jsonPath("$.json").doesNotExist())
-                .andExpect(jsonPath("$.validationResponse").doesNotExist());
+                .andExpect(jsonPath("$.validationResponse.valid").value(true))
+                .andExpect(jsonPath("$.validationResponse.results[0].type").value("NORMATIVE_R4"))
+                .andExpect(jsonPath("$.validationResponse.results[1].type").value("TRAVERSABILITY"))
+                .andExpect(jsonPath("$.validationResponse.results[1].issues").isEmpty());
         verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true);
+        verify(validator).validate(RESULT.json(), List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
+    }
+
+    @Test
+    void invalidBundleStillReturnsBothSnapshotsAndValidationFindings() throws Exception {
+        when(engines.find()).thenReturn(List.of(engine("latest", 1, true, "document")));
+        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), defaultMetadata(), false, true))
+                .thenReturn(RESULT);
+        when(validator.validate(RESULT.json(), List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY)))
+                .thenReturn(new FhirValidationDTO(List.of(
+                        new ValidationResultDTO(ValidationType.NORMATIVE_R4, List.of()),
+                        new ValidationResultDTO(ValidationType.TRAVERSABILITY, List.of(new ValidationIssueDTO(
+                                "ERROR", "NOTFOUND", List.of("Organization/orphan"), "Resource is not reachable"))))));
+
+        mvc.perform(multipart(PATH).file(file(CDA)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.preProcessingBundle.id").value("raw"))
+                .andExpect(jsonPath("$.postProcessingBundle.id").value("processed"))
+                .andExpect(jsonPath("$.validationResponse.valid").value(false))
+                .andExpect(jsonPath("$.validationResponse.results[0].valid").value(true))
+                .andExpect(jsonPath("$.validationResponse.results[1].valid").value(false))
+                .andExpect(jsonPath("$.validationResponse.results[1].issues[0].paths[0]").value("Organization/orphan"))
+                .andExpect(jsonPath("$.validationResponse.results[1].issues[0].message").value("Resource is not reachable"));
     }
 
     @Test
@@ -125,7 +161,7 @@ class TransformationDiagnosticsIsolationTest {
     @Test
     void missingFileIsRejected() throws Exception {
         mvc.perform(multipart(PATH)).andExpect(status().isBadRequest());
-        verifyNoInteractions(engines, transformer);
+        verifyNoInteractions(engines, transformer, validator);
     }
 
     @Test
@@ -135,7 +171,7 @@ class TransformationDiagnosticsIsolationTest {
 
         var error = assertThrows(BusinessException.class, () -> service.transform(CDA, null));
         assertEquals("No mapping for the CDA document templates in the latest available engine", error.getMessage());
-        verifyNoInteractions(transformer);
+        verifyNoInteractions(transformer, validator);
     }
 
     @Test
@@ -145,7 +181,7 @@ class TransformationDiagnosticsIsolationTest {
                 assertThrows(BusinessException.class, () -> service.transform(CDA, null)).getMessage());
         assertEquals("Cannot read CDA template IDs for mapping selection",
                 assertThrows(BusinessException.class, () -> service.transform("not XML", null)).getMessage());
-        verifyNoInteractions(transformer);
+        verifyNoInteractions(transformer, validator);
     }
 
     private MockMultipartFile file(String cda) {

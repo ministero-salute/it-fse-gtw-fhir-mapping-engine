@@ -102,6 +102,33 @@ class BundleProcessingIsolationTest {
 
     @ParameterizedTest
     @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
+    void realPipelinePrefersReferencesBeforeCleaningScoringTags(boolean removalReport) {
+        FhirTransformCFG configuration = new FhirTransformCFG();
+        configuration.setAlgToRemoveDuplicate(TransformALGEnum.KEEP_PRIOR);
+        BundlePostProcessor processor = new BundlePostProcessor(new IdReferenceNormalizer(),
+                new ResourceDeduplicator(), new DocumentReferenceEnricher(), new ScoringTagCleaner(),
+                new ResourceRemovalNarrativeNormalizer(), configuration);
+        Organization high = new Organization();
+        high.setId("duplicate");
+        high.getMeta().addTag("http://algoritmodiscoring", "ClinicalDocument/legalAuthenticator", null);
+        Organization referenced = new Organization();
+        referenced.setId("duplicate");
+        referenced.getMeta().addTag("http://algoritmodiscoring", "ClinicalDocument/authenticator", null);
+        referenced.setPartOf(new Reference("Organization/parent"));
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(high);
+        bundle.addEntry().setResource(referenced);
+
+        var result = processor.process(bundle, null, "map", removalReport);
+
+        assertSame(referenced, result.bundle().getEntryFirstRep().getResource());
+        assertEquals(1, result.bundle().getEntry().size());
+        assertEquals("Organization/parent", referenced.getPartOf().getReference());
+        assertTrue(referenced.getMeta().getTag().isEmpty());
+    }
+
+    @ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
     void realPipelineUsesPriorityBeforeCleaningScoringTags(boolean removalReport) {
         FhirTransformCFG configuration = new FhirTransformCFG();
         configuration.setAlgToRemoveDuplicate(TransformALGEnum.KEEP_PRIOR);
