@@ -25,7 +25,9 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.IEngineRepo;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.AdministrativeReqEnum;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -36,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class TransformationDiagnosticsSRV {
     private final IEngineRepo engines;
     private final ITransformerSRV transformer;
+    private final IValidateSRV validator;
 
     public DiagnosticTransformResDTO transform(String cda, DocumentReferenceDTO documentReference) throws IOException {
         // Document-level template IDs identify the StructureMap, just as in the validator.
@@ -70,7 +73,12 @@ public class TransformationDiagnosticsSRV {
         // Match the default public transformation pipeline; removal reporting is not enabled.
         var result = transformer.transform(cda, latest.getId(), map.getOid().toHexString(),
                 metadata, false, true);
-        return new DiagnosticTransformResDTO(Document.parse(result.preProcessingJson()), Document.parse(result.json()));
+
+        var validation = validator.validate(result.json(),
+                List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
+
+        return new DiagnosticTransformResDTO(Document.parse(result.preProcessingJson()),
+                Document.parse(result.json()), validation);
     }
 
     private List<EngineETY> availableEngines() {
