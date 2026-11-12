@@ -50,6 +50,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TransformerSRV implements ITransformerSRV {
 
+	private static class FhirContextHolder {
+		// Keep HAPI defaults: the Spring bean has different reference/fullUrl options.
+		// Share only the thread-safe context; create a parser for each invocation.
+		private static final FhirContext CONTEXT = FhirContext.forR4();
+	}
+
 	@Autowired
 	private BundlePostProcessor postProcessor;
 
@@ -101,8 +107,7 @@ public class TransformerSRV implements ITransformerSRV {
 
 	@Override
 	public String mergeDocumentReferenceForUpdate(String oldDocumentReference, DocumentReferenceDTO newDocumentReference) {
-		FhirContext fhirContext = FhirContext.forR4();
-		IParser jsonParser = fhirContext.newJsonParser();
+		IParser jsonParser = FhirContextHolder.CONTEXT.newJsonParser();
 
 		DocumentReference documentReference = jsonParser.parseResource(DocumentReference.class, oldDocumentReference);
 		documentReference.getCategory().clear();
@@ -272,8 +277,7 @@ public class TransformerSRV implements ITransformerSRV {
 
     @Override
     public Document addDocumentReferenceToBundle(String bundleJson, DocumentReferenceDTO dto) throws IOException {
-        FhirContext ctx = FhirContext.forR4();
-        IParser jsonParser = ctx.newJsonParser();
+        IParser jsonParser = FhirContextHolder.CONTEXT.newJsonParser();
         Bundle bundle = jsonParser.parseResource(Bundle.class, bundleJson);
 
 		//  Crea/aggiorna DocumentReference con metadati business
