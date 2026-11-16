@@ -18,7 +18,10 @@
 package it.finanze.sanita.fse2.gtwfhirmappingenginems.service;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.engines.CdaEnginesManager;
+import org.apache.commons.lang3.tuple.Pair;
+import java.util.List;
 
 public interface IEngineSRV {
     CdaEnginesManager manager();
+    Pair<String, String> getStructureObjectID(final List<String> templateIds);
 }

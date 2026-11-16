@@ -26,22 +26,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.cda.CDAHelper;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.controller.ITransformerCTL;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirValidationDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.ExtractedInfoDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirDocumentDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceDTO;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.FhirResourceNoEngineDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformResDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.TransformationResult;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.UpdateDocumentReferenceRequestDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.ValidationType;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IEngineSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ExceptionMessageUtility;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 
 
 /**
@@ -57,6 +62,8 @@ public class TransformerCTL implements ITransformerCTL {
     private IConverterSRV converterService;
     @Autowired
     private IValidateSRV validateService;
+	@Autowired 
+	private IEngineSRV engineSRV;
 
 	@Override
 	public TransformResDTO convertCDAToBundle(List<ValidationType> validations, boolean includeRemovalReport,
@@ -161,5 +168,36 @@ public class TransformerCTL implements ITransformerCTL {
         log.debug("DocumentReference addition to Bundle completed successfully");
         return ResponseEntity.ok(response);
     }
+
+	@Override
+	public TransformResDTO convertCDAToBundleWithoutEngine(FhirResourceNoEngineDTO dto,
+			HttpServletRequest request) {
+
+		log.debug("Invoked transform controller");
+		TransformResDTO out = new TransformResDTO();
+		if(dto.getCda()!=null){
+			try {
+				String cdaString = new String(dto.getCda().getBytes(),StandardCharsets.UTF_8);
+				// Extraction of engineId and transformId
+				ExtractedInfoDTO infoDTO = CDAHelper.extractInfo(dto.getCda(), request.getHeader(SYSTEM_TYPE_HEADER));
+				Pair<String, String> p = Pair.of("", "");
+				p = engineSRV.getStructureObjectID(infoDTO.getTemplateIdSchematron());
+				String engineId = p.getKey();
+				String transformId = p.getValue();
+				
+				TransformationResult transformed = service.transform(cdaString, engineId, transformId, dto.getDocumentReferenceDTO(), false);
+				Document doc = Document.parse(transformed.json());
+				out.setJson(doc);
+			} catch(Throwable tr) {
+				log.error("Sono nel catch del convert cda to bundle",tr);
+				out.setErrorMessage(tr.getMessage());
+			}
+		} else {
+			log.error("Il cda in input è vuoto");
+		}
+		log.debug("Conversion of CDA completed");
+		return out;
+		
+	}
 
 }

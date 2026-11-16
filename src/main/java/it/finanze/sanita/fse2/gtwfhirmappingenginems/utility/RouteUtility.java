@@ -26,12 +26,14 @@ public final class RouteUtility {
     public static final String API_DOCUMENTS = "documents";
     public static final String API_TRANSFORM = "transform";
     public static final String API_STATELESS = "stateless";
+    public static final String API_TRANSFORM_NO_ENGINE = "transform-no-engine";
 
     public static final String API_FILE_VAR = "file";
     public static final String API_ENGINE_ID_VAR = "engineId";
     public static final String API_ENGINE_ID_PATH_VAR = "{" + API_ENGINE_ID_VAR + "}" ;
     public static final String API_OBJECT_ID_VAR = "objectId";
     public static final String API_OBJECT_ID_PATH_VAR = "{" + API_OBJECT_ID_VAR + "}" ;
+    public static final String API_TRANSFORM_BY_OBJ_NO_ENGINE = "/" + API_TRANSFORM_NO_ENGINE;
 
     public static final String DOCUMENTS_MAPPER = "/" + API_VERSION + "/" + API_DOCUMENTS;
 

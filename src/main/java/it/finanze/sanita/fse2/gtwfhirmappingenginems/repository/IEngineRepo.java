@@ -28,4 +28,5 @@ public interface IEngineRepo {
     EngineETY findById(String id) throws OperationException;
     boolean enable(String id) throws OperationException;
     int cleanup(Date at) throws OperationException;
+    EngineETY getLatestEngine();
 }
