@@ -39,6 +39,14 @@ class TransformerControllerIsolationTest {
         verifyNoInteractions(validator);
     }
 
+    @Test void transformationFailureWithoutMessageStillReturnsDiagnostic() throws Exception {
+        FhirResourceDTO dto = new FhirResourceDTO(null, null, null, null); dto.setCda("xml");
+        when(service.transform("xml", null, null, null, false)).thenThrow(new IllegalArgumentException());
+        assertTrue(controller.convertCDAToBundle(null, false, dto, null).getErrorMessage()
+                .contains("java.lang.IllegalArgumentException (no diagnostic message available)"));
+        verifyNoInteractions(validator);
+    }
+
     @Test void multipartDecodesDeclaredCharset() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><ClinicalDocument>città</ClinicalDocument>";
         var file = new MockMultipartFile("file", xml.getBytes(StandardCharsets.ISO_8859_1));

@@ -21,6 +21,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.base.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.base.ErrorResponseDTO;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineInitException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.engine.EngineSchedulerException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ExceptionMessageUtility;
 
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.ErrorInstance.Server.INTERNAL;
 import static it.finanze.sanita.fse2.gtwfhirmappingenginems.dto.error.ErrorInstance.Server.UNAVAILABLE;
@@ -42,7 +43,7 @@ public final class ErrorBuilderDTO {
             trace,
             ErrorType.SERVER.getType(),
             ErrorType.SERVER.getTitle(),
-            ex.getMessage(),
+            ExceptionMessageUtility.describe(ex),
             SC_INTERNAL_SERVER_ERROR,
             ErrorType.SERVER.toInstance(INTERNAL)
         );

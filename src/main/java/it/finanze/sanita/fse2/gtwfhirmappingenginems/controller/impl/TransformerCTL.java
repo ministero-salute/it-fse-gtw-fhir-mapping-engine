@@ -39,6 +39,7 @@ import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IConverterSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.ITransformerSRV;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.service.IValidateSRV;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.utility.ExceptionMessageUtility;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -86,7 +87,7 @@ public class TransformerCTL implements ITransformerCTL {
 				log.debug("CDA-to-Bundle conversion from JSON request completed successfully");
 			} catch (Throwable tr) {
 				log.error("CDA-to-Bundle conversion from JSON request failed", tr);
-				out.setErrorMessage(tr.getMessage());
+				out.setErrorMessage(ExceptionMessageUtility.describe(tr));
 			}
 		} else {
 			log.error("Cannot convert CDA to Bundle: request body or CDA content is missing");
