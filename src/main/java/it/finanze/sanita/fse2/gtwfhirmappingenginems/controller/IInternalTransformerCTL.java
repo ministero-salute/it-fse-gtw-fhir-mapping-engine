@@ -30,7 +30,7 @@ public interface IInternalTransformerCTL {
 
     @PostMapping(value = API_TRANSFORM_BY_OBJ
             + "/diagnostics", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(description = "Returns pre/post-processing Bundles and FHIR R4 and traversability validation results for the post-processing Bundle. Validation findings do not suppress the Bundle snapshots.",
+    @Operation(description = "Returns pre/post-processing Bundles and FHIR R4 and traversability validation results for the post-processing Bundle. Resource removal narrative reporting is always enabled; OperationOutcome entries are removed after successful reporting. Validation findings do not suppress the Bundle snapshots.",
             requestBody = @RequestBody(
             content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
                     encoding = {

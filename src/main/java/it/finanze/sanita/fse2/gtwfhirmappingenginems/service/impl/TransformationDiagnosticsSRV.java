@@ -70,9 +70,9 @@ public class TransformationDiagnosticsSRV {
                         .administrativeRequestEnum(List.of(AdministrativeReqEnum.SSN))
                         .build();
 
-        // Match the default public transformation pipeline; removal reporting is not enabled.
+        // Diagnostics always include removal reporting before validating the final Bundle.
         var result = transformer.transform(cda, latest.getId(), map.getOid().toHexString(),
-                metadata, false, true);
+                metadata, true, true);
 
         var validation = validator.validate(result.json(),
                 List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));

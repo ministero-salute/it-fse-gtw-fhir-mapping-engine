@@ -72,11 +72,11 @@ class TransformationDiagnosticsIsolationTest {
     }
 
     @Test
-    void multipartReturnsBothSnapshotsAndValidatesFinalBundleUsingLatestEngine() throws Exception {
+    void multipartAlwaysEnablesRemovalReportAndValidatesFinalBundleUsingLatestEngine() throws Exception {
         when(engines.find()).thenReturn(List.of(engine("old", 1, true, "document"),
                 engine("latest", 2, true, "document"), engine("unavailable", 3, false, "document")));
         var metadata = defaultMetadata();
-        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true)).thenReturn(RESULT);
+        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, true, true)).thenReturn(RESULT);
         when(validator.validate(RESULT.json(), List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY)))
                 .thenReturn(new FhirValidationDTO(List.of(
                         new ValidationResultDTO(ValidationType.NORMATIVE_R4, List.of()),
@@ -91,14 +91,14 @@ class TransformationDiagnosticsIsolationTest {
                 .andExpect(jsonPath("$.validationResponse.results[0].type").value("NORMATIVE_R4"))
                 .andExpect(jsonPath("$.validationResponse.results[1].type").value("TRAVERSABILITY"))
                 .andExpect(jsonPath("$.validationResponse.results[1].issues").isEmpty());
-        verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true);
+        verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, true, true);
         verify(validator).validate(RESULT.json(), List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY));
     }
 
     @Test
     void invalidBundleStillReturnsBothSnapshotsAndValidationFindings() throws Exception {
         when(engines.find()).thenReturn(List.of(engine("latest", 1, true, "document")));
-        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), defaultMetadata(), false, true))
+        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), defaultMetadata(), true, true))
                 .thenReturn(RESULT);
         when(validator.validate(RESULT.json(), List.of(ValidationType.NORMATIVE_R4, ValidationType.TRAVERSABILITY)))
                 .thenReturn(new FhirValidationDTO(List.of(
@@ -121,20 +121,20 @@ class TransformationDiagnosticsIsolationTest {
     void optionalJsonMetadataIsUsedWithoutMergingSampleDefaults() throws Exception {
         when(engines.find()).thenReturn(List.of(engine("latest", 1, true, "document")));
         var metadata = DocumentReferenceDTO.builder().identificativoDoc("custom").build();
-        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true)).thenReturn(RESULT);
+        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, true, true)).thenReturn(RESULT);
 
         mvc.perform(multipart(PATH).file(file(CDA)).file(new MockMultipartFile(
                 "documentReference", "metadata.json", MediaType.APPLICATION_JSON_VALUE,
                 "{\"identificativoDoc\":\"custom\"}".getBytes(StandardCharsets.UTF_8))))
                 .andExpect(status().isOk());
-        verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true);
+        verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, true, true);
     }
 
     @Test
     void octetStreamCdaFileIsAcceptedWithJsonMetadata() throws Exception {
         when(engines.find()).thenReturn(List.of(engine("latest", 1, true, "document")));
         var metadata = DocumentReferenceDTO.builder().identificativoDoc("custom").build();
-        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true)).thenReturn(RESULT);
+        when(transformer.transform(CDA, "latest", MAP_ID.toHexString(), metadata, true, true)).thenReturn(RESULT);
 
         mvc.perform(multipart(PATH).file(new MockMultipartFile("file", "sample.xml",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE, CDA.getBytes(StandardCharsets.UTF_8)))
@@ -142,20 +142,20 @@ class TransformationDiagnosticsIsolationTest {
                         "{\"identificativoDoc\":\"custom\"}".getBytes(StandardCharsets.UTF_8))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.postProcessingBundle.id").value("processed"));
-        verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, false, true);
+        verify(transformer).transform(CDA, "latest", MAP_ID.toHexString(), metadata, true, true);
     }
 
     @Test
     void multipartRespectsXmlDeclaredEncoding() throws Exception {
         String cda = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + CDA.replace("<component>", "<component>città");
         when(engines.find()).thenReturn(List.of(engine("latest", 1, true, "document")));
-        when(transformer.transform(eq(cda), eq("latest"), eq(MAP_ID.toHexString()), any(), eq(false), eq(true)))
+        when(transformer.transform(eq(cda), eq("latest"), eq(MAP_ID.toHexString()), any(), eq(true), eq(true)))
                 .thenReturn(RESULT);
 
         mvc.perform(multipart(PATH).file(new MockMultipartFile("file", "sample.xml",
                 MediaType.APPLICATION_XML_VALUE, cda.getBytes(StandardCharsets.ISO_8859_1))))
                 .andExpect(status().isOk());
-        verify(transformer).transform(cda, "latest", MAP_ID.toHexString(), defaultMetadata(), false, true);
+        verify(transformer).transform(cda, "latest", MAP_ID.toHexString(), defaultMetadata(), true, true);
     }
 
     @Test
