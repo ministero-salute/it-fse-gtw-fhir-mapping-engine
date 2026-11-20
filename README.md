@@ -269,6 +269,21 @@ except `KEEP_RICHER_DOWN`, which prefers the last. No entries are removed if any
 group fails. Incoming references, graph-wide selection and reference merging are
 outside this algorithm; FHIR validation and traversability remain separate checks.
 
+Conflicting outgoing references abort transformation without returning a partial
+Bundle. The diagnostic identifies the resource type/ID and the compared reference
+fields and targets. The JSON endpoint preserves its existing HTTP **200** response
+with `errorMessage`: the unchanged dispatcher translates this into HTTP **400**
+with its FHIR mapping-error category during publication. When transformation is
+requested during validation, the validator returns the existing blocking
+`FHIR_VALIDATION_ERROR` outcome (code `07`) with the same diagnostic; dispatcher
+returns HTTP **400** using its FHIR validation-error category. No dispatcher update
+or new outcome value is required.
+
+Conflicts use Spring's `ResponseStatusException` with `BAD_REQUEST`, without custom
+exceptions or handlers. The multipart endpoint returns HTTP **400** with Spring's
+`application/problem+json` response and the diagnostic in `detail`. The JSON
+endpoint still captures the failure in `errorMessage` for dispatcher compatibility.
+
 ### Resource removal report — Risorse soppresse
 
 Resource removal reporting is transformation post-processing, not an optional

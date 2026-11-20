@@ -32,12 +32,13 @@ import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
 import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.WeightFhirResEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 
 /**
  * Retains one entry per resource type and ID according to the configured strategy.
@@ -108,8 +109,14 @@ public class ResourceDeduplicator {
 
             // If the largest set, it's not a superset, the resources cannot be deduplicated.
             if (!largestSet.containsAll(references)) {
-                throw new BusinessException("Conflicting outgoing references for "
-                        + resource.fhirType() + " with ID " + resource.getId());
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Cannot transform document: conflicting outgoing references for "
+                        + resource.fhirType() + " with ID " + resource.getId()
+                        + ". No duplicate resource preserves all relationships. Compared references: "
+                        + referenceSets.values().stream()
+                                .map(set -> set.stream().map(ref -> ref.path() + " -> " + ref.target())
+                                        .sorted().toList().toString())
+                                .toList());
             }
 
             if (largestSet.equals(references)) {

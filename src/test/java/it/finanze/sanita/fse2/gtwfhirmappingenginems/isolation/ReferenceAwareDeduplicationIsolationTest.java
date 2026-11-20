@@ -20,7 +20,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.enums.TransformALGEnum;
-import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.postprocessing.ResourceDeduplicator;
 
 @Tag("ISOLATION")
@@ -85,9 +86,10 @@ class ReferenceAwareDeduplicationIsolationTest {
                 organization("ClinicalDocument/legalAuthenticator"), second);
         var entries = List.copyOf(bundle.getEntry());
 
-        BusinessException exception = assertThrows(BusinessException.class,
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> deduplicator.deduplicate(bundle, strategy));
 
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertTrue(exception.getMessage().contains("Organization"));
         assertTrue(exception.getMessage().contains("duplicate"));
         assertEquals(entries, bundle.getEntry());
@@ -148,7 +150,7 @@ class ReferenceAwareDeduplicationIsolationTest {
         Bundle bundle = bundle(larger, smaller);
         var entries = List.copyOf(bundle.getEntry());
 
-        assertThrows(BusinessException.class,
+        assertThrows(ResponseStatusException.class,
                 () -> deduplicator.deduplicate(bundle, TransformALGEnum.KEEP_PRIOR));
         assertEquals(entries, bundle.getEntry());
     }
@@ -162,7 +164,7 @@ class ReferenceAwareDeduplicationIsolationTest {
         second.setId("duplicate");
         second.setManagingOrganization(new Reference("urn:uuid:target"));
 
-        assertThrows(BusinessException.class, () -> deduplicator.deduplicate(
+        assertThrows(ResponseStatusException.class, () -> deduplicator.deduplicate(
                 bundle(first, second), TransformALGEnum.KEEP_PRIOR));
     }
 
@@ -222,7 +224,7 @@ class ReferenceAwareDeduplicationIsolationTest {
         deduplicator.deduplicate(bundle, TransformALGEnum.KEEP_PRIOR);
 
         assertSame(first, bundle.getEntryFirstRep().getResource());
-        assertThrows(BusinessException.class, () -> deduplicator.deduplicate(
+        assertThrows(ResponseStatusException.class, () -> deduplicator.deduplicate(
                 bundle(empty, first, second), TransformALGEnum.KEEP_PRIOR));
         Bundle identical = bundle(empty, first, first.copy());
         deduplicator.deduplicate(identical, TransformALGEnum.KEEP_PRIOR);
