@@ -18,7 +18,11 @@ public final class ExceptionMessageUtility {
             }
         }
 
-        return "CDA-to-FHIR processing failed: " + failure.getClass().getName()
-                + " (no diagnostic message available).";
+        String className = "";
+        if (failure != null) {
+            className = failure.getClass().getName();
+        }
+
+        return "CDA-to-FHIR processing failed: " + className + " (no diagnostic message available).";
     }
 }

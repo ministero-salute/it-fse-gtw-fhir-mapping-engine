@@ -21,6 +21,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,6 +30,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.OperationException;
+import it.finanze.sanita.fse2.gtwfhirmappingenginems.exception.BusinessException;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.TransformETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.entity.engine.EngineETY;
 import it.finanze.sanita.fse2.gtwfhirmappingenginems.repository.impl.EngineRepo;
@@ -56,6 +59,38 @@ class RepositoriesIsolationTest {
     @Test
     void missingEngineReturnsNull() throws Exception {
         assertNull(engines.findById("missing"));
+    }
+
+    @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    void latestEngineQuerySelectsOnlyTheNewestAvailableEngine() {
+        EngineETY latest = new EngineETY();
+        when(mongo.aggregate(any(TypedAggregation.class), eq(EngineETY.class)))
+                .thenReturn(new AggregationResults<>(List.of(latest), new Document()));
+
+        assertSame(latest, engines.getLatestEngine());
+
+        ArgumentCaptor<TypedAggregation> query = ArgumentCaptor.forClass(TypedAggregation.class);
+        verify(mongo).aggregate(query.capture(), eq(EngineETY.class));
+        assertEquals(List.of(
+                new Document("$sort", new Document(FIELD_LAST_SYNC, -1)),
+                new Document("$match", new Document(FIELD_AVAILABLE, true)),
+                new Document("$limit", 1L)), query.getValue().toPipeline(
+                        org.springframework.data.mongodb.core.aggregation.Aggregation.DEFAULT_CONTEXT));
+    }
+
+    @Test
+    void missingLatestEngineReturnsNull() {
+        when(mongo.aggregate(any(TypedAggregation.class), eq(EngineETY.class)))
+                .thenReturn(new AggregationResults<>(List.of(), new Document()));
+        assertNull(engines.getLatestEngine());
+    }
+
+    @Test
+    void latestEngineQueryFailurePreservesCause() {
+        MongoException failure = new MongoException("offline");
+        when(mongo.aggregate(any(TypedAggregation.class), eq(EngineETY.class))).thenThrow(failure);
+        assertSame(failure, assertThrows(BusinessException.class, engines::getLatestEngine).getCause());
     }
 
     @ParameterizedTest
